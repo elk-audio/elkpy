@@ -27,7 +27,7 @@ class SushiController(object):
 
     # rpc GetPlayingMode (GenericVoidValue) returns (PlayingMode) {}
     def get_playing_mode(self):
-        try:
+        try: 
             response = self._stub.GetPlayingMode(sushi_rpc_pb2.GenericVoidValue())
             return response.mode
 
@@ -36,8 +36,10 @@ class SushiController(object):
             return -1
 
     # rpc SetPlayingMode (PlayingMode) returns (GenericVoidValue) {}
+    # TODO: PlayingMode RECORDING=3 not working properly
     def set_playing_mode(self, playing_mode):
         try:
+            print("set_playing_mode input: %d" %int(playing_mode))
             self._stub.SetPlayingMode(sushi_rpc_pb2.PlayingMode(
                 mode = int(playing_mode)))
         
