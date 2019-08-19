@@ -47,7 +47,13 @@ class SushiController(object):
             grpc_error_handling(e)
             
     # rpc GetSyncMode (GenericVoidValue) returns (SyncMode) {}
+    def get_sync_mode(self):
+        return -1
+
     # rpc SetSyncMode (SyncMode) returns (GenericVoidValue) {}
+    def set_sync_mode(self, sync_mode):
+        return
+
     # rpc GetTempo (GenericVoidValue) returns (GenericFloatValue) {}
     # rpc SetTempo (GenericFloatValue) returns (GenericVoidValue) {}
     # rpc GetTimeSignature (GenericVoidValue) returns (TimeSignature) {}
@@ -106,3 +112,9 @@ class SushiController(object):
         STOPPED = 1
         PLAYING = 2
         RECORDING = 3
+
+    class SyncMode(IntEnum):
+        DUMMY = 0
+        INTERNAL = 1
+        MIDI = 2
+        LINK = 3

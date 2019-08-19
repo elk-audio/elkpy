@@ -55,9 +55,44 @@ class TestSushiController(unittest.TestCase):
         time.sleep(wait_time)
         self.assertNotEqual(self._sc.get_playing_mode(),-1)
         time.sleep(wait_time)
+
         self._sc.set_playing_mode(4)
         time.sleep(wait_time)
         self.assertNotEqual(self._sc.get_playing_mode(),4)
+        time.sleep(wait_time)
+
+    def test_get_sync_mode(self):
+        self.assertEqual(self._sc.get_sync_mode(),1)
+
+    def test_set_sync_mode(self):
+        wait_time = 0.1
+
+        for i in range(0,4):
+            self._sc.set_sync_mode(i)
+            time.sleep(wait_time)
+            self.assertEqual(self._sc.get_sync_mode(), i)
+            time.sleep(wait_time)
+
+        self._sc.set_sync_mode(self._sc.SyncMode.DUMMY)
+        time.sleep(wait_time)
+        self.assertEqual(self._sc.get_sync_mode(), int(self._sc.SyncMode.DUMMY))
+        time.sleep(wait_time)
+        self._sc.set_sync_mode(self._sc.SyncMode.INTERNAL)
+        time.sleep(wait_time)
+        self.assertEqual(self._sc.get_sync_mode(), int(self._sc.SyncMode.INTERNAL))
+        time.sleep(wait_time)
+        self._sc.set_sync_mode(self._sc.SyncMode.MIDI)
+        time.sleep(wait_time)
+        self.assertEqual(self._sc.get_sync_mode(), int(self._sc.SyncMode.MIDI))
+        time.sleep(wait_time)
+        self._sc.set_sync_mode(self._sc.SyncMode.LINK)
+        time.sleep(wait_time)
+        self.assertEqual(self._sc.get_sync_mode(), int(self._sc.SyncMode.LINK))
+        time.sleep(wait_time)
+
+        self._sc.set_sync_mode(1)
+        time.sleep(wait_time)
+        self.assertEqual(self._sc.get_sync_mode(), 1)
         time.sleep(wait_time)
 
 
