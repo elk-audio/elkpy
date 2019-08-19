@@ -56,8 +56,14 @@ class SushiController(object):
             return -1
 
     # rpc SetSyncMode (SyncMode) returns (GenericVoidValue) {}
+    # TODO: LINK=3 mode doesn't seem to work
     def set_sync_mode(self, sync_mode):
-        return
+        try:
+            self._stub.SetSyncMode(sushi_rpc_pb2.SyncMode(
+                mode = int(sync_mode)))
+        
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
 
     # rpc GetTempo (GenericVoidValue) returns (GenericFloatValue) {}
     # rpc SetTempo (GenericFloatValue) returns (GenericVoidValue) {}
