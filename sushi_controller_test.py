@@ -49,7 +49,17 @@ class TestSushiController(unittest.TestCase):
 
 
     def test_set_playing_mode_false(self):
-        return
+        wait_time = 0.1
+
+        self._sc.set_playing_mode(-1)
+        time.sleep(wait_time)
+        self.assertNotEqual(self._sc.get_playing_mode(),-1)
+        time.sleep(wait_time)
+        self._sc.set_playing_mode(4)
+        time.sleep(wait_time)
+        self.assertNotEqual(self._sc.get_playing_mode(),4)
+        time.sleep(wait_time)
+
 
 
 if __name__ == '__main__':
