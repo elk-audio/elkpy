@@ -114,6 +114,28 @@ class TestSushiController(unittest.TestCase):
         self.assertEqual(self._sc.get_tempo(), 120)
         time.sleep(wait_time)
 
+    def test_get_time_signature(self):
+        self.assertEqual(self._sc.get_time_signature(), (4,4))
+
+    def test_set_time_signature(self):
+        wait_time = 0.1
+
+        for i in range (1,12):
+            self._sc.set_time_signature(i,4)
+            time.sleep(wait_time)
+            self.assertEqual(self._sc.get_time_signature(),(i,4))
+            time.sleep(wait_time)
+
+            self._sc.set_time_signature(i,8)
+            time.sleep(wait_time)
+            self.assertEqual(self._sc.get_time_signature(),(i,8))
+            time.sleep(wait_time)
+
+        self._sc.set_time_signature(4,4)
+        time.sleep(wait_time)
+        self.assertEqual(self._sc.get_time_signature(),(4,4))
+        time.sleep(wait_time)
+
 
 
 if __name__ == '__main__':
