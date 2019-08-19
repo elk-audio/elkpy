@@ -37,10 +37,11 @@ class SushiController(object):
 
     # rpc SetPlayingMode (PlayingMode) returns (GenericVoidValue) {}
     # TODO: PlayingMode RECORDING=3 not working
-    def set_playing_mode(self, playing_mode):
+    def set_playing_mode(self, _playing_mode):
         try:
             self._stub.SetPlayingMode(sushi_rpc_pb2.PlayingMode(
-                mode = int(playing_mode)))
+                mode = int(_playing_mode)
+            ))
         
         except grpc.RpcError as e:
             grpc_error_handling(e)
@@ -57,10 +58,11 @@ class SushiController(object):
 
     # rpc SetSyncMode (SyncMode) returns (GenericVoidValue) {}
     # TODO: LINK=3 mode doesn't seem to work
-    def set_sync_mode(self, sync_mode):
+    def set_sync_mode(self, _sync_mode):
         try:
             self._stub.SetSyncMode(sushi_rpc_pb2.SyncMode(
-                mode = int(sync_mode)))
+                mode = int(_sync_mode)
+            ))
         
         except grpc.RpcError as e:
             grpc_error_handling(e)
@@ -75,10 +77,11 @@ class SushiController(object):
             return -1
 
     # rpc SetTempo (GenericFloatValue) returns (GenericVoidValue) {}
-    def set_tempo(self, tempo):
+    def set_tempo(self, _tempo):
         try:
             self._stub.SetTempo(sushi_rpc_pb2.GenericFloatValue(
-                value = tempo))
+                value = _tempo
+            ))
 
         except grpc.RpcError as e:
             grpc_error_handling(e)
