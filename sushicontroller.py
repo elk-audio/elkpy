@@ -39,7 +39,6 @@ class SushiController(object):
     # TODO: PlayingMode RECORDING=3 not working
     def set_playing_mode(self, playing_mode):
         try:
-            print("set_playing_mode input: %d" %int(playing_mode))
             self._stub.SetPlayingMode(sushi_rpc_pb2.PlayingMode(
                 mode = int(playing_mode)))
         
@@ -48,7 +47,13 @@ class SushiController(object):
             
     # rpc GetSyncMode (GenericVoidValue) returns (SyncMode) {}
     def get_sync_mode(self):
-        return -1
+        try:
+            response = self._stub.GetSyncMode(sushi_rpc_pb2.GenericVoidValue())
+            return response.mode
+        
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
+            return -1
 
     # rpc SetSyncMode (SyncMode) returns (GenericVoidValue) {}
     def set_sync_mode(self, sync_mode):

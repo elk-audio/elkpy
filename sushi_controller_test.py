@@ -62,7 +62,7 @@ class TestSushiController(unittest.TestCase):
         time.sleep(wait_time)
 
     def test_get_sync_mode(self):
-        self.assertEqual(self._sc.get_sync_mode(),1)
+        self.assertEqual(self._sc.get_sync_mode(),0)
 
     def test_set_sync_mode(self):
         wait_time = 0.1
@@ -90,9 +90,9 @@ class TestSushiController(unittest.TestCase):
         self.assertEqual(self._sc.get_sync_mode(), int(self._sc.SyncMode.LINK))
         time.sleep(wait_time)
 
-        self._sc.set_sync_mode(1)
+        self._sc.set_sync_mode(0)
         time.sleep(wait_time)
-        self.assertEqual(self._sc.get_sync_mode(), 1)
+        self.assertEqual(self._sc.get_sync_mode(), 0)
         time.sleep(wait_time)
 
 
