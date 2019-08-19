@@ -2,9 +2,11 @@ import grpc
 import sushi_rpc_pb2
 import sushi_rpc_pb2_grpc
 
-
 def grpc_error_handling(e):
     print('Grpc error: ' + str(e.code().name) + ', ' + e.details())
+
+def print_hello():
+    print("hello world!")
 
 class SushiController(object):
     def __init__(self, address):
@@ -85,25 +87,3 @@ class SushiController(object):
     # rpc SetParameterValue(ParameterSetRequest) returns (GenericVoidValue) {}
     # rpc SetParameterValueNormalised(ParameterSetRequest) returns (GenericVoidValue) {}
     # rpc SetStringPropertyValue(StringPropertySetRequest) returns (GenericVoidValue) {}
-
-
-class TestClass(object):
-    def __init__(self, name):
-        self._name = name
-
-    def print_name(self):
-        print(self._name)
-
-
-if __name__ == "__main__":
-    SUSHI_ADDRESS = ('localhost:51051')
-
-    test = TestClass(SUSHI_ADDRESS)
-    test.print_name()
-
-    sc = SushiController(SUSHI_ADDRESS)
-    samplerate = sc.get_samplerate()
-    playingmode = sc.get_playing_mode()
-
-    print(samplerate)
-    print(playingmode)
