@@ -1,4 +1,5 @@
 import grpc
+from enum import IntEnum
 import sushi_rpc_pb2
 import sushi_rpc_pb2_grpc
 
@@ -22,6 +23,7 @@ class SushiController(object):
 
         except grpc.RpcError as e:
             grpc_error_handling(e)
+            return -1
 
     # rpc GetPlayingMode (GenericVoidValue) returns (PlayingMode) {}
     def get_playing_mode(self):
@@ -31,8 +33,17 @@ class SushiController(object):
 
         except grpc.RpcError as e:
             grpc_error_handling(e)
+            return -1
 
     # rpc SetPlayingMode (PlayingMode) returns (GenericVoidValue) {}
+    def set_playing_mode(self, playing_mode):
+        try:
+            self._stub.SetPlayingMode(sushi_rpc_pb2.PlayingMode(
+                mode = int(playing_mode)))
+        
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
+            
     # rpc GetSyncMode (GenericVoidValue) returns (SyncMode) {}
     # rpc SetSyncMode (SyncMode) returns (GenericVoidValue) {}
     # rpc GetTempo (GenericVoidValue) returns (GenericFloatValue) {}
@@ -87,3 +98,9 @@ class SushiController(object):
     # rpc SetParameterValue(ParameterSetRequest) returns (GenericVoidValue) {}
     # rpc SetParameterValueNormalised(ParameterSetRequest) returns (GenericVoidValue) {}
     # rpc SetStringPropertyValue(StringPropertySetRequest) returns (GenericVoidValue) {}
+
+    class PlayingMode(IntEnum):
+        DUMMY = 0
+        STOPPED = 1
+        PLAYING = 2
+        RECORDING = 3
