@@ -67,7 +67,12 @@ class SushiController(object):
 
     # rpc GetTempo (GenericVoidValue) returns (GenericFloatValue) {}
     def get_tempo(self):
-        return -1
+        try:
+            response = self._stub.GetTempo(sushi_rpc_pb2.GenericVoidValue())
+            return response.value
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
+            return -1
 
     # rpc SetTempo (GenericFloatValue) returns (GenericVoidValue) {}
     def set_tempo(self, tempo):
