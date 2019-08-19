@@ -82,8 +82,31 @@ class SushiController(object):
 
         except grpc.RpcError as e:
             grpc_error_handling(e)
+
     # rpc GetTimeSignature (GenericVoidValue) returns (TimeSignature) {}
+        # TODO: change denomainator to denominator when spelled correctly in compiled proto buff file
+
+    def get_time_signature(self):
+        try:
+            response = self._stub.GetTimeSignature(sushi_rpc_pb2.GenericVoidValue())
+            return response.numerator, response.denomainator
+        
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
+            return -1, -1
+
     # rpc SetTimeSignature (TimeSignature) returns (GenericVoidValue) {}
+    # TODO: change denomainator to denominator when spelled correctly in compiled proto buff file
+    def set_time_signature(self, _numerator, _denominator):
+        try:
+            self._stub.SetTimeSignature(sushi_rpc_pb2.TimeSignature(
+                numerator = _numerator,
+                denomainator = _denominator
+            ))
+        
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
+
     # rpc GetTracks(GenericVoidValue) returns (TrackInfoList) {}
 
     # // Keyboard control
