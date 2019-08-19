@@ -76,7 +76,12 @@ class SushiController(object):
 
     # rpc SetTempo (GenericFloatValue) returns (GenericVoidValue) {}
     def set_tempo(self, tempo):
-        return
+        try:
+            self._stub.SetTempo(sushi_rpc_pb2.GenericFloatValue(
+                value = tempo))
+
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
     # rpc GetTimeSignature (GenericVoidValue) returns (TimeSignature) {}
     # rpc SetTimeSignature (TimeSignature) returns (GenericVoidValue) {}
     # rpc GetTracks(GenericVoidValue) returns (TrackInfoList) {}
