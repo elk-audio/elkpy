@@ -2,12 +2,34 @@ import grpc
 import sushi_rpc_pb2
 import sushi_rpc_pb2_grpc
 
+
+def grpc_error_handling(e):
+    print('Grpc error: ' + str(e.code().name) + ', ' + e.details())
+
 class SushiController(object):
     def __init__(self, address):
         # Initialize necessary members and fields
+        channel = grpc.insecure_channel(address)
+        self._stub = sushi_rpc_pb2_grpc.SushiControllerStub(channel)
 
     # rpc GetSamplerate (GenericVoidValue) returns (GenericFloatValue) {}
+    def get_samplerate(self):
+        try:
+            response = self._stub.GetSamplerate(sushi_rpc_pb2.GenericVoidValue())
+            return response.value
+
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
+
     # rpc GetPlayingMode (GenericVoidValue) returns (PlayingMode) {}
+    def get_playing_mode(self):
+        try:
+            response = self._stub.GetPlayingMode(sushi_rpc_pb2.GenericVoidValue())
+            return response.mode
+
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
+
     # rpc SetPlayingMode (PlayingMode) returns (GenericVoidValue) {}
     # rpc GetSyncMode (GenericVoidValue) returns (SyncMode) {}
     # rpc SetSyncMode (SyncMode) returns (GenericVoidValue) {}
@@ -63,3 +85,25 @@ class SushiController(object):
     # rpc SetParameterValue(ParameterSetRequest) returns (GenericVoidValue) {}
     # rpc SetParameterValueNormalised(ParameterSetRequest) returns (GenericVoidValue) {}
     # rpc SetStringPropertyValue(StringPropertySetRequest) returns (GenericVoidValue) {}
+
+
+class TestClass(object):
+    def __init__(self, name):
+        self._name = name
+
+    def print_name(self):
+        print(self._name)
+
+
+if __name__ == "__main__":
+    SUSHI_ADDRESS = ('localhost:51051')
+
+    test = TestClass(SUSHI_ADDRESS)
+    test.print_name()
+
+    sc = SushiController(SUSHI_ADDRESS)
+    samplerate = sc.get_samplerate()
+    playingmode = sc.get_playing_mode()
+
+    print(samplerate)
+    print(playingmode)
