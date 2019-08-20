@@ -119,15 +119,84 @@ class SushiController(object):
         except grpc.RpcError as e:
             grpc_error_handling(e)
         
+    #######################
+    # // Keyboard control #
+    #######################
 
-    # // Keyboard control
     # rpc SendNoteOn(NoteOnRequest) returns (GenericVoidValue) {}
-    
+    def send_note_on(self, _track_identifier, _note, _channel, _velocity):
+        try:
+            self._stub.SendNoteOn(sushi_rpc_pb2.NoteOnRequest(
+                track = _track_identifier,
+                note = _note,
+                channel = _channel,
+                velocity = _velocity
+            ))
+
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
+
     # rpc SendNoteOff(NoteOffRequest) returns (GenericVoidValue) {}
+    def send_note_off(self, _track_identifier, _note, _channel, _velocity):
+        try:
+            self._stub.SendNoteOff(sushi_rpc_pb2.NoteOffRequest(
+                track = _track_identifier,
+                note = _note,
+                channel = _channel,
+                velocity = _velocity
+            ))
+
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
+    
     # rpc SendNoteAftertouch(NoteAftertouchRequest) returns (GenericVoidValue) {}
+    def send_note_aftertouch(self, _track_identifier, _note, _channel, _value):
+        try:
+            self._stub.SendNoteAftertouch(sushi_rpc_pb2.NoteAftertouchRequest(
+                track = _track_identifier,
+                note = _note,
+                channel = _channel,
+                value = _value
+            ))
+        
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
+
     # rpc SendAftertouch(NoteModulationRequest) returns (GenericVoidValue) {}
+    def send_aftertouch(self, _track_identifier, _channel, _value):
+        try:
+            self._stub.SendAftertouch(sushi_rpc_pb2.NoteModulationRequest(
+                track = _track_identifier,
+                channel = _channel,
+                value = _value
+            ))
+        
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
+
     # rpc SendPitchBend(NoteModulationRequest) returns (GenericVoidValue) {}
+    def send_pitch_bend(self, _track_identifier, _channel, _value):
+        try:
+            self._stub.SendPitchBend(sushi_rpc_pb2.NoteModulationRequest(
+                track = _track_identifier,
+                channel = _channel,
+                value = _value
+            ))
+
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
+
     # rpc SendModulation(NoteModulationRequest) returns (GenericVoidValue) {}
+    def send_modulation(self, _track_identifier, _channel, _value):
+        try:
+            self._stub.SendModulation(sushi_rpc_pb2.NoteModulationRequest(
+                track = _track_identifier,
+                channel = _channel,
+                value = _value
+            ))
+        
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
 
     # // Cpu timings
     # rpc GetEngineTimings(GenericVoidValue) returns (CpuTimings) {}
