@@ -167,9 +167,9 @@ class TestSushiController(unittest.TestCase):
     def test_get_engine_timings(self):
         result_average, result_min, result_max = self._sc.get_engine_timings()
         
-        self.assertAlmostEqual(result_average,10)
-        self.assertAlmostEqual(result_min,1)
-        self.assertAlmostEqual(result_max,12)
+        self.assertAlmostEqual(result_average,0.1)
+        self.assertAlmostEqual(result_min,0.2)
+        self.assertAlmostEqual(result_max,5.0)
 
 
 

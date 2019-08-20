@@ -203,9 +203,16 @@ class SushiController(object):
     ###################
 
     # rpc GetEngineTimings(GenericVoidValue) returns (CpuTimings) {}
+    # TODO: Check that the order of the output is correct
     def get_engine_timings(self):
-        return -1, -1, -1
-        
+        try:
+            response = self._stub.GetEngineTimings(sushi_rpc_pb2.GenericVoidValue())
+            return response.average, response.min, response.max
+
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
+            return -1, -1, -1
+
     # rpc GetTrackTimings(TrackIdentifier) returns (CpuTimings) {}
     # rpc GetProcessorTimings(ProcessorIdentifier) returns (CpuTimings) {}
     # rpc ResetAllTimings(GenericVoidValue) returns (GenericVoidValue) {}
