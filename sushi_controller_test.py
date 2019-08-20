@@ -49,7 +49,7 @@ class TestSushiController(unittest.TestCase):
 
 
     def test_set_playing_mode_false(self):
-        wait_time = 0.075
+        wait_time = 0.1
 
         self._sc.set_playing_mode(-1)
         time.sleep(wait_time)
@@ -65,7 +65,7 @@ class TestSushiController(unittest.TestCase):
         self.assertEqual(self._sc.get_sync_mode(),0)
 
     def test_set_sync_mode(self):
-        wait_time = 0.075
+        wait_time = 0.1
 
         # TODO: LINK=3 mode doesn't seem to work
 
@@ -101,7 +101,7 @@ class TestSushiController(unittest.TestCase):
         self.assertEqual(self._sc.get_tempo(),120)
 
     def test_set_tempo(self):
-        wait_time = 0.075
+        wait_time = 0.1
 
         for i in range (1,11):
             self._sc.set_tempo(i*20)
@@ -118,7 +118,7 @@ class TestSushiController(unittest.TestCase):
         self.assertEqual(self._sc.get_time_signature(), (4,4))
 
     def test_set_time_signature(self):
-        wait_time = 0.08
+        wait_time = 0.1
 
         for i in range (1,12):
             self._sc.set_time_signature(i,4)
@@ -135,6 +135,9 @@ class TestSushiController(unittest.TestCase):
         time.sleep(wait_time)
         self.assertEqual(self._sc.get_time_signature(),(4,4))
         time.sleep(wait_time)
+
+    def test_get_tracks(self):
+        self.assertEqual(self._sc.get_tracks(),(1,"main","main",2,0,2,0,2))
 
 
 
