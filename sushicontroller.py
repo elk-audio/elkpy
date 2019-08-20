@@ -112,7 +112,13 @@ class SushiController(object):
 
     # rpc GetTracks(GenericVoidValue) returns (TrackInfoList) {}
     def get_tracks(self):
-        return (-1, "null", "null", -1, -1, -1, -1, -1)
+        try:
+            response = self._stub.GetTracks(sushi_rpc_pb2.GenericVoidValue())
+            return response
+
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
+        
 
     # // Keyboard control
     # rpc SendNoteOn(NoteOnRequest) returns (GenericVoidValue) {}

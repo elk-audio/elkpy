@@ -2,6 +2,7 @@ import sys
 import unittest
 import time
 from sushicontroller import SushiController
+from sushicontroller import sushi_rpc_pb2
 
 SUSHI_ADDRESS = ('localhost:51051')
 
@@ -16,7 +17,7 @@ class TestSushiController(unittest.TestCase):
         self.assertEqual(self._sc.get_playing_mode(), 1)
 
     def test_set_playing_mode_positive(self):
-        wait_time = 0.075
+        wait_time = 0.1
 
         #TODO: Recording mode does not seem to work
 
@@ -137,7 +138,19 @@ class TestSushiController(unittest.TestCase):
         time.sleep(wait_time)
 
     def test_get_tracks(self):
-        self.assertEqual(self._sc.get_tracks(),(1,"main","main",2,0,2,0,2))
+        track_list = []
+        track_list.append(sushi_rpc_pb2.TrackInfo(
+                name = 'main',
+                input_channels = 2,
+                input_busses = 1,
+                output_channels = 2,
+                output_busses = 1
+            ))
+
+        expected_result = sushi_rpc_pb2.TrackInfoList(
+            tracks = track_list
+        )
+        self.assertEqual(self._sc.get_tracks(),expected_result)
 
 
 
