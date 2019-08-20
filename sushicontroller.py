@@ -127,7 +127,7 @@ class SushiController(object):
     def send_note_on(self, _track_identifier, _note, _channel, _velocity):
         try:
             self._stub.SendNoteOn(sushi_rpc_pb2.NoteOnRequest(
-                track = _track_identifier,
+                track = sushi_rpc_pb2.TrackIdentifier(id = _track_identifier),
                 note = _note,
                 channel = _channel,
                 velocity = _velocity
@@ -140,7 +140,7 @@ class SushiController(object):
     def send_note_off(self, _track_identifier, _note, _channel, _velocity):
         try:
             self._stub.SendNoteOff(sushi_rpc_pb2.NoteOffRequest(
-                track = _track_identifier,
+                track = sushi_rpc_pb2.TrackIdentifier(id = _track_identifier),
                 note = _note,
                 channel = _channel,
                 velocity = _velocity
@@ -153,7 +153,7 @@ class SushiController(object):
     def send_note_aftertouch(self, _track_identifier, _note, _channel, _value):
         try:
             self._stub.SendNoteAftertouch(sushi_rpc_pb2.NoteAftertouchRequest(
-                track = _track_identifier,
+                track = sushi_rpc_pb2.TrackIdentifier(id = _track_identifier),
                 note = _note,
                 channel = _channel,
                 value = _value
@@ -166,7 +166,7 @@ class SushiController(object):
     def send_aftertouch(self, _track_identifier, _channel, _value):
         try:
             self._stub.SendAftertouch(sushi_rpc_pb2.NoteModulationRequest(
-                track = _track_identifier,
+                track = sushi_rpc_pb2.TrackIdentifier(id = _track_identifier),
                 channel = _channel,
                 value = _value
             ))
@@ -178,7 +178,7 @@ class SushiController(object):
     def send_pitch_bend(self, _track_identifier, _channel, _value):
         try:
             self._stub.SendPitchBend(sushi_rpc_pb2.NoteModulationRequest(
-                track = _track_identifier,
+                track = sushi_rpc_pb2.TrackIdentifier(id = _track_identifier),
                 channel = _channel,
                 value = _value
             ))
@@ -190,7 +190,7 @@ class SushiController(object):
     def send_modulation(self, _track_identifier, _channel, _value):
         try:
             self._stub.SendModulation(sushi_rpc_pb2.NoteModulationRequest(
-                track = _track_identifier,
+                track = sushi_rpc_pb2.TrackIdentifier(id = _track_identifier),
                 channel = _channel,
                 value = _value
             ))
