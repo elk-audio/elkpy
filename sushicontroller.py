@@ -214,6 +214,8 @@ class SushiController(object):
             return -1, -1, -1
 
     # rpc GetTrackTimings(TrackIdentifier) returns (CpuTimings) {}
+    def get_track_timings(self, _track_identifier):
+        return -1, -1, -1
     # rpc GetProcessorTimings(ProcessorIdentifier) returns (CpuTimings) {}
     # rpc ResetAllTimings(GenericVoidValue) returns (GenericVoidValue) {}
     # rpc ResetTrackTimings(TrackIdentifier) returns (GenericVoidValue) {}
