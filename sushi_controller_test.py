@@ -139,6 +139,7 @@ class TestSushiController(unittest.TestCase):
 
     def test_get_tracks(self):
         track_list = []
+        # TODO: data types of this doesn't match the proto file. doesn't have id, label and processor_count
         track_list.append(sushi_rpc_pb2.TrackInfo(
                 name = 'main',
                 input_channels = 2,
