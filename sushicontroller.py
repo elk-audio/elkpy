@@ -198,8 +198,14 @@ class SushiController(object):
         except grpc.RpcError as e:
             grpc_error_handling(e)
 
-    # // Cpu timings
+    ###################
+    # // Cpu timings  #
+    ###################
+
     # rpc GetEngineTimings(GenericVoidValue) returns (CpuTimings) {}
+    def get_engine_timings(self):
+        return -1, -1, -1
+        
     # rpc GetTrackTimings(TrackIdentifier) returns (CpuTimings) {}
     # rpc GetProcessorTimings(ProcessorIdentifier) returns (CpuTimings) {}
     # rpc ResetAllTimings(GenericVoidValue) returns (GenericVoidValue) {}
