@@ -239,16 +239,40 @@ class SushiController(object):
 
     # rpc ResetAllTimings(GenericVoidValue) returns (GenericVoidValue) {}
     def reset_all_timings(self):
-        pass
+        try:
+            self._stub.ResetAllTimings(sushi_rpc_pb2.GenericVoidValue())
+        
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
+
     # rpc ResetTrackTimings(TrackIdentifier) returns (GenericVoidValue) {}
     def reset_track_timings(self, _track_identifier):
-        pass
+        try:
+            self._stub.ResetTrackTimings(sushi_rpc_pb2.TrackIdentifier(
+                id = _track_identifier
+            ))
+
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
+
     # rpc ResetProcessorTimings(ProcessorIdentifier) returns (GenericVoidValue) {}
     def reset_processor_timings(self, _processor_identifier):
-        pass
+        try:
+            self._stub.ResetProcessorTimings(sushi_rpc_pb2.ProcessorIdentifier(
+                id = _processor_identifier
+            ))
 
-    # // Track control
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
+
+    ####################
+    # // Track control #
+    ####################
+
     # rpc GetTrackId(GenericStringValue) returns (TrackIdentifier) {}
+    def get_track_id(self, _track_name):
+        return -1
+        
     # rpc GetTrackInfo(TrackIdentifier) returns (TrackInfo) {}
     # rpc GetTrackProcessors(TrackIdentifier) returns (ProcessorInfoList) {}
     # rpc GetTrackParameters(TrackIdentifier) returns (ParameterInfoList) {}
