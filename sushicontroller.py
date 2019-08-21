@@ -298,7 +298,17 @@ class SushiController(object):
                 output_channels = -1,
                 output_busses = -1
             )
+
     # rpc GetTrackProcessors(TrackIdentifier) returns (ProcessorInfoList) {}
+    def get_track_processors(self, _track_identifier):
+        try:
+            response = self._stub.GetTrackProcessors(sushi_rpc_pb2.TrackIdentifier(
+                id = _track_identifier
+            ))
+            return response
+        
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
     # rpc GetTrackParameters(TrackIdentifier) returns (ParameterInfoList) {}
     # // list requests left out for now
 
