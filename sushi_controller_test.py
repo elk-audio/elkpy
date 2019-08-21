@@ -198,5 +198,11 @@ class TestSushiController(unittest.TestCase):
         self._sc.reset_processor_timings(0)
         self._sc.reset_track_timings(0)
 
+    def test_get_track_id(self):
+        result = self._sc.get_track_id('main')
+        expected_result = 1
+
+        self.assertEqual(result, expected_result)
+
 if __name__ == '__main__':
     unittest.main()
