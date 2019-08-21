@@ -216,5 +216,26 @@ class TestSushiController(unittest.TestCase):
 
         self.assertEqual(result,expected_result)
 
+    def test_get_track_processors(self):
+        result = self._sc.get_track_processors(0)
+        expected_result = sushi_rpc_pb2.ProcessorInfoList(
+            processors = (
+                sushi_rpc_pb2.ProcessorInfo(
+                    id = 1,
+                    label = 'Andes-1',
+                    name = 'andes',
+                    parameter_count = 8
+                ),
+                sushi_rpc_pb2.ProcessorInfo(
+                    id = 2,
+                    label = 'Temper',
+                    name = 'Temper',
+                    parameter_count = 7
+                )
+            )
+        )
+
+        self.assertEqual(result,expected_result)
+
 if __name__ == '__main__':
     unittest.main()
