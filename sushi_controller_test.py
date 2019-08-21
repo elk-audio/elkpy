@@ -172,11 +172,12 @@ class TestSushiController(unittest.TestCase):
         self.assertAlmostEqual(result_max,5.0)
 
     def test_get_track_timings(self):
-        result_average, result_min, result_max = self._sc.get_track_timings(1)
+        for i in range(0,8):
+            result_average, result_min, result_max = self._sc.get_track_timings(i)
         
-        self.assertAlmostEqual(result_average,0.1)
-        self.assertAlmostEqual(result_min,0.2)
-        self.assertAlmostEqual(result_max,5.0)
+            self.assertAlmostEqual(result_average,0.05)
+            self.assertAlmostEqual(result_min,0.1)
+            self.assertAlmostEqual(result_max,0.02)
 
 if __name__ == '__main__':
     unittest.main()
