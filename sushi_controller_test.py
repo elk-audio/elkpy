@@ -200,7 +200,7 @@ class TestSushiController(unittest.TestCase):
 
     def test_get_track_id(self):
         result = self._sc.get_track_id('main')
-        expected_result = 1
+        expected_result = 0
 
         self.assertEqual(result, expected_result)
 

@@ -271,8 +271,16 @@ class SushiController(object):
 
     # rpc GetTrackId(GenericStringValue) returns (TrackIdentifier) {}
     def get_track_id(self, _track_name):
-        return -1
+        try:
+            response = self._stub.GetTrackId(sushi_rpc_pb2.GenericStringValue(
+                value = _track_name
+            ))
+            return response.id
         
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
+            return -1
+
     # rpc GetTrackInfo(TrackIdentifier) returns (TrackInfo) {}
     # rpc GetTrackProcessors(TrackIdentifier) returns (ProcessorInfoList) {}
     # rpc GetTrackParameters(TrackIdentifier) returns (ParameterInfoList) {}
