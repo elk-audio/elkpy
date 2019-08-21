@@ -322,5 +322,24 @@ class TestSushiControllerProcessorControl(unittest.TestCase):
         with self.subTest(processorId = 2):
             self.assertEqual(result,expected_result)
 
+    def test_get_processor_bypass_state(self):
+        result = self._sc.get_processor_bypass_state(0)
+        expected_result = False
+
+        with self.subTest(processorId = 0):
+            self.assertEqual(result,expected_result)
+
+        result = self._sc.get_processor_bypass_state(1)
+        expected_result = False
+
+        with self.subTest(processorId = 1):
+            self.assertEqual(result,expected_result)
+
+        result = self._sc.get_processor_bypass_state(2)
+        expected_result = False
+
+        with self.subTest(processorId = 2):
+            self.assertEqual(result,expected_result)
+
 if __name__ == '__main__':
     unittest.main()
