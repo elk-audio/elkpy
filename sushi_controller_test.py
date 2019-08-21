@@ -237,5 +237,29 @@ class TestSushiController(unittest.TestCase):
 
         self.assertEqual(result,expected_result)
 
+    def test_get_track_parameters(self):
+        result = self._sc.get_track_parameters(0)
+        expected_result = sushi_rpc_pb2.ParameterInfoList(
+            parameters = (
+                sushi_rpc_pb2.ParameterInfo(
+                    type = sushi_rpc_pb2.ParameterType(type = int(self._sc.ParameterType.INT)),
+                    label = 'Gain',
+                    name = 'gain',
+                    min_range = -120,
+                    max_range = 24
+                ),
+                sushi_rpc_pb2.ParameterInfo(
+                    id = 1,
+                    type = sushi_rpc_pb2.ParameterType(type = int(self._sc.ParameterType.INT)),
+                    label = 'Pan',
+                    name = 'pan',
+                    min_range = -1,
+                    max_range = 1
+                )
+            )
+        )
+
+        self.assertEqual(result,expected_result)
+
 if __name__ == '__main__':
     unittest.main()
