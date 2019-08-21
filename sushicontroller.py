@@ -322,7 +322,10 @@ class SushiController(object):
             grpc_error_handling(e)
     # // list requests left out for now
 
-    # // Processor control
+    ########################
+    # // Processor control #
+    ########################
+
     # rpc GetProcessorId (GenericStringValue) returns (ProcessorIdentifier) {}
     # rpc GetProcessorInfo (ProcessorIdentifier) returns (ProcessorInfo) {}
     # rpc GetProcessorBypassState (ProcessorIdentifier) returns (GenericBoolValue) {}
@@ -335,7 +338,10 @@ class SushiController(object):
     # rpc GetProcessorParameters (ProcessorIdentifier) returns (ParameterInfoList) {}
     # // list requests left out
 
-    # // Parameter control
+    ########################
+    # // Parameter control #
+    ########################
+    
     # rpc GetParameterId (ParameterIdRequest) returns (ParameterIdentifier) {}
     # rpc GetParameterInfo (ParameterIdentifier) returns (ParameterInfo) {}
     # rpc GetParameterValue(ParameterIdentifier) returns (GenericFloatValue) {}
@@ -345,6 +351,10 @@ class SushiController(object):
     # rpc SetParameterValue(ParameterSetRequest) returns (GenericVoidValue) {}
     # rpc SetParameterValueNormalised(ParameterSetRequest) returns (GenericVoidValue) {}
     # rpc SetStringPropertyValue(StringPropertySetRequest) returns (GenericVoidValue) {}
+
+    #########################
+    # //Custom data objects #
+    #########################
 
     class PlayingMode(IntEnum):
         DUMMY = 0
