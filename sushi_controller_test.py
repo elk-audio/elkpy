@@ -179,5 +179,18 @@ class TestSushiController(unittest.TestCase):
             self.assertAlmostEqual(result_min,0.1)
             self.assertAlmostEqual(result_max,0.02)
 
+    def test_get_processor_timings(self):
+        result_average, result_min, result_max = self._sc.get_processor_timings(0)
+        
+        self.assertAlmostEqual(result_average,0.05)
+        self.assertAlmostEqual(result_min,0.1)
+        self.assertAlmostEqual(result_max,0.02)
+
+        result_average, result_min, result_max = self._sc.get_processor_timings(1)
+        
+        self.assertAlmostEqual(result_average,0.05)
+        self.assertAlmostEqual(result_min,0.1)
+        self.assertAlmostEqual(result_max,0.02)
+
 if __name__ == '__main__':
     unittest.main()
