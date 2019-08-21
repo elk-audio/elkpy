@@ -339,6 +339,15 @@ class SushiController(object):
             return -1
 
     # rpc GetProcessorInfo (ProcessorIdentifier) returns (ProcessorInfo) {}
+    def get_processor_info(self, _processor_identifier):
+        try:
+            response = self._stub.GetProcessorInfo(sushi_rpc_pb2.ProcessorIdentifier(
+                id = _processor_identifier
+            ))
+            return response
+
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
     # rpc GetProcessorBypassState (ProcessorIdentifier) returns (GenericBoolValue) {}
     # rpc SetProcessorBypassState (ProcessorBypassStateSetRequest) returns (GenericVoidValue) {}
     # rpc GetProcessorCurrentProgram (ProcessorIdentifier) returns (ProgramIdentifier) {}
