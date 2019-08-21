@@ -290,5 +290,37 @@ class TestSushiControllerProcessorControl(unittest.TestCase):
         with self.subTest(test_code=2):
             self.assertEqual(result,expecter_result)
 
+    def test_get_processor_info(self):
+        result = self._sc.get_processor_info(0)
+        expected_result = sushi_rpc_pb2.ProcessorInfo(
+            name = 'main',
+            parameter_count = 2
+        )
+
+        with self.subTest(processorId = 0):
+            self.assertEqual(result,expected_result)
+
+        result = self._sc.get_processor_info(1)
+        expected_result = sushi_rpc_pb2.ProcessorInfo(
+            id = 1,
+            label = 'Andes-1',
+            name = 'andes',
+            parameter_count = 8
+        )
+
+        with self.subTest(processorId = 1):
+            self.assertEqual(result,expected_result)
+
+        result = self._sc.get_processor_info(2)
+        expected_result = sushi_rpc_pb2.ProcessorInfo(
+            id = 2,
+            label = 'Temper',
+            name = 'Temper',
+            parameter_count = 7
+        )
+
+        with self.subTest(processorId = 2):
+            self.assertEqual(result,expected_result)
+
 if __name__ == '__main__':
     unittest.main()
