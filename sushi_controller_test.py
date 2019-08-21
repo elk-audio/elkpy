@@ -153,6 +153,10 @@ class TestSushiController(unittest.TestCase):
         )
         self.assertEqual(self._sc.get_tracks(),expected_result)
 
+class TestSushiControllerKeyboardControl(unittest.TestCase):
+    def setUp(self):
+        self._sc = SushiController(SUSHI_ADDRESS)
+
     def test_keyboard_control(self):
         wait_time = 0.5
 
@@ -163,6 +167,10 @@ class TestSushiController(unittest.TestCase):
         self._sc.send_pitch_bend(0,1,127)
         time.sleep(wait_time)
         self._sc.send_note_off(0,63,1,127)
+
+class TestSushiControllerCPUTimings(unittest.TestCase):
+    def setUp(self):
+        self._sc = SushiController(SUSHI_ADDRESS)
 
     def test_get_engine_timings(self):
         result_average, result_min, result_max = self._sc.get_engine_timings()
@@ -197,6 +205,10 @@ class TestSushiController(unittest.TestCase):
         self._sc.reset_all_timings()
         self._sc.reset_processor_timings(0)
         self._sc.reset_track_timings(0)
+
+class TestSushiControllerTrackControl(unittest.TestCase):
+    def setUp(self):
+        self._sc = SushiController(SUSHI_ADDRESS)
 
     def test_get_track_id(self):
         result = self._sc.get_track_id('main')
@@ -260,6 +272,23 @@ class TestSushiController(unittest.TestCase):
         )
 
         self.assertEqual(result,expected_result)
+
+class TestSushiControllerProcessorControl(unittest.TestCase):
+    def setUp(self):
+        self._sc = SushiController(SUSHI_ADDRESS)
+
+    def test_get_processor_id(self):
+        result = self._sc.get_processor_id("andes")
+        expecter_result = 1
+        
+        with self.subTest(test_code=1):
+            self.assertEqual(result,expecter_result)
+
+        result = self._sc.get_processor_id("Temper")
+        expecter_result = 2
+        
+        with self.subTest(test_code=2):
+            self.assertEqual(result,expecter_result)
 
 if __name__ == '__main__':
     unittest.main()
