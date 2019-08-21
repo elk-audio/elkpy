@@ -309,7 +309,17 @@ class SushiController(object):
         
         except grpc.RpcError as e:
             grpc_error_handling(e)
+    
     # rpc GetTrackParameters(TrackIdentifier) returns (ParameterInfoList) {}
+    def get_track_parameters(self, _track_identifier):
+        try:
+            response = self._stub.GetTrackParameters(sushi_rpc_pb2.TrackIdentifier(
+                id = _track_identifier
+            ))
+            return response
+
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
     # // list requests left out for now
 
     # // Processor control
@@ -347,3 +357,11 @@ class SushiController(object):
         INTERNAL = 1
         MIDI = 2
         LINK = 3
+
+    class ParameterType(IntEnum):
+        DUMMY = 0
+        BOOL = 1
+        INT = 2
+        FLOAT = 3
+        STRING_PROPERTY = 4
+        DATA_PROPERTY = 5
