@@ -192,5 +192,11 @@ class TestSushiController(unittest.TestCase):
         self.assertAlmostEqual(result_min,0.1)
         self.assertAlmostEqual(result_max,0.02)
 
+    # TODO: make a good test
+    def test_reset_timings(self):
+        self._sc.reset_all_timings()
+        self._sc.reset_processor_timings(0)
+        self._sc.reset_track_timings(0)
+
 if __name__ == '__main__':
     unittest.main()
