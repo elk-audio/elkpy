@@ -283,13 +283,21 @@ class SushiController(object):
 
     # rpc GetTrackInfo(TrackIdentifier) returns (TrackInfo) {}
     def get_track_info(self, _track_identifier):
-        return sushi_rpc_pb2.TrackInfo(
-            name = 'null',
-            input_channels = -1,
-            input_busses = -1,
-            output_channels = -1,
-            output_busses = -1
-        )
+        try:
+            response = self._stub.GetTrackInfo(sushi_rpc_pb2.TrackIdentifier(
+                id = _track_identifier
+            ))
+            return response
+
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
+            return sushi_rpc_pb2.TrackInfo(
+                name = 'null',
+                input_channels = -1,
+                input_busses = -1,
+                output_channels = -1,
+                output_busses = -1
+            )
     # rpc GetTrackProcessors(TrackIdentifier) returns (ProcessorInfoList) {}
     # rpc GetTrackParameters(TrackIdentifier) returns (ParameterInfoList) {}
     # // list requests left out for now
