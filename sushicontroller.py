@@ -227,7 +227,15 @@ class SushiController(object):
 
     # rpc GetProcessorTimings(ProcessorIdentifier) returns (CpuTimings) {}
     def get_processor_timings(self, _processor_identifier):
-        return -1, -1, -1
+        try:
+            response = self._stub.GetProcessorTimings(sushi_rpc_pb2.ProcessorIdentifier(
+                id = _processor_identifier
+            ))
+            return response.average, response.min, response.max
+        
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
+            return -1, -1, -1
     # rpc ResetAllTimings(GenericVoidValue) returns (GenericVoidValue) {}
     # rpc ResetTrackTimings(TrackIdentifier) returns (GenericVoidValue) {}
     # rpc ResetProcessorTimings(ProcessorIdentifier) returns (GenericVoidValue) {}
