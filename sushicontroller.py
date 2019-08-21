@@ -327,6 +327,17 @@ class SushiController(object):
     ########################
 
     # rpc GetProcessorId (GenericStringValue) returns (ProcessorIdentifier) {}
+    def get_processor_id(self, _processor_name):
+        try:
+            response = self._stub.GetProcessorId(sushi_rpc_pb2.GenericStringValue(
+                value = _processor_name
+            ))
+            return response.id
+        
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
+            return -1
+
     # rpc GetProcessorInfo (ProcessorIdentifier) returns (ProcessorInfo) {}
     # rpc GetProcessorBypassState (ProcessorIdentifier) returns (GenericBoolValue) {}
     # rpc SetProcessorBypassState (ProcessorBypassStateSetRequest) returns (GenericVoidValue) {}
@@ -341,7 +352,7 @@ class SushiController(object):
     ########################
     # // Parameter control #
     ########################
-    
+
     # rpc GetParameterId (ParameterIdRequest) returns (ParameterIdentifier) {}
     # rpc GetParameterInfo (ParameterIdentifier) returns (ParameterInfo) {}
     # rpc GetParameterValue(ParameterIdentifier) returns (GenericFloatValue) {}
