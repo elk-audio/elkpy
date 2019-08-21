@@ -236,9 +236,16 @@ class SushiController(object):
         except grpc.RpcError as e:
             grpc_error_handling(e)
             return -1, -1, -1
+
     # rpc ResetAllTimings(GenericVoidValue) returns (GenericVoidValue) {}
+    def reset_all_timings(self):
+        pass
     # rpc ResetTrackTimings(TrackIdentifier) returns (GenericVoidValue) {}
+    def reset_track_timings(self, _track_identifier):
+        pass
     # rpc ResetProcessorTimings(ProcessorIdentifier) returns (GenericVoidValue) {}
+    def reset_processor_timings(self, _processor_identifier):
+        pass
 
     # // Track control
     # rpc GetTrackId(GenericStringValue) returns (TrackIdentifier) {}
