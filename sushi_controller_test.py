@@ -204,5 +204,17 @@ class TestSushiController(unittest.TestCase):
 
         self.assertEqual(result, expected_result)
 
+    def test_get_track_info(self):
+        result = self._sc.get_track_info(0)
+        expected_result = sushi_rpc_pb2.TrackInfo(
+            name = 'main',
+            input_channels = 2,
+            input_busses = 1,
+            output_channels = 2,
+            output_busses = 1
+        )
+
+        self.assertEqual(result,expected_result)
+
 if __name__ == '__main__':
     unittest.main()
