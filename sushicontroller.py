@@ -506,8 +506,17 @@ class SushiController(object):
             grpc_error_handling(e)
         
     # rpc GetStringPropertyValue(ParameterIdentifier) returns (GenericStringValue) {}
+    # TODO: Not implemented in sushi yet
     def get_string_property_value(self, _processor_identifier, _parameter_identifier):
-        pass
+        try:
+            response = self._stub.GetStringPropertyValue(sushi_rpc_pb2.ParameterIdentifier(
+                processor_id = _processor_identifier,
+                parameter_id = _parameter_identifier
+            ))
+            return response.value
+
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
 
     # rpc SetParameterValue(ParameterSetRequest) returns (GenericVoidValue) {}
     def set_parameter_value(self, _processor_identifier, _parameter_identifier, _value):
