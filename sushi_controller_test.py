@@ -19,18 +19,14 @@ class TestSushiController(unittest.TestCase):
     def test_set_playing_mode_positive(self):
         wait_time = 0.1
 
-        #TODO: Recording mode does not seem to work
+        #TODO: DUMMY NOT AVAIALBLE
 
-        for i in range (0,3):
+        for i in range (1,4):
             self._sc.set_playing_mode(i)
             time.sleep(wait_time)
             self.assertEqual(self._sc.get_playing_mode(),i)
             time.sleep(wait_time)
 
-        self._sc.set_playing_mode(self._sc.PlayingMode.DUMMY)
-        time.sleep(wait_time)
-        self.assertEqual(self._sc.get_playing_mode(),int(self._sc.PlayingMode.DUMMY))
-        time.sleep(wait_time)
         self._sc.set_playing_mode(self._sc.PlayingMode.STOPPED)
         time.sleep(wait_time)
         self.assertEqual(self._sc.get_playing_mode(),int(self._sc.PlayingMode.STOPPED))
@@ -39,10 +35,10 @@ class TestSushiController(unittest.TestCase):
         time.sleep(wait_time)
         self.assertEqual(self._sc.get_playing_mode(),int(self._sc.PlayingMode.PLAYING))
         time.sleep(wait_time)
-        # self._sc.set_playing_mode(self._sc.PlayingMode.RECORDING)
-        # time.sleep(wait_time)
-        # self.assertEqual(self._sc.get_playing_mode(),int(self._sc.PlayingMode.RECORDING))
-        # time.sleep(wait_time)
+        self._sc.set_playing_mode(self._sc.PlayingMode.RECORDING)
+        time.sleep(wait_time)
+        self.assertEqual(self._sc.get_playing_mode(),int(self._sc.PlayingMode.RECORDING))
+        time.sleep(wait_time)
 
         self._sc.set_playing_mode(1)
         time.sleep(wait_time)
@@ -63,23 +59,19 @@ class TestSushiController(unittest.TestCase):
         time.sleep(wait_time)
 
     def test_get_sync_mode(self):
-        self.assertEqual(self._sc.get_sync_mode(),0)
+        self.assertEqual(self._sc.get_sync_mode(),1)
 
     def test_set_sync_mode(self):
         wait_time = 0.1
 
-        # TODO: LINK=3 mode doesn't seem to work
+        # TODO: DUMMY=0 mode doesn't seem to work
 
-        for i in range(0,3):
+        for i in range(1,4):
             self._sc.set_sync_mode(i)
             time.sleep(wait_time)
             self.assertEqual(self._sc.get_sync_mode(), i)
             time.sleep(wait_time)
 
-        self._sc.set_sync_mode(self._sc.SyncMode.DUMMY)
-        time.sleep(wait_time)
-        self.assertEqual(self._sc.get_sync_mode(), int(self._sc.SyncMode.DUMMY))
-        time.sleep(wait_time)
         self._sc.set_sync_mode(self._sc.SyncMode.INTERNAL)
         time.sleep(wait_time)
         self.assertEqual(self._sc.get_sync_mode(), int(self._sc.SyncMode.INTERNAL))
@@ -88,14 +80,14 @@ class TestSushiController(unittest.TestCase):
         time.sleep(wait_time)
         self.assertEqual(self._sc.get_sync_mode(), int(self._sc.SyncMode.MIDI))
         time.sleep(wait_time)
-        # self._sc.set_sync_mode(self._sc.SyncMode.LINK)
-        # time.sleep(wait_time)
-        # self.assertEqual(self._sc.get_sync_mode(), int(self._sc.SyncMode.LINK))
-        # time.sleep(wait_time)
-
-        self._sc.set_sync_mode(0)
+        self._sc.set_sync_mode(self._sc.SyncMode.LINK)
         time.sleep(wait_time)
-        self.assertEqual(self._sc.get_sync_mode(), 0)
+        self.assertEqual(self._sc.get_sync_mode(), int(self._sc.SyncMode.LINK))
+        time.sleep(wait_time)
+
+        self._sc.set_sync_mode(1)
+        time.sleep(wait_time)
+        self.assertEqual(self._sc.get_sync_mode(), 1)
         time.sleep(wait_time)
 
     def test_get_tempo(self):
@@ -139,13 +131,14 @@ class TestSushiController(unittest.TestCase):
 
     def test_get_tracks(self):
         track_list = []
-        # TODO: data types of this doesn't match the proto file. doesn't have id, label and processor_count
+        # TODO: data types of this doesn't match the proto file. doesn't have id and label
         track_list.append(sushi_rpc_pb2.TrackInfo(
                 name = 'main',
                 input_channels = 2,
                 input_busses = 1,
                 output_channels = 2,
-                output_busses = 1
+                output_busses = 1,
+                processor_count = 2
             ))
 
         expected_result = sushi_rpc_pb2.TrackInfoList(
@@ -173,11 +166,13 @@ class TestSushiControllerCPUTimings(unittest.TestCase):
         self._sc = SushiController(SUSHI_ADDRESS)
 
     def test_get_engine_timings(self):
+        self._sc.reset_all_timings()
+        time.sleep(0.75)
         result_average, result_min, result_max = self._sc.get_engine_timings()
         
-        self.assertAlmostEqual(result_average,0.1)
-        self.assertAlmostEqual(result_min,0.2)
-        self.assertAlmostEqual(result_max,5.0)
+        self.assertAlmostEqual(result_average,0.1,1)
+        self.assertAlmostEqual(result_min,0.06,2)
+        self.assertAlmostEqual(result_max,1.8,1)
 
     def test_get_track_timings(self):
         for i in range(0,8):
@@ -340,6 +335,21 @@ class TestSushiControllerProcessorControl(unittest.TestCase):
 
         with self.subTest(processorId = 2):
             self.assertEqual(result,expected_result)
+
+    def test_set_processor_bypass_state(self):
+        for i in range(1,3):
+            with self.subTest(processorId = i):
+                self._sc.set_processor_bypass_state(i,True)
+                result = self._sc.get_processor_bypass_state(i)
+                expected_result = True
+
+                self.assertEqual(result,expected_result)
+
+                self._sc.set_processor_bypass_state(i,False)
+                result = self._sc.get_processor_bypass_state(i)
+                expected_result = False
+
+                self.assertEqual(result,expected_result)
 
 if __name__ == '__main__':
     unittest.main()

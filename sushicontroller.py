@@ -36,7 +36,7 @@ class SushiController(object):
             return -1
 
     # rpc SetPlayingMode (PlayingMode) returns (GenericVoidValue) {}
-    # TODO: PlayingMode RECORDING=3 not working
+    # TODO: PlayingMode DUMMY=0 not working
     def set_playing_mode(self, _playing_mode):
         try:
             self._stub.SetPlayingMode(sushi_rpc_pb2.PlayingMode(
@@ -57,7 +57,7 @@ class SushiController(object):
             return -1
 
     # rpc SetSyncMode (SyncMode) returns (GenericVoidValue) {}
-    # TODO: LINK=3 mode doesn't seem to work
+    # TODO: DUMMY=0 mode doesn't seem to work
     def set_sync_mode(self, _sync_mode):
         try:
             self._stub.SetSyncMode(sushi_rpc_pb2.SyncMode(
@@ -361,8 +361,17 @@ class SushiController(object):
             grpc_error_handling(e)
 
     # rpc SetProcessorBypassState (ProcessorBypassStateSetRequest) returns (GenericVoidValue) {}
+    # TODO: try with more modern Sushi
     def set_processor_bypass_state(self, _processor_identifier, _bypass_state):
-        pass
+        try:
+            self._stub.SetProcessorBypassState(sushi_rpc_pb2.ProcessorBypassStateSetRequest(
+                processor = sushi_rpc_pb2.ProcessorIdentifier(id = _processor_identifier),
+                value = _bypass_state
+            ))
+        
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
+
     # rpc GetProcessorCurrentProgram (ProcessorIdentifier) returns (ProgramIdentifier) {}
     # rpc GetProcessorCurrentProgramName (ProcessorIdentifier) returns (GenericStringValue) {}
     # rpc GetProcessorProgramName (ProcessorProgramIdentifier) returns (GenericStringValue) {}
