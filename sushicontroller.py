@@ -547,8 +547,19 @@ class SushiController(object):
             grpc_error_handling(e)
 
     # rpc SetStringPropertyValue(StringPropertySetRequest) returns (GenericVoidValue) {}
+    # TODO: Not implemented in sushi yet
     def set_string_property_value(self, _processor_identifier, _parameter_identifier, _value):
-        pass
+        try:
+            self._stub.SetStringPropertyValue(sushi_rpc_pb2.StringPropertySetRequest(
+                property = sushi_rpc_pb2.ParameterIdentifier(
+                    processor_id = _processor_identifier,
+                    parameter_id = _parameter_identifier
+                ),
+                value = _value
+            ))
+
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
 
     #########################
     # //Custom data objects #
