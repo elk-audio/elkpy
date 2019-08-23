@@ -534,7 +534,17 @@ class SushiController(object):
 
     # rpc SetParameterValueNormalised(ParameterSetRequest) returns (GenericVoidValue) {}
     def set_parameter_value_normalised(self, _processor_identifier, _parameter_identifier, _value):
-        pass
+        try:
+            self._stub.SetParameterValueNormalised(sushi_rpc_pb2.ParameterSetRequest(
+                parameter = sushi_rpc_pb2.ParameterIdentifier(
+                    processor_id = _processor_identifier,
+                    parameter_id = _parameter_identifier
+                ),
+                value = _value
+            ))
+
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
 
     # rpc SetStringPropertyValue(StringPropertySetRequest) returns (GenericVoidValue) {}
     def set_string_property_value(self, _processor_identifier, _parameter_identifier, _value):
