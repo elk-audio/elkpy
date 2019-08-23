@@ -430,7 +430,14 @@ class SushiController(object):
 
     # rpc GetProcessorParameters (ProcessorIdentifier) returns (ParameterInfoList) {}
     def get_processor_parameters(self, _processor_identifier):
-        pass
+        try:
+            response = self._stub.GetProcessorParameters(sushi_rpc_pb2.ProcessorIdentifier(
+                id = _processor_identifier
+            ))
+            return response
+
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
 
     # // list requests left out
 
