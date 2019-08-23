@@ -509,6 +509,95 @@ class TestSushiControllerProcessorControl(unittest.TestCase):
 
         self.assertEqual(result, expected_result)
 
+class TestSushiControllerParameterControl(unittest.TestCase):
+    def setUp(self):
+        self._sc = SushiController(SUSHI_ADDRESS)
+
+    def test_get_parameter_id(self):
+        result = self._sc.get_parameter_id(1,'octaves')
+        expected_result = 1
+
+        self.assertEqual(result,expected_result)
+
+    def test_get_parameter_info(self):
+        result = self._sc.get_parameter_info(1,1)
+        expected_result = sushi_rpc_pb2.ParameterInfo(
+            id = 1,
+            type = sushi_rpc_pb2.ParameterType(
+                type = int(self._sc.ParameterType.FLOAT)
+            ),
+            label = 'octaves',
+            name = 'octaves',
+            automatable = True,
+            max_range = 1
+        )
+
+        self.assertEqual(result,expected_result)
+
+    def test_get_parameter_value(self):
+        result = self._sc.get_parameter_value(1,1)
+        expected_result = 0
+
+        self.assertEqual(result,expected_result)
+
+    def test_get_parameter_value_normalised(self):
+        result = self._sc.get_parameter_value_normalised(1,1)
+        expected_result = 0
+
+        self.assertEqual(result,expected_result)
+
+    def test_get_parameter_value_as_string(self):
+        result = self._sc.get_parameter_value_as_string(1,1)
+        expected_result = '1'
+
+        self.assertEqual(result, expected_result)
+
+    def test_get_string_property_value(self):
+        result = self._sc.get_string_property_value(1,1)
+        expected_result = '1'
+
+        self.assertEqual(result, expected_result)
+
+    def test_set_parameter_value(self):
+        self._sc.set_parameter_value(1,1,1)
+        result = self._sc.get_parameter_value(1,1)
+        expected_result = 1
+
+        self.assertEqual(result, expected_result)
+
+        self._sc.set_parameter_value(1,1,0)
+        result = self._sc.get_parameter_value(1,1)
+        expected_result = 0
+
+        self.assertEqual(result, expected_result)
+
+    def test_set_parameter_value_normalised(self):
+        self._sc.set_parameter_value_normalised(1,1,1)
+        result = self._sc.get_parameter_value_normalised(1,1)
+        expected_result = 1
+
+        self.assertEqual(result, expected_result)
+
+        self._sc.set_parameter_value_normalised(1,1,0)
+        result = self._sc.get_parameter_value_normalised(1,1)
+        expected_result = 0
+
+        self.assertEqual(result, expected_result)
+
+    def test_set_string_property_value(self):
+        self._sc.set_string_property_value(1,1,'1')
+        result = self._sc.get_string_property_value(1,1)
+        expected_result = '1'
+
+        self.assertEqual(result, expected_result)
+
+        self._sc.set_string_property_value(1,1,'0')
+        result = self._sc.get_string_property_value(1,1)
+        expected_result = '0'
+
+        self.assertEqual(result, expected_result)
+
+
 
 if __name__ == '__main__':
     unittest.main()
