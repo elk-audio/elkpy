@@ -396,7 +396,15 @@ class SushiController(object):
 
     # rpc GetProcessorProgramName (ProcessorProgramIdentifier) returns (GenericStringValue) {}
     def get_processor_program_name(self, _processor_identifier, _program):
-        pass
+        try:
+            response = self._stub.GetProcessorProgramName(sushi_rpc_pb2.ProcessorProgramIdentifier(
+                processor = sushi_rpc_pb2.ProcessorIdentifier(id = _processor_identifier),
+                program = _program
+            ))
+            return response.value
+
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
 
     # rpc GetProcessorPrograms (ProcessorIdentifier) returns (ProgramInfoList) {}
     def get_processor_programs(self, _processor_identifier):
