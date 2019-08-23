@@ -418,8 +418,15 @@ class SushiController(object):
             grpc_error_handling(e)
 
     # rpc SetProcessorProgram (ProcessorProgramSetRequest) returns (GenericVoidValue) {}
-    def set_processor_program(self, _processor, _program):
-        pass
+    def set_processor_program(self, _processor_identifier, _program):
+        try:
+            self._stub.SetProcessorProgram(sushi_rpc_pb2.ProcessorProgramSetRequest(
+                processor = sushi_rpc_pb2.ProcessorIdentifier(id = _processor_identifier),
+                program = sushi_rpc_pb2.ProgramIdentifier(program = _program)
+            ))
+        
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
 
     # rpc GetProcessorParameters (ProcessorIdentifier) returns (ParameterInfoList) {}
     def get_processor_parameters(self, _processor_identifier):
