@@ -2,6 +2,7 @@ import grpc
 from enum import IntEnum
 import sushi_rpc_pb2
 import sushi_rpc_pb2_grpc
+import sushi_info_types
 
 def grpc_error_handling(e):
     print('Grpc error: ' + str(e.code().name) + ', ' + e.details())
@@ -584,33 +585,3 @@ class SushiController(object):
         FLOAT = 3
         STRING_PROPERTY = 4
         DATA_PROPERTY = 5
-
-class ParameterInfo():
-    def __init__(self, _id, _type, _label, _name, _unit, _automatable, _min_range, _max_range):
-        self.id = _id
-        self.type = _type
-        self.label = _label
-        self.name = _name
-        self.unit = _unit
-        self.automatable = _automatable
-        self.min_range = _min_range
-        self.max_range = _max_range
-
-class ProcessorInfo():
-    def __init__(self, _id, _label, _name, _parameter_count, _program_count):
-        self.id = _id
-        self.label = _label
-        self.name = _name
-        self.parameter_count = _parameter_count
-        self.program_count = _program_count
-
-class TrackInfo():
-    def __init__(self, _id, _label, _name, _input_channels, _input_busses, _output_channels, _output_busses, _processor_count):
-        self.id = _id
-        self.label = _label
-        self.name = _name
-        self.input_channels = _input_channels
-        self.input_busses = _input_busses
-        self.output_channels = _output_channels
-        self.output_busses = _output_busses
-        self.processor_count = _processor_count
