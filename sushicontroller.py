@@ -446,14 +446,40 @@ class SushiController(object):
     ########################
 
     # rpc GetParameterId (ParameterIdRequest) returns (ParameterIdentifier) {}
+    def get_parameter_id(self, _processor, _parameter_name):
+        pass
+
     # rpc GetParameterInfo (ParameterIdentifier) returns (ParameterInfo) {}
+    def get_parameter_info(self, _processor_identifier, _parameter_identifier):
+        pass
+
     # rpc GetParameterValue(ParameterIdentifier) returns (GenericFloatValue) {}
+    def get_parameter_value(self, _processor_identifier, _parameter_identifier):
+        pass
+
     # rpc GetParameterValueNormalised(ParameterIdentifier) returns (GenericFloatValue) {}
+    def get_parameter_value_normalised(self, _parameter_identifier):
+        pass
+
     # rpc GetParameterValueAsString(ParameterIdentifier) returns (GenericStringValue) {}
+    def get_parameter_value_as_string(self, _parameter_identifier):
+        pass
+        
     # rpc GetStringPropertyValue(ParameterIdentifier) returns (GenericStringValue) {}
+    def get_string_property_value(self, _parameter_identifier):
+        pass
+
     # rpc SetParameterValue(ParameterSetRequest) returns (GenericVoidValue) {}
+    def set_parameter_value(self, _parameter_identifier, _value):
+        pass
+
     # rpc SetParameterValueNormalised(ParameterSetRequest) returns (GenericVoidValue) {}
+    def set_parameter_value_normalised(self, _parameter_identifier, _value):
+        pass
+
     # rpc SetStringPropertyValue(StringPropertySetRequest) returns (GenericVoidValue) {}
+    def set_string_property_value(self, _parameter_identifier, _value):
+        pass
 
     #########################
     # //Custom data objects #
