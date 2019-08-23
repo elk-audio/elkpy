@@ -446,8 +446,16 @@ class SushiController(object):
     ########################
 
     # rpc GetParameterId (ParameterIdRequest) returns (ParameterIdentifier) {}
-    def get_parameter_id(self, _processor, _parameter_name):
-        pass
+    def get_parameter_id(self, _processor_identifier, _parameter_name):
+        try:
+            response = self._stub.GetParameterId(sushi_rpc_pb2.ParameterIdRequest(
+                processor = sushi_rpc_pb2.ProcessorIdentifier(id = _processor_identifier),
+                ParameterName = _parameter_name
+            ))
+            return response
+
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
 
     # rpc GetParameterInfo (ParameterIdentifier) returns (ParameterInfo) {}
     def get_parameter_info(self, _processor_identifier, _parameter_identifier):
