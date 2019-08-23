@@ -358,5 +358,60 @@ class TestSushiControllerProcessorControl(unittest.TestCase):
 
                 self.assertEqual(result,expected_result)
 
+    def test_get_processor_current_program(self):
+        result = self._sc.get_processor_current_program(1)
+        expected_result = 1
+
+        self.assertEqual(result, expected_result)
+
+    def test_get_processor_current_program_name(self):
+        result = self._sc.get_processor_current_program_name(1)
+        expected_result = 'default'
+
+        self.assertEqual(result,expected_result)
+
+    def test_get_processor_programs(self):
+        result = self._sc.get_processor_programs(1)
+        expected_result = sushi_rpc_pb2.ProcessorInfoList(
+            programs = sushi_rpc_pb2.ProgramInfo(
+                id = 1,
+                name = 'default'
+            )
+        )
+
+        self.assertEqual(result,expected_result)
+
+    def test_set_processor_program(self):
+        wait_time = 0.5
+        self._sc.set_processor_program(1,2)
+        time.sleep(wait_time)
+        result = self._sc.get_processor_current_program(1)
+        expected_result = 2
+        self.assertEqual(result,expected_result)
+
+        self._sc.set_processor_program(1,1)
+        time.sleep(wait_time)
+        result = self._sc.get_processor_current_program(1)
+        expected_result = 1
+        self.assertEqual(result,expected_result)
+
+    def test_get_processor_parameters(self):
+        result = self._sc.get_processor_parameters(1)
+        expected_result = sushi_rpc_pb2.ProgramInfoList(
+            parameters = sushi_rpc_pb2.ParameterInfo(
+                id = 1,
+                type = sushi_rpc_pb2.ParameterType(int(SushiController.ParameterType.FLOAT)),
+                label = 'Octaves',
+                name = 'Octaves',
+                unit = "",
+                automatable = True,
+                min_range = 0,
+                max_range = 1
+            )
+        )
+
+        self.assertEqual(result,expected_result)
+
+
 if __name__ == '__main__':
     unittest.main()
