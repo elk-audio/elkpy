@@ -515,19 +515,39 @@ class TestSushiControllerParameterControl(unittest.TestCase):
 
     def test_get_parameter_id(self):
         result = self._sc.get_parameter_id(1,'octaves')
-        expected_result = 1
+        expected_result = sushi_rpc_pb2.ParameterIdentifier()
+
+        self.assertEqual(result,expected_result)
+
+        result = self._sc.get_parameter_id(1,'persistence')
+        expected_result = sushi_rpc_pb2.ParameterIdentifier(
+            parameter_id = 1
+        )
 
         self.assertEqual(result,expected_result)
 
     def test_get_parameter_info(self):
+        result = self._sc.get_parameter_info(1,0)
+        expected_result = sushi_rpc_pb2.ParameterInfo(
+            type = sushi_rpc_pb2.ParameterType(
+                type = int(self._sc.ParameterType.FLOAT)
+            ),
+            label = 'octaves',
+            name = 'octaves',
+            automatable = True,
+            max_range = 1
+        )
+
+        self.assertEqual(result,expected_result)
+
         result = self._sc.get_parameter_info(1,1)
         expected_result = sushi_rpc_pb2.ParameterInfo(
             id = 1,
             type = sushi_rpc_pb2.ParameterType(
                 type = int(self._sc.ParameterType.FLOAT)
             ),
-            label = 'octaves',
-            name = 'octaves',
+            label = 'persistence',
+            name = 'persistence',
             automatable = True,
             max_range = 1
         )
@@ -548,54 +568,64 @@ class TestSushiControllerParameterControl(unittest.TestCase):
 
     def test_get_parameter_value_as_string(self):
         result = self._sc.get_parameter_value_as_string(1,1)
-        expected_result = '1'
+        expected_result = '1.0'
 
         self.assertEqual(result, expected_result)
 
-    def test_get_string_property_value(self):
-        result = self._sc.get_string_property_value(1,1)
-        expected_result = '1'
+    # TODO: Not implemented in sushi yet
 
-        self.assertEqual(result, expected_result)
+    # def test_get_string_property_value(self):
+    #     result = self._sc.get_string_property_value(1,1)
+    #     expected_result = '1'
+
+    #     self.assertEqual(result, expected_result)
 
     def test_set_parameter_value(self):
+        wait_time = 0.5
         self._sc.set_parameter_value(1,1,1)
+        time.sleep(wait_time)
         result = self._sc.get_parameter_value(1,1)
         expected_result = 1
 
         self.assertEqual(result, expected_result)
 
         self._sc.set_parameter_value(1,1,0)
+        time.sleep(wait_time)
         result = self._sc.get_parameter_value(1,1)
         expected_result = 0
 
         self.assertEqual(result, expected_result)
 
     def test_set_parameter_value_normalised(self):
+        wait_time = 0.5
+
         self._sc.set_parameter_value_normalised(1,1,1)
+        time.sleep(wait_time)
         result = self._sc.get_parameter_value_normalised(1,1)
         expected_result = 1
 
         self.assertEqual(result, expected_result)
 
         self._sc.set_parameter_value_normalised(1,1,0)
+        time.sleep(wait_time)
         result = self._sc.get_parameter_value_normalised(1,1)
         expected_result = 0
 
         self.assertEqual(result, expected_result)
 
-    def test_set_string_property_value(self):
-        self._sc.set_string_property_value(1,1,'1')
-        result = self._sc.get_string_property_value(1,1)
-        expected_result = '1'
+    # TODO: Not implemented in sushi yet
+    # def test_set_string_property_value(self):
+    #     self._sc.set_string_property_value(1,1,'1')
+    #     result = self._sc.get_string_property_value(1,1)
+    #     expected_result = '1'
 
-        self.assertEqual(result, expected_result)
+    #     self.assertEqual(result, expected_result)
 
-        self._sc.set_string_property_value(1,1,'0')
-        result = self._sc.get_string_property_value(1,1)
-        expected_result = '0'
+    #     self._sc.set_string_property_value(1,1,'0')
+    #     result = self._sc.get_string_property_value(1,1)
+    #     expected_result = '0'
 
-        self.assertEqual(result, expected_result)
+    #     self.assertEqual(result, expected_result)
 
 
 
