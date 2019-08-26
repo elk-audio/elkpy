@@ -1,5 +1,5 @@
 class ParameterInfo():
-    def __init__(self, _grpc_ParameterInfo):
+    def __init__(self, _grpc_ParameterInfo = None):
         try:
             self.id = _grpc_ParameterInfo.id
         except:
@@ -59,17 +59,17 @@ class ParameterInfo():
         return self.__str__()
 
     def __eq__(self, other):
-        self.id = other.id
-        self.type = other.type
-        self.label = other.label
-        self.name = other.name
-        self.unit = other.unit
-        self.automatable = other .automatable
-        self.min_range = other.min_range
-        self.max_range = other.max_range
+        return self.id == other.id \
+            and self.type == other.type \
+            and self.label == other.label \
+            and self.name == other.name \
+            and self.unit == other.unit \
+            and self.automatable == other .automatable \
+            and self.min_range == other.min_range \
+            and self.max_range == other.max_range
 
 class ProcessorInfo():
-    def __init__(self, _grpc_ProcessorInfo):
+    def __init__(self, _grpc_ProcessorInfo = None):
         try:
             self.id = _grpc_ProcessorInfo.id
         except: 
@@ -117,12 +117,69 @@ class ProcessorInfo():
 
 
 class TrackInfo():
-    def __init__(self, _id, _label, _name, _input_channels, _input_busses, _output_channels, _output_busses, _processor_count):
-        self.id = _id
-        self.label = _label
-        self.name = _name
-        self.input_channels = _input_channels
-        self.input_busses = _input_busses
-        self.output_channels = _output_channels
-        self.output_busses = _output_busses
-        self.processor_count = _processor_count
+    def __init__(self, _grpc_TrackInfo = None):
+        try:
+            self.id = _grpc_TrackInfo.id
+        except:
+            self.id = None
+        
+        try:
+            self.label = _grpc_TrackInfo.label
+        except:
+            self.label = None
+
+        try:
+            self.name = _grpc_TrackInfo.name
+        except:
+            self.name = None
+
+        try:
+            self.input_channels = _grpc_TrackInfo.input_channels
+        except:
+            self.input_channels = None
+
+        try:
+            self.input_busses = _grpc_TrackInfo.input_busses
+        except:
+            self.input_busses = None
+
+        try:
+            self.output_channels = _grpc_TrackInfo.output_channels
+        except:
+            self.output_channels = None
+
+        try:
+            self.output_busses = _grpc_TrackInfo.output_busses
+        except:
+            self.output_busses = None
+
+        try:
+            self.processor_count = _grpc_TrackInfo.processor_count
+        except:
+            self.processor_count = None
+
+    def __str__(self):
+        s = '{\n'
+        s += ' id: %s \n' %self.id
+        s += ' label: %s \n' %self.label
+        s += ' name: %s \n' %self.name
+        s += ' input_channels: %s \n' %self.input_channels
+        s += ' input_busses: %s \n' %self.input_busses
+        s += ' output_channels: %s \n' %self.output_channels
+        s += ' output_busses: %s \n' %self.output_busses
+        s += ' processor_count: %s \n' %self.processor_count
+        s += '}'
+        return s
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __eq__(self, other):
+        return self.id == other.id \
+            and self.label == other.label \
+            and self.name == other.name \
+            and self.input_channels == other.input_channels \
+            and self.input_busses == other.input_busses \
+            and self.output_channels == other.output_channels \
+            and self.output_busses == other.output_busses \
+            and self.processor_count == other.processor_count
