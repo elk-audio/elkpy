@@ -2,7 +2,7 @@ import grpc
 from enum import IntEnum
 import sushi_rpc_pb2
 import sushi_rpc_pb2_grpc
-import sushi_info_types
+import sushi_info_types as infoTypes
 
 def grpc_error_handling(e):
     print('Grpc error: ' + str(e.code().name) + ', ' + e.details())
@@ -115,7 +115,11 @@ class SushiController(object):
     def get_tracks(self):
         try:
             response = self._stub.GetTracks(sushi_rpc_pb2.GenericVoidValue())
-            return response
+            
+            track_info_list = []
+            for track_info in response.tracks:
+                track_info_list.append(infoTypes.TrackInfo(track_info))
+            return track_info_list
 
         except grpc.RpcError as e:
             grpc_error_handling(e)
@@ -288,7 +292,7 @@ class SushiController(object):
             response = self._stub.GetTrackInfo(sushi_rpc_pb2.TrackIdentifier(
                 id = _track_identifier
             ))
-            return response
+            return infoTypes.TrackInfo(response)
 
         except grpc.RpcError as e:
             grpc_error_handling(e)
@@ -306,7 +310,12 @@ class SushiController(object):
             response = self._stub.GetTrackProcessors(sushi_rpc_pb2.TrackIdentifier(
                 id = _track_identifier
             ))
-            return response
+            
+            processor_info_list = []
+            for processor_info in response.processors:
+                processor_info_list.append(infoTypes.ProcessorInfo(processor_info))
+            
+            return processor_info_list
         
         except grpc.RpcError as e:
             grpc_error_handling(e)
@@ -317,7 +326,12 @@ class SushiController(object):
             response = self._stub.GetTrackParameters(sushi_rpc_pb2.TrackIdentifier(
                 id = _track_identifier
             ))
-            return response
+            
+            parameter_info_list = []
+            for parameter_info in response.parameters:
+                parameter_info_list.append(infoTypes.ParameterInfo(parameter_info))
+            
+            return parameter_info_list
 
         except grpc.RpcError as e:
             grpc_error_handling(e)
@@ -345,7 +359,7 @@ class SushiController(object):
             response = self._stub.GetProcessorInfo(sushi_rpc_pb2.ProcessorIdentifier(
                 id = _processor_identifier
             ))
-            return response
+            return infoTypes.ProcessorInfo(response)
 
         except grpc.RpcError as e:
             grpc_error_handling(e)
@@ -413,7 +427,12 @@ class SushiController(object):
             response = self._stub.GetProcessorPrograms(sushi_rpc_pb2.ProcessorIdentifier(
                 id = _processor_identifier
             ))
-            return response
+            
+            program_info_list = []
+            for program_info in response.programs:
+                program_info_list.append(infoTypes.ProgramInfo(program_info))
+            
+            return program_info_list
 
         except grpc.RpcError as e:
             grpc_error_handling(e)
@@ -435,7 +454,12 @@ class SushiController(object):
             response = self._stub.GetProcessorParameters(sushi_rpc_pb2.ProcessorIdentifier(
                 id = _processor_identifier
             ))
-            return response
+            
+            parameter_info_list = []
+            for parameter_info in response.parameters:
+                parameter_info_list.append(infoTypes.ParameterInfo(parameter_info))
+            
+            return parameter_info_list
 
         except grpc.RpcError as e:
             grpc_error_handling(e)
@@ -453,7 +477,7 @@ class SushiController(object):
                 processor = sushi_rpc_pb2.ProcessorIdentifier(id = _processor_identifier),
                 ParameterName = _parameter_name
             ))
-            return response
+            return response.processor_id, response.parameter_id
 
         except grpc.RpcError as e:
             grpc_error_handling(e)
@@ -465,7 +489,7 @@ class SushiController(object):
                 processor_id = _processor_identifier,
                 parameter_id = _parameter_identifier
             ))
-            return response
+            return infoTypes.ParameterInfo(response)
 
         except grpc.RpcError as e:
             grpc_error_handling(e)

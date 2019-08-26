@@ -333,8 +333,251 @@ class sushi_processor_info_test(unittest.TestCase):
         self.assertEqual(result, expected_result)
 
 class sushi_track_info_test(unittest.TestCase):
-    def __init__(self):
+    def test_all_parameters(self):
+        result = types.TrackInfo(sushi_rpc_pb2.TrackInfo(
+            id = 1,
+            label = 'test',
+            name = 'test',
+            input_channels = 2,
+            input_busses = 1,
+            output_channels = 2,
+            output_busses = 1,
+            processor_count = 10
+        ))
+
         expected_result = types.TrackInfo()
+        expected_result.id = 1
+        expected_result.label = 'test'
+        expected_result.name = 'test'
+        expected_result.input_channels = 2
+        expected_result.input_busses = 1
+        expected_result.output_channels = 2
+        expected_result.output_busses = 1
+        expected_result.processor_count = 10
+
+        self.assertEqual(result, expected_result)
+
+    def test_missing_id(self):
+        result = types.TrackInfo(sushi_rpc_pb2.TrackInfo(
+            label = 'test',
+            name = 'test',
+            input_channels = 2,
+            input_busses = 1,
+            output_channels = 2,
+            output_busses = 1,
+            processor_count = 10
+        ))
+
+        expected_result = types.TrackInfo()
+        expected_result.id = 0
+        expected_result.label = 'test'
+        expected_result.name = 'test'
+        expected_result.input_channels = 2
+        expected_result.input_busses = 1
+        expected_result.output_channels = 2
+        expected_result.output_busses = 1
+        expected_result.processor_count = 10
+
+        self.assertEqual(result, expected_result)
+
+    def test_missing_label(self):
+        result = types.TrackInfo(sushi_rpc_pb2.TrackInfo(
+            id = 1,
+            name = 'test',
+            input_channels = 2,
+            input_busses = 1,
+            output_channels = 2,
+            output_busses = 1,
+            processor_count = 10
+        ))
+
+        expected_result = types.TrackInfo()
+        expected_result.id = 1
+        expected_result.label = ''
+        expected_result.name = 'test'
+        expected_result.input_channels = 2
+        expected_result.input_busses = 1
+        expected_result.output_channels = 2
+        expected_result.output_busses = 1
+        expected_result.processor_count = 10
+
+        self.assertEqual(result, expected_result)
+
+    def test_missing_name(self):
+        result = types.TrackInfo(sushi_rpc_pb2.TrackInfo(
+            id = 1,
+            label = 'test',
+            input_channels = 2,
+            input_busses = 1,
+            output_channels = 2,
+            output_busses = 1,
+            processor_count = 10
+        ))
+
+        expected_result = types.TrackInfo()
+        expected_result.id = 1
+        expected_result.label = 'test'
+        expected_result.name = ''
+        expected_result.input_channels = 2
+        expected_result.input_busses = 1
+        expected_result.output_channels = 2
+        expected_result.output_busses = 1
+        expected_result.processor_count = 10
+
+        self.assertEqual(result, expected_result)
+
+    def test_missing_input_channels(self):
+        result = types.TrackInfo(sushi_rpc_pb2.TrackInfo(
+            id = 1,
+            label = 'test',
+            name = 'test',
+            input_busses = 1,
+            output_channels = 2,
+            output_busses = 1,
+            processor_count = 10
+        ))
+
+        expected_result = types.TrackInfo()
+        expected_result.id = 1
+        expected_result.label = 'test'
+        expected_result.name = 'test'
+        expected_result.input_channels = 0
+        expected_result.input_busses = 1
+        expected_result.output_channels = 2
+        expected_result.output_busses = 1
+        expected_result.processor_count = 10
+
+        self.assertEqual(result, expected_result)
+        
+    def test_missing_busses(self):
+        result = types.TrackInfo(sushi_rpc_pb2.TrackInfo(
+            id = 1,
+            label = 'test',
+            name = 'test',
+            input_channels = 2,
+            output_channels = 2,
+            output_busses = 1,
+            processor_count = 10
+        ))
+
+        expected_result = types.TrackInfo()
+        expected_result.id = 1
+        expected_result.label = 'test'
+        expected_result.name = 'test'
+        expected_result.input_channels = 2
+        expected_result.input_busses = 0
+        expected_result.output_channels = 2
+        expected_result.output_busses = 1
+        expected_result.processor_count = 10
+
+        self.assertEqual(result, expected_result)
+    
+    def test_missing_output_channels(self):
+        result = types.TrackInfo(sushi_rpc_pb2.TrackInfo(
+            id = 1,
+            label = 'test',
+            name = 'test',
+            input_channels = 2,
+            input_busses = 1,
+            output_busses = 1,
+            processor_count = 10
+        ))
+
+        expected_result = types.TrackInfo()
+        expected_result.id = 1
+        expected_result.label = 'test'
+        expected_result.name = 'test'
+        expected_result.input_channels = 2
+        expected_result.input_busses = 1
+        expected_result.output_channels = 0
+        expected_result.output_busses = 1
+        expected_result.processor_count = 10
+
+        self.assertEqual(result, expected_result)
+
+    def test_missing_output_busses(self):
+        result = types.TrackInfo(sushi_rpc_pb2.TrackInfo(
+            id = 1,
+            label = 'test',
+            name = 'test',
+            input_channels = 2,
+            input_busses = 1,
+            output_channels = 2,
+            processor_count = 10
+        ))
+
+        expected_result = types.TrackInfo()
+        expected_result.id = 1
+        expected_result.label = 'test'
+        expected_result.name = 'test'
+        expected_result.input_channels = 2
+        expected_result.input_busses = 1
+        expected_result.output_channels = 2
+        expected_result.output_busses = 0
+        expected_result.processor_count = 10
+
+        self.assertEqual(result, expected_result)
+
+    def test_missing_processor_count(self):
+        result = types.TrackInfo(sushi_rpc_pb2.TrackInfo(
+            id = 1,
+            label = 'test',
+            name = 'test',
+            input_channels = 2,
+            input_busses = 1,
+            output_channels = 2,
+            output_busses = 1
+        ))
+
+        expected_result = types.TrackInfo()
+        expected_result.id = 1
+        expected_result.label = 'test'
+        expected_result.name = 'test'
+        expected_result.input_channels = 2
+        expected_result.input_busses = 1
+        expected_result.output_channels = 2
+        expected_result.output_busses = 1
+        expected_result.processor_count = 0
+
+        self.assertEqual(result, expected_result)
+
+class sushi_program_info_test(unittest.TestCase):
+    def test_all_parameters(self):
+        result = types.ProgramInfo(sushi_rpc_pb2.ProgramInfo(
+            id = sushi_rpc_pb2.ProgramIdentifier(program = 1),
+            name = 'test'
+        ))
+
+        expected_result = types.ProgramInfo()
+
+        expected_result.id = 1
+        expected_result.name = 'test'
+
+        self.assertEqual(result, expected_result)
+
+    def test_missing_id(self):
+        result = types.ProgramInfo(sushi_rpc_pb2.ProgramInfo(
+            name = 'test'
+        ))
+
+        expected_result = types.ProgramInfo()
+
+        expected_result.id = 0
+        expected_result.name = 'test'
+
+        self.assertEqual(result, expected_result)
+
+    def test_missing_name(self):
+        result = types.ProgramInfo(sushi_rpc_pb2.ProgramInfo(
+            id = sushi_rpc_pb2.ProgramIdentifier(program = 1)
+        ))
+
+        expected_result = types.ProgramInfo()
+
+        expected_result.id = 1
+        expected_result.name = ''
+
+        self.assertEqual(result, expected_result)
 
 
 

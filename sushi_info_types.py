@@ -3,44 +3,44 @@ class ParameterInfo():
         try:
             self.id = _grpc_ParameterInfo.id
         except:
-            self.id = None
+            self.id = 0
         
         grpc_types = {0: "DUMMY", 1: "BOOL", 2: "INT", 3: "FLOAT", 4: "STRING_PROPERTY", 5: "DATA_PROPERTY"}
         try:
             self.type = grpc_types.get(_grpc_ParameterInfo.type.type)
 
         except:
-            self.type = None
+            self.type = "DUMMY"
 
         try:
             self.label = _grpc_ParameterInfo.label
         except:
-            self.label = None
+            self.label = ''
 
         try:            
             self.name = _grpc_ParameterInfo.name
         except:
-            self.name = None
+            self.name = ''
 
         try:
             self.unit = _grpc_ParameterInfo.unit
         except:
-            self.unit = None
+            self.unit = ''
 
         try:
             self.automatable = _grpc_ParameterInfo.automatable
         except:
-            self.automatable = None
+            self.automatable = False
 
         try:
             self.min_range = _grpc_ParameterInfo.min_range
         except:
-            self.min_range = None
+            self.min_range = 0.0
 
         try:
             self.max_range = _grpc_ParameterInfo.max_range
         except:
-            self.max_range = None
+            self.max_range = 0.0
 
     def __str__(self):
         s = '{\n'
@@ -73,27 +73,27 @@ class ProcessorInfo():
         try:
             self.id = _grpc_ProcessorInfo.id
         except: 
-            self.id = None
+            self.id = 0
         
         try:
             self.label = _grpc_ProcessorInfo.label
         except:
-            self.label = None
+            self.label = ''
 
         try:
             self.name = _grpc_ProcessorInfo.name
         except:
-            self.name = None
+            self.name = ''
 
         try:
             self.parameter_count = _grpc_ProcessorInfo.parameter_count
         except:
-            self.parameter_count = None
+            self.parameter_count = 0
 
         try:
             self.program_count = _grpc_ProcessorInfo.program_count
         except:
-            self.program_count = None
+            self.program_count = 0
 
     def __str__(self):
         s = '{\n'
@@ -121,42 +121,42 @@ class TrackInfo():
         try:
             self.id = _grpc_TrackInfo.id
         except:
-            self.id = None
+            self.id = 0
         
         try:
             self.label = _grpc_TrackInfo.label
         except:
-            self.label = None
+            self.label = ''
 
         try:
             self.name = _grpc_TrackInfo.name
         except:
-            self.name = None
+            self.name = ''
 
         try:
             self.input_channels = _grpc_TrackInfo.input_channels
         except:
-            self.input_channels = None
+            self.input_channels = 0
 
         try:
             self.input_busses = _grpc_TrackInfo.input_busses
         except:
-            self.input_busses = None
+            self.input_busses = 0
 
         try:
             self.output_channels = _grpc_TrackInfo.output_channels
         except:
-            self.output_channels = None
+            self.output_channels = 0
 
         try:
             self.output_busses = _grpc_TrackInfo.output_busses
         except:
-            self.output_busses = None
+            self.output_busses = 0
 
         try:
             self.processor_count = _grpc_TrackInfo.processor_count
         except:
-            self.processor_count = None
+            self.processor_count = 0
 
     def __str__(self):
         s = '{\n'
@@ -183,3 +183,29 @@ class TrackInfo():
             and self.output_channels == other.output_channels \
             and self.output_busses == other.output_busses \
             and self.processor_count == other.processor_count
+
+class ProgramInfo():
+    def __init__(self, _grpc_ProgramInfo = None):
+        try:
+            self.id = _grpc_ProgramInfo.id.program
+        except:
+            self.id = 0
+
+        try:
+            self.name = _grpc_ProgramInfo.name
+        except:
+            self.name = ''
+
+    def __str__(self):
+        s = '{ \n'
+        s += ' id: %s \n' %self.id
+        s += ' name: %s \n' %self.name
+        s += '}'
+        return s
+    
+    def __repr__(self):
+        return self.__str__()
+
+    def __eq__(self, other):
+        return self.id == other.id \
+            and self.name == other.name

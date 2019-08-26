@@ -3,6 +3,7 @@ import unittest
 import time
 from sushicontroller import SushiController
 from sushicontroller import sushi_rpc_pb2
+from sushicontroller import infoTypes
 
 SUSHI_ADDRESS = ('localhost:51051')
 
@@ -133,21 +134,20 @@ class TestSushiController(unittest.TestCase):
         self.assertEqual(self._sc.get_time_signature(), (4, 4))
         time.sleep(wait_time)
 
-    def test_get_tracks(self):
-        track_list = []
-        # TODO: data types of this doesn't match the proto file. doesn't have id and label
-        track_list.append(sushi_rpc_pb2.TrackInfo(
-            name='main',
-            input_channels=2,
-            input_busses=1,
-            output_channels=2,
-            output_busses=1,
-            processor_count=2
-        ))
+    def test_get_tracks(self):    
+        expected_result = []
 
-        expected_result = sushi_rpc_pb2.TrackInfoList(
-            tracks=track_list
-        )
+        expected_result.append(infoTypes.TrackInfo())
+
+        expected_result[0].id = 0
+        expected_result[0].label = ''
+        expected_result[0].name = 'main'
+        expected_result[0].input_channels = 2
+        expected_result[0].input_busses = 1
+        expected_result[0].output_channels = 2
+        expected_result[0].output_busses = 1
+        expected_result[0].processor_count = 2
+
         self.assertEqual(self._sc.get_tracks(), expected_result)
 
 
@@ -232,52 +232,67 @@ class TestSushiControllerTrackControl(unittest.TestCase):
 
     def test_get_track_processors(self):
         result = self._sc.get_track_processors(0)
-        expected_result = sushi_rpc_pb2.ProcessorInfoList(
-            processors=(
-                sushi_rpc_pb2.ProcessorInfo(
-                    id=1,
-                    label='Andes-1',
-                    name='andes',
-                    parameter_count=8,
-                    program_count=100
-                ),
-                sushi_rpc_pb2.ProcessorInfo(
-                    id=2,
-                    label='Temper',
-                    name='Temper',
-                    parameter_count=7,
-                    program_count=5
-                )
-            )
-        )
+        # expected_result = sushi_rpc_pb2.ProcessorInfoList(
+        #     processors=(
+        #         sushi_rpc_pb2.ProcessorInfo(
+        #             id=1,
+        #             label='Andes-1',
+        #             name='andes',
+        #             parameter_count=8,
+        #             program_count=100
+        #         ),
+        #         sushi_rpc_pb2.ProcessorInfo(
+        #             id=2,
+        #             label='Temper',
+        #             name='Temper',
+        #             parameter_count=7,
+        #             program_count=5
+        #         )
+        #     )
+        # )
+
+        expected_result = []
+
+        expected_result.append(infoTypes.ProcessorInfo())
+        expected_result.append(infoTypes.ProcessorInfo())
+
+        expected_result[0].id = 1
+        expected_result[0].label = 'Andes-1'
+        expected_result[0].name = 'andes'
+        expected_result[0].parameter_count = 8
+        expected_result[0].program_count = 100
+
+        expected_result[1].id = 2
+        expected_result[1].label = 'Temper'
+        expected_result[1].name = 'Temper'
+        expected_result[1].parameter_count = 7
+        expected_result[1].program_count = 5
 
         self.assertEqual(result, expected_result)
 
     def test_get_track_parameters(self):
         result = self._sc.get_track_parameters(0)
-        expected_result = sushi_rpc_pb2.ParameterInfoList(
-            parameters=(
-                sushi_rpc_pb2.ParameterInfo(
-                    type=sushi_rpc_pb2.ParameterType(
-                        type=int(self._sc.ParameterType.FLOAT)),
-                    label='Gain',
-                    name='gain',
-                    automatable=True,
-                    min_range=-120,
-                    max_range=24
-                ),
-                sushi_rpc_pb2.ParameterInfo(
-                    id=1,
-                    type=sushi_rpc_pb2.ParameterType(
-                        type=int(self._sc.ParameterType.FLOAT)),
-                    label='Pan',
-                    name='pan',
-                    automatable=True,
-                    min_range=-1,
-                    max_range=1
-                )
-            )
-        )
+        
+        expected_result = []
+        
+        expected_result.append(infoTypes.ParameterInfo())
+        expected_result.append(infoTypes.ParameterInfo())
+        
+        expected_result[0].id = 0
+        expected_result[0].type = 'FLOAT'
+        expected_result[0].label = 'Gain'
+        expected_result[0].name = 'gain'
+        expected_result[0].automatable = True
+        expected_result[0].min_range = -120
+        expected_result[0].max_range = 24 
+
+        expected_result[1].id = 1
+        expected_result[1].type = 'FLOAT'
+        expected_result[1].label = 'Pan'
+        expected_result[1].name = 'pan'
+        expected_result[1].automatable = True
+        expected_result[1].min_range = -1
+        expected_result[1].max_range = 1 
 
         self.assertEqual(result, expected_result)
 
@@ -388,30 +403,29 @@ class TestSushiControllerProcessorControl(unittest.TestCase):
 
     def test_get_processor_programs(self):
         result = self._sc.get_processor_programs(2)
-        expected_result = sushi_rpc_pb2.ProgramInfoList(
-            programs=(
-                sushi_rpc_pb2.ProgramInfo(
-                    id=sushi_rpc_pb2.ProgramIdentifier(),
-                    name='Default'
-                ),
-                sushi_rpc_pb2.ProgramInfo(
-                    id=sushi_rpc_pb2.ProgramIdentifier(program=1),
-                    name='Stubbed Toe'
-                ),
-                sushi_rpc_pb2.ProgramInfo(
-                    id=sushi_rpc_pb2.ProgramIdentifier(program=2),
-                    name='Bee Sting'
-                ),
-                sushi_rpc_pb2.ProgramInfo(
-                    id=sushi_rpc_pb2.ProgramIdentifier(program=3),
-                    name='Morning at the DMV'
-                ),
-                sushi_rpc_pb2.ProgramInfo(
-                    id=sushi_rpc_pb2.ProgramIdentifier(program=4),
-                    name='Flying United'
-                )
-            )
-        )
+
+        expected_result = []
+
+        expected_result.append(infoTypes.ProgramInfo())
+        expected_result.append(infoTypes.ProgramInfo())
+        expected_result.append(infoTypes.ProgramInfo())
+        expected_result.append(infoTypes.ProgramInfo())
+        expected_result.append(infoTypes.ProgramInfo())
+
+        expected_result[0].id = 0
+        expected_result[0].name = 'Default'
+
+        expected_result[1].id = 1
+        expected_result[1].name = 'Stubbed Toe'
+
+        expected_result[2].id = 2
+        expected_result[2].name = 'Bee Sting'
+
+        expected_result[3].id = 3
+        expected_result[3].name = 'Morning at the DMV'
+
+        expected_result[4].id = 4
+        expected_result[4].name = 'Flying United'
 
         self.assertEqual(result, expected_result)
 
@@ -431,81 +445,89 @@ class TestSushiControllerProcessorControl(unittest.TestCase):
 
     def test_get_processor_parameters(self):
         result = self._sc.get_processor_parameters(1)
-        expected_result = sushi_rpc_pb2.ParameterInfoList(
-            parameters=(
-                sushi_rpc_pb2.ParameterInfo(
-                    type=sushi_rpc_pb2.ParameterType(
-                        type = int(SushiController.ParameterType.FLOAT)),
-                    label='octaves',
-                    name='octaves',
-                    automatable=True,
-                    max_range=1
-                ),
-                sushi_rpc_pb2.ParameterInfo(
-                    id=1,
-                    type=sushi_rpc_pb2.ParameterType(
-                        type = int(SushiController.ParameterType.FLOAT)),
-                    label='persistence',
-                    name='persistence',
-                    automatable=True,
-                    max_range=1
-                ),
-                sushi_rpc_pb2.ParameterInfo(
-                    id=2,
-                    type=sushi_rpc_pb2.ParameterType(
-                        type = int(SushiController.ParameterType.FLOAT)),
-                    label='env1att',
-                    name='env1att',
-                    automatable=True,
-                    max_range=1
-                ),
-                sushi_rpc_pb2.ParameterInfo(
-                    id=3,
-                    type=sushi_rpc_pb2.ParameterType(
-                        type = int(SushiController.ParameterType.FLOAT)),
-                    label='env1dec',
-                    name='env1dec',
-                    automatable=True,
-                    max_range=1
-                ),
-                sushi_rpc_pb2.ParameterInfo(
-                    id=4,
-                    type=sushi_rpc_pb2.ParameterType(
-                        type = int(SushiController.ParameterType.FLOAT)),
-                    label='env1sus',
-                    name='env1sus',
-                    automatable=True,
-                    max_range=1
-                ),
-                sushi_rpc_pb2.ParameterInfo(
-                    id=5,
-                    type=sushi_rpc_pb2.ParameterType(
-                        type = int(SushiController.ParameterType.FLOAT)),
-                    label='env1rel',
-                    name='env1rel',
-                    automatable=True,
-                    max_range=1
-                ),
-                sushi_rpc_pb2.ParameterInfo(
-                    id=6,
-                    type=sushi_rpc_pb2.ParameterType(
-                        type = int(SushiController.ParameterType.FLOAT)),
-                    label='offset',
-                    name='offset',
-                    automatable=True,
-                    max_range=1
-                ),
-                sushi_rpc_pb2.ParameterInfo(
-                    id=7,
-                    type=sushi_rpc_pb2.ParameterType(
-                        type = int(SushiController.ParameterType.FLOAT)),
-                    label='warping',
-                    name='warping',
-                    automatable=True,
-                    max_range=1
-                )
-            )
-        )
+    
+        expected_result = []
+
+        expected_result.append(infoTypes.ParameterInfo())
+        expected_result.append(infoTypes.ParameterInfo())
+        expected_result.append(infoTypes.ParameterInfo())
+        expected_result.append(infoTypes.ParameterInfo())
+        expected_result.append(infoTypes.ParameterInfo())
+        expected_result.append(infoTypes.ParameterInfo())
+        expected_result.append(infoTypes.ParameterInfo())
+        expected_result.append(infoTypes.ParameterInfo())
+
+        expected_result[0].id = 0
+        expected_result[0].type = 'FLOAT'
+        expected_result[0].label = 'octaves'
+        expected_result[0].name = 'octaves'
+        expected_result[0].unit = ''
+        expected_result[0].automatable = True
+        expected_result[0].min_range = 0
+        expected_result[0].max_range = 1
+
+        expected_result[1].id = 1
+        expected_result[1].type = 'FLOAT'
+        expected_result[1].label = 'persistence'
+        expected_result[1].name = 'persistence'
+        expected_result[1].unit = ''
+        expected_result[1].automatable = True
+        expected_result[1].min_range = 0
+        expected_result[1].max_range = 1
+
+        expected_result[2].id = 2
+        expected_result[2].type = 'FLOAT'
+        expected_result[2].label = 'env1att'
+        expected_result[2].name = 'env1att'
+        expected_result[2].unit = ''
+        expected_result[2].automatable = True
+        expected_result[2].min_range = 0
+        expected_result[2].max_range = 1
+
+        expected_result[3].id = 3
+        expected_result[3].type = 'FLOAT'
+        expected_result[3].label = 'env1dec'
+        expected_result[3].name = 'env1dec'
+        expected_result[3].unit = ''
+        expected_result[3].automatable = True
+        expected_result[3].min_range = 0
+        expected_result[3].max_range = 1
+
+        expected_result[4].id = 4
+        expected_result[4].type = 'FLOAT'
+        expected_result[4].label = 'env1sus'
+        expected_result[4].name = 'env1sus'
+        expected_result[4].unit = ''
+        expected_result[4].automatable = True
+        expected_result[4].min_range = 0
+        expected_result[4].max_range = 1
+
+        expected_result[5].id = 5
+        expected_result[5].type = 'FLOAT'
+        expected_result[5].label = 'env1rel'
+        expected_result[5].name = 'env1rel'
+        expected_result[5].unit = ''
+        expected_result[5].automatable = True
+        expected_result[5].min_range = 0
+        expected_result[5].max_range = 1
+
+        expected_result[6].id = 6
+        expected_result[6].type = 'FLOAT'
+        expected_result[6].label = 'offset'
+        expected_result[6].name = 'offset'
+        expected_result[6].unit = ''
+        expected_result[6].automatable = True
+        expected_result[6].min_range = 0
+        expected_result[6].max_range = 1
+
+        expected_result[7].id = 7
+        expected_result[7].type = 'FLOAT'
+        expected_result[7].label = 'warping'
+        expected_result[7].name = 'warping'
+        expected_result[7].unit = ''
+        expected_result[7].automatable = True
+        expected_result[7].min_range = 0
+        expected_result[7].max_range = 1
 
         self.assertEqual(result, expected_result)
 
@@ -515,42 +537,41 @@ class TestSushiControllerParameterControl(unittest.TestCase):
 
     def test_get_parameter_id(self):
         result = self._sc.get_parameter_id(1,'octaves')
-        expected_result = sushi_rpc_pb2.ParameterIdentifier()
+        expected_result = (0,0)
 
         self.assertEqual(result,expected_result)
 
         result = self._sc.get_parameter_id(1,'persistence')
-        expected_result = sushi_rpc_pb2.ParameterIdentifier(
-            parameter_id = 1
-        )
+        expected_result = (0,1)
 
         self.assertEqual(result,expected_result)
 
     def test_get_parameter_info(self):
         result = self._sc.get_parameter_info(1,0)
-        expected_result = sushi_rpc_pb2.ParameterInfo(
-            type = sushi_rpc_pb2.ParameterType(
-                type = int(self._sc.ParameterType.FLOAT)
-            ),
-            label = 'octaves',
-            name = 'octaves',
-            automatable = True,
-            max_range = 1
-        )
+
+        expected_result = infoTypes.ParameterInfo()
+        expected_result.id = 0
+        expected_result.type = 'FLOAT'
+        expected_result.label = 'octaves'
+        expected_result.name = 'octaves'
+        expected_result.unit = ''
+        expected_result.automatable = True
+        expected_result.min_range = 0.0
+        expected_result.max_range = 1.0
 
         self.assertEqual(result,expected_result)
 
         result = self._sc.get_parameter_info(1,1)
-        expected_result = sushi_rpc_pb2.ParameterInfo(
-            id = 1,
-            type = sushi_rpc_pb2.ParameterType(
-                type = int(self._sc.ParameterType.FLOAT)
-            ),
-            label = 'persistence',
-            name = 'persistence',
-            automatable = True,
-            max_range = 1
-        )
+ 
+        expected_result = infoTypes.ParameterInfo()
+        expected_result.id = 1
+        expected_result.type = 'FLOAT'
+        expected_result.label = 'persistence'
+        expected_result.name = 'persistence'
+        expected_result.unit = ''
+        expected_result.automatable = True
+        expected_result.min_range = 0.0
+        expected_result.max_range = 1.0
 
         self.assertEqual(result,expected_result)
 
