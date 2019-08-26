@@ -58,6 +58,16 @@ class ParameterInfo():
     def __repr__(self):
         return self.__str__()
 
+    def __eq__(self, other):
+        self.id = other.id
+        self.type = other.type
+        self.label = other.label
+        self.name = other.name
+        self.unit = other.unit
+        self.automatable = other .automatable
+        self.min_range = other.min_range
+        self.max_range = other.max_range
+
 class ProcessorInfo():
     def __init__(self, _grpc_ProcessorInfo):
         try:
