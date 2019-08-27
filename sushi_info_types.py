@@ -1,3 +1,5 @@
+import sushi_rpc_pb2
+
 class ParameterInfo():
     def __init__(self, _grpc_ParameterInfo = None):
         try:
@@ -55,7 +57,7 @@ class ParameterInfo():
         s += '}'
         return s
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.__str__()
 
     def __eq__(self, other):
