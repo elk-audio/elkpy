@@ -1,5 +1,6 @@
 from time import sleep
 #import pygro
+import sushicontroller as sc
 import tkinter as tk
 
 SLEEP_PERIOD = 0.0001# increase to limit the number of simultaneous set requests (Re's don't like that)
@@ -18,32 +19,37 @@ class App(tk.Frame):
         self.create_widgets()
 
     def set_parameter(self, processor_id, parameter_id, value):
-        self.cont.SetParameterValue(parameter={"processor_id": processor_id, "parameter_id": parameter_id}, value=value) 
+        # self.cont.SetParameterValue(parameter={"processor_id": processor_id, "parameter_id": parameter_id}, value=value) 
+        self.cont.set_parameter_value(processor_id, parameter_id, value)
         sleep(SLEEP_PERIOD )
-        txt_val = self.cont.GetParameterValueAsString(parameter={"processor_id": processor_id, "parameter_id":parameter_id})
+        # txt_val = self.cont.GetParameterValueAsString(parameter={"processor_id": processor_id, "parameter_id":parameter_id})
+        txt_val = self.cont.get_parameter_value_as_string(processor_id, parameter_id)
         self.value_display.delete(0, tk.END)
-        self.value_display.insert(0, str(value) + " ("+str(txt_val.value)+")")
+        self.value_display.insert(0, str(value) + " ("+str(txt_val)+")")
 
     def set_program(self, processor_id, program, programs):
         program_id = programs.index(program)
-        self.cont.SetProcessorProgram(processor= processor_id, program=program_id)
+        #self.cont.SetProcessorProgram(processor= processor_id, program=program_id)
+        self.cont.set_processor_program(processor_id, program_id)
         sleep(SLEEP_PERIOD)
         self.refresh_param_values(processor_id)
 
     def set_bypass(self, processor_id, bypassed):
         print("Setting bypass "+str(bypassed) + " on proc: " + str(processor_id))
-        self.cont.SetProcessorBypassState(processor= processor_id, value=bypassed)
+        #self.cont.SetProcessorBypassState(processor= processor_id, value=bypassed)
+        self.cont.set_processor_bypass_state(processor_id, bypassed)
 
     def get_parameter(self, processor_id, parameter_id):
         try:
-            return self.cont.GetParameterValue(parameter={"processor_id": processor_id, "parameter_id":parameter_id}).value
+            #return self.cont.GetParameterValue(parameter={"processor_id": processor_id, "parameter_id":parameter_id}).value
+            return self.cont.get_parameter_value(processor_id, parameter_id)
         except:
             return 0
-        return val.value
+        #return val.value
 
     def refresh_param_values(self, processor_id):
         for i in self.processor_params[processor_id]:
-            value = self.get_parameter(processor_id, i['id'])
+            value = self.cont.get_parameter_value(processor_id, i['id'])
             i['widget'].set(value)
 
     def create_widgets(self):
@@ -52,19 +58,23 @@ class App(tk.Frame):
         entry.insert(0, "Text")
         self.value_display = entry
 
-        tracks = self.cont.GetTracks()
-        for t in tracks.tracks:
+        #tracks = self.cont.GetTracks()
+        tracks = self.cont.get_tracks()
+        #for t in tracks.tracks:
+        for t in tracks:
             self.create_track(t)
             separator = tk.Frame(self, height=2, width=2, bd=1, relief="sunken")
             separator.pack(fill="y", side="left", padx=5, pady=5)
 
     def create_track(self, track):
-        processors = self.cont.GetTrackProcessors(TrackId={"id": track.id})
+        #processors = self.cont.GetTrackProcessors(TrackId={"id": track.id})
+        processors = self.cont.get_track_processors(track.id)
         frame = tk.Frame(self)
         frame.pack(fill="both", side="left")
         processor_count = 0
 
-        for p in processors.processors:
+        #for p in processors.processors:
+        for p in processors:
             if processor_count > 1:
                  new_frame = tk.Frame(self)
                  new_frame.pack(fill="both", side="left")
@@ -80,8 +90,10 @@ class App(tk.Frame):
             separator.pack(fill="x", side="top", padx=5, pady=5)
 
         pan_vol_frame = tk.Frame(frame)
-        params = self.cont.GetTrackParameters(TrackId={"id": track.id})
-        for p in params.parameters:
+        #params = self.cont.GetTrackParameters(TrackId={"id": track.id})
+        params = self.cont.get_track_parameters(track.id)
+        #for p in params.parameters:
+        for p in params:
             l = tk.Label(pan_vol_frame, text=p.name)
             l.pack(side="top")
             def_val = self.get_parameter(track.id, p.id)
@@ -95,7 +107,8 @@ class App(tk.Frame):
         pan_vol_frame.pack(fill="y", side="bottom")
 
     def create_processor(self, parent, proc):
-        params = self.cont.GetProcessorParameters(ProcId={"id": proc.id})
+        #params = self.cont.GetProcessorParameters(ProcId={"id": proc.id})
+        params = self.cont.get_processor_parameters(proc.id)
         proc_frame = tk.Frame(parent) 
         proc_frame.pack(fill="both", side="top")
         frame = tk.Frame(proc_frame, width=SLIDER_WIDTH) 
@@ -104,7 +117,8 @@ class App(tk.Frame):
         self.processor_params[proc.id] = []
         count = 0
         
-        for p in params.parameters:
+        #for p in params.parameters:
+        for p in params:
             if count > COLUMN_HEIGHT:
                 new_frame = tk.Frame(proc_frame) 
                 new_frame.pack(fill="y", side="left")
@@ -129,7 +143,8 @@ class App(tk.Frame):
     
     def create_program_selector(self, parent, proc):
         try:
-            programs = self.cont.GetProcessorPrograms(ProcId={"id": proc.id})
+            #programs = self.cont.GetProcessorPrograms(ProcId={"id": proc.id})
+            programs = self.cont.get_processor_programs(proc.id)
             program_names = [p.name for p in programs.programs]
             label = tk.Label(parent, text="Programs")
             label.pack(side="top")
@@ -150,9 +165,9 @@ class App(tk.Frame):
         button.pack(side="top", fill="both", expand=0)
 
 def main():
-    w = pygro.create_wrappers('../protos/sushi_rpc.proto', 'localhost:51051')
+    SushiController = sc.SushiController('192.168.1.136:51051')
     root = tk.Tk()
-    app = App(w.SushiController, master=root)
+    app = App(SushiController, master=root)
     app.mainloop()
 
 if __name__ == "__main__": main()
