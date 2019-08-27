@@ -130,12 +130,12 @@ class SushiController(object):
     #######################
 
     # rpc SendNoteOn(NoteOnRequest) returns (GenericVoidValue) {}
-    def send_note_on(self, _track_identifier: int, _note: int, _channel: int, _velocity: int) -> None:
+    def send_note_on(self, _track_identifier: int, _channel: int, _note: int, _velocity: float) -> None:
         try:
             self._stub.SendNoteOn(sushi_rpc_pb2.NoteOnRequest(
                 track = sushi_rpc_pb2.TrackIdentifier(id = _track_identifier),
-                note = _note,
                 channel = _channel,
+                note = _note,
                 velocity = _velocity
             ))
 
@@ -143,12 +143,12 @@ class SushiController(object):
             grpc_error_handling(e)
 
     # rpc SendNoteOff(NoteOffRequest) returns (GenericVoidValue) {}
-    def send_note_off(self, _track_identifier: int, _note: int, _channel: int, _velocity: int) -> None:
+    def send_note_off(self, _track_identifier: int, _channel: int, _note: int, _velocity: float) -> None:
         try:
             self._stub.SendNoteOff(sushi_rpc_pb2.NoteOffRequest(
                 track = sushi_rpc_pb2.TrackIdentifier(id = _track_identifier),
-                note = _note,
                 channel = _channel,
+                note = _note,
                 velocity = _velocity
             ))
 
@@ -156,12 +156,12 @@ class SushiController(object):
             grpc_error_handling(e)
     
     # rpc SendNoteAftertouch(NoteAftertouchRequest) returns (GenericVoidValue) {}
-    def send_note_aftertouch(self, _track_identifier: int, _note: int, _channel: int, _value: int) -> None:
+    def send_note_aftertouch(self, _track_identifier: int, _channel: int, _note: int, _value: float) -> None:
         try:
             self._stub.SendNoteAftertouch(sushi_rpc_pb2.NoteAftertouchRequest(
                 track = sushi_rpc_pb2.TrackIdentifier(id = _track_identifier),
-                note = _note,
                 channel = _channel,
+                note = _note,
                 value = _value
             ))
         
@@ -169,7 +169,7 @@ class SushiController(object):
             grpc_error_handling(e)
 
     # rpc SendAftertouch(NoteModulationRequest) returns (GenericVoidValue) {}
-    def send_aftertouch(self, _track_identifier: int, _channel: int, _value: int) -> None:
+    def send_aftertouch(self, _track_identifier: int, _channel: int, _value: float) -> None:
         try:
             self._stub.SendAftertouch(sushi_rpc_pb2.NoteModulationRequest(
                 track = sushi_rpc_pb2.TrackIdentifier(id = _track_identifier),
@@ -181,7 +181,7 @@ class SushiController(object):
             grpc_error_handling(e)
 
     # rpc SendPitchBend(NoteModulationRequest) returns (GenericVoidValue) {}
-    def send_pitch_bend(self, _track_identifier: int, _channel: int, _value: int) -> None:
+    def send_pitch_bend(self, _track_identifier: int, _channel: int, _value: float) -> None:
         try:
             self._stub.SendPitchBend(sushi_rpc_pb2.NoteModulationRequest(
                 track = sushi_rpc_pb2.TrackIdentifier(id = _track_identifier),
@@ -193,7 +193,7 @@ class SushiController(object):
             grpc_error_handling(e)
 
     # rpc SendModulation(NoteModulationRequest) returns (GenericVoidValue) {}
-    def send_modulation(self, _track_identifier: int, _channel: int, _value: int) -> None:
+    def send_modulation(self, _track_identifier: int, _channel: int, _value: float) -> None:
         try:
             self._stub.SendModulation(sushi_rpc_pb2.NoteModulationRequest(
                 track = sushi_rpc_pb2.TrackIdentifier(id = _track_identifier),

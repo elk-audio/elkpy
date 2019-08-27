@@ -158,13 +158,17 @@ class TestSushiControllerKeyboardControl(unittest.TestCase):
     def test_keyboard_control(self):
         wait_time = 0.5
 
-        self._sc.send_note_on(0, 63, 1, 127)
-        self._sc.send_aftertouch(0, 1, 63)
-        self._sc.send_modulation(0, 1, 63)
+        self._sc.send_note_on(0, 1, 63, 1.0)
+        self._sc.send_aftertouch(0, 1, 0.5)
+        self._sc.send_modulation(0, 1, 0.5)
         time.sleep(wait_time)
-        self._sc.send_pitch_bend(0, 1, 127)
+        self._sc.send_pitch_bend(0, 1, 1.0)
         time.sleep(wait_time)
-        self._sc.send_note_off(0, 63, 1, 127)
+        self._sc.send_pitch_bend(0, 1, 0.0)
+        time.sleep(wait_time)
+        self._sc.send_pitch_bend(0, 1, 0.5)
+        time.sleep(wait_time)
+        self._sc.send_note_off(0, 1, 63, 1.0)
 
 
 class TestSushiControllerCPUTimings(unittest.TestCase):
