@@ -1,8 +1,9 @@
 from pythonosc.dispatcher import Dispatcher
-from pythonosc.osc_server import BlockingOSCUDPServer
+from pythonosc.osc_server import AsyncIOOSCUDPServer
 from pythonosc.udp_client import SimpleUDPClient
 from typing import List, Any
 import sushicontroller as sc 
+import asyncio
 
 # define the ip-address and the port for the server connection
 ip_server = "192.168.1.140"
@@ -55,19 +56,27 @@ dispatcher = Dispatcher()
 # map the OSC_to_grpc handler to the corresponding OSC message
 dispatcher.map(parameter_prefix + "*", OSC_to_grpc)
 
-if __name__ == "__main__":
-
-
-    server = BlockingOSCUDPServer((ip_server, port_server), dispatcher)
+async def client_loop():
     client = SimpleUDPClient(ip_client, port_client)
 
-    # client.send_message("/parameter/obxd/Cutoff", 1.0)
-    # server.handle_request()
-
-    # client.send_message("/parameter/obxd/Volume", 1.0)
-    # server.handle_request()
     while(1):
         for parameter in controller.get_processor_parameters(processor_ids[processor_name]):
             value = controller.get_parameter_value(processor_ids[processor_name], parameter.id)
             client.send_message(parameter_prefix + parameter.name, value)
-    #server.serve_forever()
+        await asyncio.sleep(1)
+
+
+async def init_main():
+    server = AsyncIOOSCUDPServer((ip_server, port_server), dispatcher, asyncio.get_event_loop())
+    transport, protocol = await server.create_serve_endpoint()
+    
+    task = asyncio.ensure_future(client_loop())
+    await asyncio.gather(task)
+
+    transport.close()
+
+if __name__ == "__main__":
+
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(asyncio.ensure_future(init_main()))
+    loop.close()
