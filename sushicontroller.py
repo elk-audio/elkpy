@@ -12,13 +12,30 @@ def print_hello():
     print("hello world!")
 
 class SushiController(object):
+    ''' 
+    A class to control sushi via gRPC.
+
+    Attributes:
+        _stub (SushiControllerStub): Connection stubs to the gRPC interface implemented in sushi.
+    '''
     def __init__(self, address):
-        # Initialize necessary members and fields
+        '''
+        The constructor for the SushiController class.
+
+        Parameters:
+            address (str): 'ip-addres:port' The ip-addres and port at which to connect to sushi.
+        '''
         channel = grpc.insecure_channel(address)
         self._stub = sushi_rpc_pb2_grpc.SushiControllerStub(channel)
 
     # rpc GetSamplerate (GenericVoidValue) returns (GenericFloatValue) {}
     def get_samplerate(self) -> float:
+        '''
+        Get the current samplerate.
+        
+        Returns:
+            float: Current samplerate.  
+        '''
         try:
             response = self._stub.GetSamplerate(sushi_rpc_pb2.GenericVoidValue())
             return response.value
@@ -29,6 +46,15 @@ class SushiController(object):
 
     # rpc GetPlayingMode (GenericVoidValue) returns (PlayingMode) {}
     def get_playing_mode(self) -> int:
+        '''
+        Get the current playing mode.
+        
+        Returns:
+            int: Current playing mode.
+                1 = Stopped,
+                2 = Playing,
+                3 = Recording (not implemented)
+        '''
         try: 
             response = self._stub.GetPlayingMode(sushi_rpc_pb2.GenericVoidValue())
             return response.mode
@@ -40,6 +66,15 @@ class SushiController(object):
     # rpc SetPlayingMode (PlayingMode) returns (GenericVoidValue) {}
     # TODO: PlayingMode DUMMY=0 not working
     def set_playing_mode(self, _playing_mode: int) -> None:
+        '''
+        Set the playing mode.
+        
+        Parameters:
+            playing_mode (int): The playing mode to set.
+                                1 = Stopped,
+                                2 = Playing,
+                                3 = Recording (not implemented)
+        '''
         try:
             self._stub.SetPlayingMode(sushi_rpc_pb2.PlayingMode(
                 mode = int(_playing_mode)
@@ -50,6 +85,15 @@ class SushiController(object):
             
     # rpc GetSyncMode (GenericVoidValue) returns (SyncMode) {}
     def get_sync_mode(self) -> int:
+        '''
+        Get the current sync mode.
+
+        Returns:
+            int: Current sync mode.
+                1 = Internal,
+                2 = MIDI,
+                3 = Link
+        '''
         try:
             response = self._stub.GetSyncMode(sushi_rpc_pb2.GenericVoidValue())
             return response.mode
@@ -61,6 +105,15 @@ class SushiController(object):
     # rpc SetSyncMode (SyncMode) returns (GenericVoidValue) {}
     # TODO: DUMMY=0 mode doesn't seem to work
     def set_sync_mode(self, _sync_mode: int) -> None:
+        '''
+        Set the sync mode.
+
+        Parameters:
+            _sync_mode (int): The sync mode to set.
+                            1 = Internal,
+                            2 = MIDI,
+                            3 = Link
+        '''
         try:
             self._stub.SetSyncMode(sushi_rpc_pb2.SyncMode(
                 mode = int(_sync_mode)
@@ -71,6 +124,12 @@ class SushiController(object):
 
     # rpc GetTempo (GenericVoidValue) returns (GenericFloatValue) {}
     def get_tempo(self) -> float:
+        '''
+        Get the current tempo.
+
+        Returns:
+            float: Current tempo in BPM(Beats Per Minute).
+        '''
         try:
             response = self._stub.GetTempo(sushi_rpc_pb2.GenericVoidValue())
             return response.value
@@ -80,6 +139,12 @@ class SushiController(object):
 
     # rpc SetTempo (GenericFloatValue) returns (GenericVoidValue) {}
     def set_tempo(self, _tempo: float) -> None:
+        '''
+        Set the tempo.
+            
+        Parameters:
+            _tempo (float): The tempo in BPM(Beats Per Minute).
+        '''
         try:
             self._stub.SetTempo(sushi_rpc_pb2.GenericFloatValue(
                 value = _tempo
@@ -92,6 +157,13 @@ class SushiController(object):
         # TODO: change denomainator to denominator when spelled correctly in compiled proto buff file
 
     def get_time_signature(self) -> (int, int):
+        '''
+        Get the current time signature.
+
+        Returns:
+            int: The nominator of the time signature.
+            int: The denominator of the time signature.
+        '''
         try:
             response = self._stub.GetTimeSignature(sushi_rpc_pb2.GenericVoidValue())
             return response.numerator, response.denomainator
@@ -103,6 +175,13 @@ class SushiController(object):
     # rpc SetTimeSignature (TimeSignature) returns (GenericVoidValue) {}
     # TODO: change denomainator to denominator when spelled correctly in compiled proto buff file
     def set_time_signature(self, _numerator: int, _denominator: int) -> None:
+        '''
+        Set the time signature
+
+        Parameters:
+            _numerator (int): The numerator of the time signature.
+            _denominator (int): The denominator of the time signature. Should be either 4 or 8.
+        '''
         try:
             self._stub.SetTimeSignature(sushi_rpc_pb2.TimeSignature(
                 numerator = _numerator,
@@ -114,6 +193,12 @@ class SushiController(object):
 
     # rpc GetTracks(GenericVoidValue) returns (TrackInfoList) {}
     def get_tracks(self) -> List[infoTypes.TrackInfo]:
+        '''
+        Gets a list of all available track.
+
+        Returns:
+            List[infoTypes.TrackInfo]: A list with the info of all the available tracks.
+        '''
         try:
             response = self._stub.GetTracks(sushi_rpc_pb2.GenericVoidValue())
             
@@ -131,6 +216,16 @@ class SushiController(object):
 
     # rpc SendNoteOn(NoteOnRequest) returns (GenericVoidValue) {}
     def send_note_on(self, _track_identifier: int, _channel: int, _note: int, _velocity: float) -> None:
+        '''
+        Sends a note on message to the specified track.
+
+        Parameters:
+            _track_identifier (int): The id of the track that should receive the message.
+            _channel (int): The channel on which the message should be sent.
+            _note (int): The note to send. Follows the MIDI standard where middle c = 60.
+            _velocity (float): The velocity of the note. Should be in range (0.0-1.0).
+
+        '''
         try:
             self._stub.SendNoteOn(sushi_rpc_pb2.NoteOnRequest(
                 track = sushi_rpc_pb2.TrackIdentifier(id = _track_identifier),
@@ -144,6 +239,15 @@ class SushiController(object):
 
     # rpc SendNoteOff(NoteOffRequest) returns (GenericVoidValue) {}
     def send_note_off(self, _track_identifier: int, _channel: int, _note: int, _velocity: float) -> None:
+        '''
+        Sends a note off message to the specified track.
+
+        Parameters:
+            _track_identifier (int): The id of the track that should receive the message.
+            _channel (int): The channel on which the message should be sent.
+            _note (int): The note to send. Follows the MIDI standard where middle c = 60.
+            _velocity (float): The velocity of the note. Should be in range (0.0-1.0).
+        '''
         try:
             self._stub.SendNoteOff(sushi_rpc_pb2.NoteOffRequest(
                 track = sushi_rpc_pb2.TrackIdentifier(id = _track_identifier),
@@ -157,6 +261,15 @@ class SushiController(object):
     
     # rpc SendNoteAftertouch(NoteAftertouchRequest) returns (GenericVoidValue) {}
     def send_note_aftertouch(self, _track_identifier: int, _channel: int, _note: int, _value: float) -> None:
+        '''
+        Sends a aftertouch message to the specified track and note.
+
+        Parameters:
+            _track_identifier (int): The id of the track that should receive the message.
+            _channel (int): The channel on which the message should be sent.
+            _note (int): The note which should receive the message. Follows the MIDI standard where middle c = 60.
+            _value (float): The aftertouch value of the note. Should be in range (0.0-1.0).
+        '''
         try:
             self._stub.SendNoteAftertouch(sushi_rpc_pb2.NoteAftertouchRequest(
                 track = sushi_rpc_pb2.TrackIdentifier(id = _track_identifier),
@@ -170,6 +283,14 @@ class SushiController(object):
 
     # rpc SendAftertouch(NoteModulationRequest) returns (GenericVoidValue) {}
     def send_aftertouch(self, _track_identifier: int, _channel: int, _value: float) -> None:
+        '''
+        Sends a aftertouch message to the specified track.
+
+        Parameters:
+            _track_identifier (int): The id of the track that should receive the message.
+            _channel (int): The channel on which the message should be sent.
+            _value (float): The aftertouch value. Should be in range (0.0-1.0).
+        '''
         try:
             self._stub.SendAftertouch(sushi_rpc_pb2.NoteModulationRequest(
                 track = sushi_rpc_pb2.TrackIdentifier(id = _track_identifier),
@@ -182,6 +303,14 @@ class SushiController(object):
 
     # rpc SendPitchBend(NoteModulationRequest) returns (GenericVoidValue) {}
     def send_pitch_bend(self, _track_identifier: int, _channel: int, _value: float) -> None:
+        '''
+        Sends a pitch bend message to the specified track.
+
+        Parameters:
+            _track_identifier (int): The id of the track that should receive the message.
+            _channel (int): The channel on which the message should be sent.
+            _value (float): The pitch bend value. Should be in range (0.0-1.0).
+        '''
         try:
             self._stub.SendPitchBend(sushi_rpc_pb2.NoteModulationRequest(
                 track = sushi_rpc_pb2.TrackIdentifier(id = _track_identifier),
@@ -194,6 +323,14 @@ class SushiController(object):
 
     # rpc SendModulation(NoteModulationRequest) returns (GenericVoidValue) {}
     def send_modulation(self, _track_identifier: int, _channel: int, _value: float) -> None:
+        '''
+        Sends a modulation message to the specified track.
+
+        Parameters:
+            _track_identifier (int): The id of the track that should receive the message.
+            _channel (int): The channel on which the message should be sent.
+            _value (float): The modulation value. Should be in range (0.0-1.0).
+        '''
         try:
             self._stub.SendModulation(sushi_rpc_pb2.NoteModulationRequest(
                 track = sushi_rpc_pb2.TrackIdentifier(id = _track_identifier),
@@ -211,6 +348,14 @@ class SushiController(object):
     # rpc GetEngineTimings(GenericVoidValue) returns (CpuTimings) {}
     # TODO: Check that the order of the output is correct
     def get_engine_timings(self) -> (float, float, float):
+        '''
+        Get the average, max and min timings of the engine. --timing-statistics need to be enabled
+
+        Returns:
+            float: The average engine processing time in ms.
+            float: The minimum engine processing time in ms.
+            float: The maximum engine processing time in ms.
+        '''
         try:
             response = self._stub.GetEngineTimings(sushi_rpc_pb2.GenericVoidValue())
             return response.average, response.min, response.max
@@ -221,6 +366,17 @@ class SushiController(object):
 
     # rpc GetTrackTimings(TrackIdentifier) returns (CpuTimings) {}
     def get_track_timings(self, _track_identifier: int) -> (float, float, float):
+        '''
+        Get the average, max and min timings of the specified track. --timing-statistics need to be enabled
+
+        Parameters:
+            _track_identifier (int): The id of the track to get timings from.
+
+        Returns:
+            float: The average track processing time in ms.
+            float: The minimum track processing time in ms.
+            float: The maximum track processing time in ms.
+        '''
         try:
             response = self._stub.GetTrackTimings(sushi_rpc_pb2.TrackIdentifier(
                 id = _track_identifier
@@ -233,6 +389,17 @@ class SushiController(object):
 
     # rpc GetProcessorTimings(ProcessorIdentifier) returns (CpuTimings) {}
     def get_processor_timings(self, _processor_identifier: int) -> (float, float, float):
+        '''
+        Get the average, max and min timings of the specified processor. --timing-statistics need to be enabled
+
+        Parameters:
+            _processor_identifier (int): The id of the processor to get timings from.
+
+        Returns:
+            float: The average processor processing time in ms.
+            float: The minimum processor processing time in ms.
+            float: The maximum processor processing time in ms.
+        '''
         try:
             response = self._stub.GetProcessorTimings(sushi_rpc_pb2.ProcessorIdentifier(
                 id = _processor_identifier
@@ -245,6 +412,9 @@ class SushiController(object):
 
     # rpc ResetAllTimings(GenericVoidValue) returns (GenericVoidValue) {}
     def reset_all_timings(self) -> None:
+        '''
+        Reset all the timings.
+        '''
         try:
             self._stub.ResetAllTimings(sushi_rpc_pb2.GenericVoidValue())
         
@@ -253,6 +423,12 @@ class SushiController(object):
 
     # rpc ResetTrackTimings(TrackIdentifier) returns (GenericVoidValue) {}
     def reset_track_timings(self, _track_identifier: int) -> None:
+        '''
+        Reset the timings of the specified track.
+
+        Parameters:
+            _track_identifier (int): The id of the track to reset the timings of.
+        '''
         try:
             self._stub.ResetTrackTimings(sushi_rpc_pb2.TrackIdentifier(
                 id = _track_identifier
@@ -263,6 +439,12 @@ class SushiController(object):
 
     # rpc ResetProcessorTimings(ProcessorIdentifier) returns (GenericVoidValue) {}
     def reset_processor_timings(self, _processor_identifier: int) -> None:
+        '''
+        Reset the timings of the specified processor.
+
+        Parameters:
+            _processor_identifier (int): The id of the processor to reset the timings of.
+        '''
         try:
             self._stub.ResetProcessorTimings(sushi_rpc_pb2.ProcessorIdentifier(
                 id = _processor_identifier
@@ -277,6 +459,15 @@ class SushiController(object):
 
     # rpc GetTrackId(GenericStringValue) returns (TrackIdentifier) {}
     def get_track_id(self, _track_name: str) -> int:
+        '''
+        Get the id of a track from its name.
+
+        Parameters:
+            _track_name (str): The name of the track.
+
+        Returns:
+            int: The id of the track matching the name.
+        '''
         try:
             response = self._stub.GetTrackId(sushi_rpc_pb2.GenericStringValue(
                 value = _track_name
@@ -289,6 +480,15 @@ class SushiController(object):
 
     # rpc GetTrackInfo(TrackIdentifier) returns (TrackInfo) {}
     def get_track_info(self, _track_identifier: int) -> infoTypes.TrackInfo:
+        '''
+        Get the info of a track from its id.
+
+        Parameters:
+            _track_identifier (int): The id of the track to get the info from.
+
+        Returns:
+            infoTypes.TrackInfo: The info of the track matching the id.
+        '''
         try:
             response = self._stub.GetTrackInfo(sushi_rpc_pb2.TrackIdentifier(
                 id = _track_identifier
@@ -307,6 +507,15 @@ class SushiController(object):
 
     # rpc GetTrackProcessors(TrackIdentifier) returns (ProcessorInfoList) {}
     def get_track_processors(self, _track_identifier: int) -> List[infoTypes.ProcessorInfo]:
+        '''
+        Get a list of processors assigned on the specified track.
+
+        Parameters:
+            _track_identifier (int): The id of the track to get the processor list from.
+
+        Returns:
+            List[infoTypes.ProcessorInfo]: A list of the info of the processors assigned to the track matching the id.
+        '''
         try:
             response = self._stub.GetTrackProcessors(sushi_rpc_pb2.TrackIdentifier(
                 id = _track_identifier
@@ -323,6 +532,15 @@ class SushiController(object):
     
     # rpc GetTrackParameters(TrackIdentifier) returns (ParameterInfoList) {}
     def get_track_parameters(self, _track_identifier: int) -> List[infoTypes.ParameterInfo]:
+        '''
+        Get a list of parameters available on the specified track.
+
+        Parameters:
+            _track_identifier (int): The id of the track to get the parameter list from.
+
+        Returns:
+            List[infoTypes.ParameterInfo]: A list of the info of the parameters assigned to the track matching the id.
+        '''
         try:
             response = self._stub.GetTrackParameters(sushi_rpc_pb2.TrackIdentifier(
                 id = _track_identifier
@@ -344,6 +562,15 @@ class SushiController(object):
 
     # rpc GetProcessorId (GenericStringValue) returns (ProcessorIdentifier) {}
     def get_processor_id(self, _processor_name: str) -> int:
+        '''
+        Get the id of a processor from its name.
+
+        Parameters:
+            _processor_name (str): The name of the processor to get the id from.
+
+        Returns:
+            int: The id of the processor matching the name.
+        '''
         try:
             response = self._stub.GetProcessorId(sushi_rpc_pb2.GenericStringValue(
                 value = _processor_name
@@ -356,6 +583,15 @@ class SushiController(object):
 
     # rpc GetProcessorInfo (ProcessorIdentifier) returns (ProcessorInfo) {}
     def get_processor_info(self, _processor_identifier: int) -> infoTypes.ProcessorInfo:
+        '''
+        Get the info of a processor from its id.
+
+        Parameters:
+            _track_identifier (int): The id of the processor to get the info from.
+
+        Returns:
+            infoTypes.ProcessorInfo: The info of the processor matching the id.
+        '''
         try:
             response = self._stub.GetProcessorInfo(sushi_rpc_pb2.ProcessorIdentifier(
                 id = _processor_identifier
