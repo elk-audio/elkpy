@@ -16,7 +16,7 @@ class SushiController(object):
     Attributes:
         _stub (SushiControllerStub): Connection stubs to the gRPC interface implemented in sushi.
     '''
-    def __init__(self, address):
+    def __init__(self, address = 'localhost:51051'):
         '''
         The constructor for the SushiController class.
 
