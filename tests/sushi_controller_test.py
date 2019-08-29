@@ -7,6 +7,8 @@ from ELKpy import sushi_info_types as info_types
 
 SUSHI_ADDRESS = ('localhost:51051')
 
+# Run sushi with arguments: -j --connect-ports --timing-statistics -c ~/work/sushi/example_configs/config_temper.json
+# The config file has andes followed by temper on a single stereo channel called main
 
 class TestSushiController(unittest.TestCase):
     def setUp(self):

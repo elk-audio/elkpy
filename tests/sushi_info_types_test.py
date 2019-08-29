@@ -1,7 +1,7 @@
 import sys
 import unittest
 import time
-import ELKpy.sushi_info_types as types
+from ELKpy import sushi_info_types as types
 from ELKpy import sushi_rpc_pb2
 
 class sushi_parameter_info_test(unittest.TestCase):
