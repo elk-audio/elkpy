@@ -6,6 +6,9 @@ from . import sushi_info_types as info_types
 from enum import IntEnum
 from typing import List
 
+_author__ = "Ruben Svensson"
+__copyright__ = "Copyright 2019, Mind Music Labs"
+
 def grpc_error_handling(e):
     print('Grpc error: ' + str(e.code().name) + ', ' + e.details())
 

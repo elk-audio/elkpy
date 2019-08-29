@@ -1,5 +1,8 @@
 from . import sushi_rpc_pb2
 
+__author__ = "Ruben Svensson"
+__copyright__ = "Copyright 2019, Mind Music Labs"
+
 class ParameterInfo():
     '''
     Class to represent the parameter info received from sushi in a clear way.
