@@ -603,6 +603,15 @@ class SushiController(object):
 
     # rpc GetProcessorBypassState (ProcessorIdentifier) returns (GenericBoolValue) {}
     def get_processor_bypass_state(self, _processor_identifier: int) -> bool:
+        '''
+        Get the bypass state of the specified processor.
+
+        Parameters:
+            _processor_identifier (int): The id of processor to get the bypass state from.
+
+        Returns:
+            bool: The bypass state of the processor matching the id.
+        '''
         try:
             response = self._stub.GetProcessorBypassState(sushi_rpc_pb2.ProcessorIdentifier(
                 id = _processor_identifier
@@ -615,6 +624,13 @@ class SushiController(object):
     # rpc SetProcessorBypassState (ProcessorBypassStateSetRequest) returns (GenericVoidValue) {}
     # TODO: try with more modern Sushi
     def set_processor_bypass_state(self, _processor_identifier: int, _bypass_state: bool) -> None:
+        '''
+        Set the bypass state of the specified processor.
+
+        Parameters:
+            _processor_identifier (int): The id of the processor to set the bypass state of.
+            _bypass_sate (bool): The bypass state of the processor matching the id.
+        '''
         try:
             self._stub.SetProcessorBypassState(sushi_rpc_pb2.ProcessorBypassStateSetRequest(
                 processor = sushi_rpc_pb2.ProcessorIdentifier(id = _processor_identifier),
@@ -626,6 +642,15 @@ class SushiController(object):
 
     # rpc GetProcessorCurrentProgram (ProcessorIdentifier) returns (ProgramIdentifier) {}
     def get_processor_current_program(self, _processor_identifier: int) -> int:
+        '''
+        Get the id of the current program of the specified processor.
+
+        Parameters:
+            _processor_identifier (int): The id of the processor to get the current program id from.
+
+        Returns:
+            int: The id of the processors current program.
+        '''
         try:
             response = self._stub.GetProcessorCurrentProgram(sushi_rpc_pb2.ProcessorIdentifier(
                 id = _processor_identifier
@@ -637,6 +662,15 @@ class SushiController(object):
 
     # rpc GetProcessorCurrentProgramName (ProcessorIdentifier) returns (GenericStringValue) {}
     def get_processor_current_program_name(self, _processor_identifier: int) -> str:
+        '''
+        Get the name of the current program of the specified processor.
+
+        Parameters:
+            _processor_identifier (int): The id of the processor to get the current program name from.
+
+        Returns:
+            str: The name of the processors current program.
+        '''
         try:
             response = self._stub.GetProcessorCurrentProgramName(sushi_rpc_pb2.ProcessorIdentifier(
                 id = _processor_identifier
@@ -648,6 +682,16 @@ class SushiController(object):
 
     # rpc GetProcessorProgramName (ProcessorProgramIdentifier) returns (GenericStringValue) {}
     def get_processor_program_name(self, _processor_identifier: int, _program: int) -> str:
+        '''
+        Get the name of the specified program on the specified processor.
+
+        Parameters:
+            _processor_identifier (int): The id of the processor to get the program name from.
+            _program (int): The id of the program to get the name of.
+
+        Returns:
+            str: The name of the program matching the processor and program id.
+        '''
         try:
             response = self._stub.GetProcessorProgramName(sushi_rpc_pb2.ProcessorProgramIdentifier(
                 processor = sushi_rpc_pb2.ProcessorIdentifier(id = _processor_identifier),
@@ -660,6 +704,15 @@ class SushiController(object):
 
     # rpc GetProcessorPrograms (ProcessorIdentifier) returns (ProgramInfoList) {}
     def get_processor_programs(self, _processor_identifier: int) -> List[infoTypes.ProgramInfo]:
+        '''
+        Get a list of the available programs of the specified processor.
+
+        Parameters:
+            _processor_identifier (int): The id of the processor to get the programs from.
+
+        Returns:
+            List[infoTypes.ProgramInfo]: A list of the programs available to the processor matching the id.
+        '''
         try:
             response = self._stub.GetProcessorPrograms(sushi_rpc_pb2.ProcessorIdentifier(
                 id = _processor_identifier
@@ -676,6 +729,13 @@ class SushiController(object):
 
     # rpc SetProcessorProgram (ProcessorProgramSetRequest) returns (GenericVoidValue) {}
     def set_processor_program(self, _processor_identifier: int, _program: int) -> None:
+        '''
+        Set the program of the specified processor to the one matching the specified program id.
+
+        Parameters:
+            _processor_identifier (int): The id of the processor to set the program of.
+            _program (int): The id of the program to set.
+        '''
         try:
             self._stub.SetProcessorProgram(sushi_rpc_pb2.ProcessorProgramSetRequest(
                 processor = sushi_rpc_pb2.ProcessorIdentifier(id = _processor_identifier),
@@ -687,6 +747,15 @@ class SushiController(object):
 
     # rpc GetProcessorParameters (ProcessorIdentifier) returns (ParameterInfoList) {}
     def get_processor_parameters(self, _processor_identifier: int) -> List[infoTypes.ParameterInfo]:
+        '''
+        Get a list of the parameters available to the specified processor.
+
+        Parameters:
+            _processor_identifier (int): The id of the processor to get the parameters from.
+
+        Returns:
+            List[infoTypes.ParameterInfo]: A list of the parameters available to the processor matching the id.
+        '''
         try:
             response = self._stub.GetProcessorParameters(sushi_rpc_pb2.ProcessorIdentifier(
                 id = _processor_identifier
@@ -709,6 +778,16 @@ class SushiController(object):
 
     # rpc GetParameterId (ParameterIdRequest) returns (ParameterIdentifier) {}
     def get_parameter_id(self, _processor_identifier: int, _parameter_name: str) -> int:
+        '''
+        Get the id of the parameter of the specified processor corresponding to the specified parameter name.
+
+        Parameters:
+            _processor_identifier (int): The id of the processor to get the parameter id from.
+            _parameter_name (str): The name of the parameter to get the id from.
+
+        Returns:
+            int: The id of the parameter matching the parameter name.
+        '''
         try:
             response = self._stub.GetParameterId(sushi_rpc_pb2.ParameterIdRequest(
                 processor = sushi_rpc_pb2.ProcessorIdentifier(id = _processor_identifier),
@@ -721,6 +800,16 @@ class SushiController(object):
 
     # rpc GetParameterInfo (ParameterIdentifier) returns (ParameterInfo) {}
     def get_parameter_info(self, _processor_identifier: int, _parameter_identifier: int) -> infoTypes.ParameterInfo:
+        '''
+        Get info about the specified parameter on the specified processor.
+
+        Parameters:
+            _processor_identifier (int): The id of the processor to get the parameter info from.
+            _parameter_identifier (int): The id of the parameter to get the info from.
+
+        Returns:
+            infoTypes.ParameterInfo: Info of the parameter matching the id.
+        '''
         try:
             response = self._stub.GetParameterInfo(sushi_rpc_pb2.ParameterIdentifier(
                 processor_id = _processor_identifier,
@@ -733,6 +822,16 @@ class SushiController(object):
 
     # rpc GetParameterValue(ParameterIdentifier) returns (GenericFloatValue) {}
     def get_parameter_value(self, _processor_identifier: int, _parameter_identifier: int) -> float:
+        '''
+        Get the value of the parameter matching the specified parameter on the specified processor.
+
+        Parameters:
+            _processor_identifier (int): The id of the processor to get the parameter value from.
+            _parameter_identifier (int): The id of the parameter to get the value from.
+
+        Returns:
+            float: The value of the parameter matching the id.
+        '''
         try:
             response = self._stub.GetParameterValue(sushi_rpc_pb2.ParameterIdentifier(
                 processor_id = _processor_identifier,
@@ -745,6 +844,16 @@ class SushiController(object):
 
     # rpc GetParameterValueNormalised(ParameterIdentifier) returns (GenericFloatValue) {}
     def get_parameter_value_normalised(self, _processor_identifier: int, _parameter_identifier: int) -> float:
+        '''
+        Get the normalised value of the parameter matching the specified parameter on the specified processor.
+
+        Parameters:
+            _processor_identifier (int): The id of the processor to get the normalised parameter value from.
+            _parameter_identifier (int): The id of the parameter to get the normalised value from.
+
+        Returns:
+            float: The normalised value of the parameter matching the id.
+        '''
         try:
             response = self._stub.GetParameterValueNormalised(sushi_rpc_pb2.ParameterIdentifier(
                 processor_id = _processor_identifier,
@@ -757,6 +866,16 @@ class SushiController(object):
 
     # rpc GetParameterValueAsString(ParameterIdentifier) returns (GenericStringValue) {}
     def get_parameter_value_as_string(self, _processor_identifier: int, _parameter_identifier: int) -> str:
+        '''
+        Get the value of the parameter matching the specified parameter on the specified processor as a string.
+
+        Parameters:
+            _processor_identifier (int): The id of the processor to get the parameter value string from.
+            _parameter_identifier (int): The id of the parameter to get value string from.
+
+        Returns:
+            str: The value as a string of the parameter matching the id.
+        '''
         try:
             response = self._stub.GetParameterValueAsString(sushi_rpc_pb2.ParameterIdentifier(
                 processor_id = _processor_identifier,
@@ -770,6 +889,9 @@ class SushiController(object):
     # rpc GetStringPropertyValue(ParameterIdentifier) returns (GenericStringValue) {}
     # TODO: Not implemented in sushi yet
     def get_string_property_value(self, _processor_identifier: int, _parameter_identifier: int) -> str:
+        '''
+        CURRENTLY NOT IMPLEMENTED IN SUSHI
+        '''
         try:
             response = self._stub.GetStringPropertyValue(sushi_rpc_pb2.ParameterIdentifier(
                 processor_id = _processor_identifier,
@@ -782,6 +904,13 @@ class SushiController(object):
 
     # rpc SetParameterValue(ParameterSetRequest) returns (GenericVoidValue) {}
     def set_parameter_value(self, _processor_identifier: int, _parameter_identifier: int, _value: float) -> None:
+        '''
+        Set the value of the specified parameter on the specified processor.
+
+        Parameters:
+            _processor_identifier (int): The id of the processor that has the parameter to be changed.
+            _parameter_identifier (int): The id of the parameter to set the value of.
+        '''
         try:
             self._stub.SetParameterValue(sushi_rpc_pb2.ParameterSetRequest(
                 parameter = sushi_rpc_pb2.ParameterIdentifier(
@@ -796,6 +925,13 @@ class SushiController(object):
 
     # rpc SetParameterValueNormalised(ParameterSetRequest) returns (GenericVoidValue) {}
     def set_parameter_value_normalised(self, _processor_identifier: int, _parameter_identifier: int, _value: float) -> None:
+        '''
+        Set the nomralised value of the specified parameter on the specified processor.
+
+        Parameters:
+            _processor_identifier (int): The id of the processor that has the parameter to be changed.
+            _parameter_identifier (int): The id of the parameter to set the normalised value of.
+        '''
         try:
             self._stub.SetParameterValueNormalised(sushi_rpc_pb2.ParameterSetRequest(
                 parameter = sushi_rpc_pb2.ParameterIdentifier(
@@ -811,6 +947,9 @@ class SushiController(object):
     # rpc SetStringPropertyValue(StringPropertySetRequest) returns (GenericVoidValue) {}
     # TODO: Not implemented in sushi yet
     def set_string_property_value(self, _processor_identifier: int, _parameter_identifier: int, _value: str) -> None:
+        '''
+        CURRENTLY NOT IMPLEMTED IN SUSHI
+        '''
         try:
             self._stub.SetStringPropertyValue(sushi_rpc_pb2.StringPropertySetRequest(
                 property = sushi_rpc_pb2.ParameterIdentifier(
@@ -828,18 +967,27 @@ class SushiController(object):
     #########################
 
     class PlayingMode(IntEnum):
+        '''
+        Enum class to hold the values matching the different playing modes.
+        '''
         DUMMY = 0
         STOPPED = 1
         PLAYING = 2
         RECORDING = 3
 
     class SyncMode(IntEnum):
+        '''
+        Enum class to hold the values matching the different sync modes.
+        '''
         DUMMY = 0
         INTERNAL = 1
         MIDI = 2
         LINK = 3
 
     class ParameterType(IntEnum):
+        '''
+        Enum class to hold the values matching the different variable types.
+        '''
         DUMMY = 0
         BOOL = 1
         INT = 2
