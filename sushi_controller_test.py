@@ -405,6 +405,8 @@ class TestSushiControllerProcessorControl(unittest.TestCase):
         result = self._sc.get_processor_program_name(1, 1)
         expected_result = 'Default'
 
+        self.assertEqual(result, expected_result)
+
     def test_get_processor_programs(self):
         result = self._sc.get_processor_programs(2)
 
