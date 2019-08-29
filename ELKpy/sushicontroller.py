@@ -155,8 +155,6 @@ class SushiController(object):
             grpc_error_handling(e)
 
     # rpc GetTimeSignature (GenericVoidValue) returns (TimeSignature) {}
-        # TODO: change denomainator to denominator when spelled correctly in compiled proto buff file
-
     def get_time_signature(self) -> (int, int):
         '''
         Get the current time signature.
@@ -167,14 +165,13 @@ class SushiController(object):
         '''
         try:
             response = self._stub.GetTimeSignature(sushi_rpc_pb2.GenericVoidValue())
-            return response.numerator, response.denomainator
+            return response.numerator, response.denominator
         
         except grpc.RpcError as e:
             grpc_error_handling(e)
             return -1, -1
 
     # rpc SetTimeSignature (TimeSignature) returns (GenericVoidValue) {}
-    # TODO: change denomainator to denominator when spelled correctly in compiled proto buff file
     def set_time_signature(self, numerator: int, denominator: int) -> None:
         '''
         Set the time signature
@@ -186,7 +183,7 @@ class SushiController(object):
         try:
             self._stub.SetTimeSignature(sushi_rpc_pb2.TimeSignature(
                 numerator = numerator,
-                denomainator = denominator
+                denominator = denominator
             ))
         
         except grpc.RpcError as e:
@@ -347,7 +344,6 @@ class SushiController(object):
     ###################
 
     # rpc GetEngineTimings(GenericVoidValue) returns (CpuTimings) {}
-    # TODO: Check that the order of the output is correct
     def get_engine_timings(self) -> (float, float, float):
         '''
         Get the average, max and min timings of the engine. --timing-statistics need to be enabled
@@ -623,7 +619,6 @@ class SushiController(object):
             grpc_error_handling(e)
 
     # rpc SetProcessorBypassState (ProcessorBypassStateSetRequest) returns (GenericVoidValue) {}
-    # TODO: try with more modern Sushi
     def set_processor_bypass_state(self, processor_identifier: int, bypass_state: bool) -> None:
         '''
         Set the bypass state of the specified processor.
