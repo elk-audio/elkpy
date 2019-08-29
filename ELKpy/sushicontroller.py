@@ -1,7 +1,7 @@
 import grpc
-import sushi_rpc_pb2
-import sushi_rpc_pb2_grpc
-import sushi_info_types as info_types
+from . import sushi_rpc_pb2
+from . import sushi_rpc_pb2_grpc
+from . import sushi_info_types as info_types
 
 from enum import IntEnum
 from typing import List

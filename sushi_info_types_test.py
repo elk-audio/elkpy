@@ -1,8 +1,8 @@
 import sys
 import unittest
 import time
-from sushicontroller import info_types as types
-from sushicontroller import sushi_rpc_pb2
+import ELKpy.sushi_info_types as types
+from ELKpy import sushi_rpc_pb2
 
 class sushi_parameter_info_test(unittest.TestCase):
     def test_all_parameters(self):

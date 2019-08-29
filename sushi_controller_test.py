@@ -1,9 +1,9 @@
 import sys
 import unittest
 import time
-from sushicontroller import SushiController
-from sushicontroller import sushi_rpc_pb2
-from sushicontroller import info_types
+from ELKpy.sushicontroller import SushiController
+from ELKpy import sushi_rpc_pb2
+from ELKpy import sushi_info_types as info_types
 
 SUSHI_ADDRESS = ('localhost:51051')
 

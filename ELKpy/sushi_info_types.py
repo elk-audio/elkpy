@@ -1,4 +1,4 @@
-import sushi_rpc_pb2
+from . import sushi_rpc_pb2
 
 class ParameterInfo():
     '''
