@@ -18,52 +18,52 @@ class ParameterInfo():
         max_range (float): The maximum value of the parameter.
     '''
 
-    def __init__(self, _grpc_ParameterInfo = None):
+    def __init__(self, grpc_ParameterInfo = None):
         '''
         The constructor of the ParameterInfo class.
 
         Parameters:
-            _grpc_ParameterInfo (sushi_rpc_pb2.ParameterInfo): the gRPC parameter info object to get the data from.
+            grpc_ParameterInfo (sushi_rpc_pb2.ParameterInfo): the gRPC parameter info object to get the data from.
         '''
         try:
-            self.id = _grpc_ParameterInfo.id
+            self.id = grpc_ParameterInfo.id
         except:
             self.id = 0
         
         grpc_types = {0: "DUMMY", 1: "BOOL", 2: "INT", 3: "FLOAT", 4: "STRING_PROPERTY", 5: "DATA_PROPERTY"}
         try:
-            self.type = grpc_types.get(_grpc_ParameterInfo.type.type)
+            self.type = grpc_types.get(grpc_ParameterInfo.type.type)
 
         except:
             self.type = "DUMMY"
 
         try:
-            self.label = _grpc_ParameterInfo.label
+            self.label = grpc_ParameterInfo.label
         except:
             self.label = ''
 
         try:            
-            self.name = _grpc_ParameterInfo.name
+            self.name = grpc_ParameterInfo.name
         except:
             self.name = ''
 
         try:
-            self.unit = _grpc_ParameterInfo.unit
+            self.unit = grpc_ParameterInfo.unit
         except:
             self.unit = ''
 
         try:
-            self.automatable = _grpc_ParameterInfo.automatable
+            self.automatable = grpc_ParameterInfo.automatable
         except:
             self.automatable = False
 
         try:
-            self.min_range = _grpc_ParameterInfo.min_range
+            self.min_range = grpc_ParameterInfo.min_range
         except:
             self.min_range = 0.0
 
         try:
-            self.max_range = _grpc_ParameterInfo.max_range
+            self.max_range = grpc_ParameterInfo.max_range
         except:
             self.max_range = 0.0
 
@@ -104,29 +104,29 @@ class ProcessorInfo():
         parameter_count (int): The number of parameters available to the processor.
         program_count (int): The number of programs available to the processor.
     '''
-    def __init__(self, _grpc_ProcessorInfo = None):
+    def __init__(self, grpc_ProcessorInfo = None):
         try:
-            self.id = _grpc_ProcessorInfo.id
+            self.id = grpc_ProcessorInfo.id
         except: 
             self.id = 0
         
         try:
-            self.label = _grpc_ProcessorInfo.label
+            self.label = grpc_ProcessorInfo.label
         except:
             self.label = ''
 
         try:
-            self.name = _grpc_ProcessorInfo.name
+            self.name = grpc_ProcessorInfo.name
         except:
             self.name = ''
 
         try:
-            self.parameter_count = _grpc_ProcessorInfo.parameter_count
+            self.parameter_count = grpc_ProcessorInfo.parameter_count
         except:
             self.parameter_count = 0
 
         try:
-            self.program_count = _grpc_ProcessorInfo.program_count
+            self.program_count = grpc_ProcessorInfo.program_count
         except:
             self.program_count = 0
 
@@ -164,44 +164,44 @@ class TrackInfo():
         output_channels (int): The number of output channels available to the track.
         output_busses (int): The number of output busses available to the track.
     '''
-    def __init__(self, _grpc_TrackInfo = None):
+    def __init__(self, grpc_TrackInfo = None):
         try:
-            self.id = _grpc_TrackInfo.id
+            self.id = grpc_TrackInfo.id
         except:
             self.id = 0
         
         try:
-            self.label = _grpc_TrackInfo.label
+            self.label = grpc_TrackInfo.label
         except:
             self.label = ''
 
         try:
-            self.name = _grpc_TrackInfo.name
+            self.name = grpc_TrackInfo.name
         except:
             self.name = ''
 
         try:
-            self.input_channels = _grpc_TrackInfo.input_channels
+            self.input_channels = grpc_TrackInfo.input_channels
         except:
             self.input_channels = 0
 
         try:
-            self.input_busses = _grpc_TrackInfo.input_busses
+            self.input_busses = grpc_TrackInfo.input_busses
         except:
             self.input_busses = 0
 
         try:
-            self.output_channels = _grpc_TrackInfo.output_channels
+            self.output_channels = grpc_TrackInfo.output_channels
         except:
             self.output_channels = 0
 
         try:
-            self.output_busses = _grpc_TrackInfo.output_busses
+            self.output_busses = grpc_TrackInfo.output_busses
         except:
             self.output_busses = 0
 
         try:
-            self.processor_count = _grpc_TrackInfo.processor_count
+            self.processor_count = grpc_TrackInfo.processor_count
         except:
             self.processor_count = 0
 
@@ -239,14 +239,14 @@ class ProgramInfo():
         id (int): The id of the program.
         name (str): The name of the program.
     '''
-    def __init__(self, _grpc_ProgramInfo = None):
+    def __init__(self, grpc_ProgramInfo = None):
         try:
-            self.id = _grpc_ProgramInfo.id.program
+            self.id = grpc_ProgramInfo.id.program
         except:
             self.id = 0
 
         try:
-            self.name = _grpc_ProgramInfo.name
+            self.name = grpc_ProgramInfo.name
         except:
             self.name = ''
 
