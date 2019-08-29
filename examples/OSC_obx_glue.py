@@ -2,7 +2,7 @@ from pythonosc.dispatcher import Dispatcher
 from pythonosc.osc_server import AsyncIOOSCUDPServer
 from pythonosc.udp_client import SimpleUDPClient
 from typing import List, Any
-import sushicontroller as sc 
+from ELKpy import sushicontroller as sc 
 import asyncio
 
 # define the ip-address and the port for the server connection

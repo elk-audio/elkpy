@@ -1,6 +1,6 @@
 from time import sleep
 #import pygro
-import sushicontroller as sc
+from ELKpy import sushicontroller as sc
 import tkinter as tk
 
 SLEEP_PERIOD = 0.0001# increase to limit the number of simultaneous set requests (Re's don't like that)
