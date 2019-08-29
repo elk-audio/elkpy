@@ -1,7 +1,27 @@
 import sushi_rpc_pb2
 
 class ParameterInfo():
+    '''
+    Class to represent the parameter info received from sushi in a clear way.
+
+    Attributes:
+        id (int): The id of the parameter.
+        type (str): The type of the parameter.
+        label (str): The label of the parameter.
+        name (str): The name of the parameter.
+        unit (str): The unit of the parameter.
+        automatable (bool): If the parameter is automatable or not.
+        min_range (float): The minimum value of the parameter.
+        max_range (float): The maximum value of the parameter.
+    '''
+
     def __init__(self, _grpc_ParameterInfo = None):
+        '''
+        The constructor of the ParameterInfo class.
+
+        Parameters:
+            _grpc_ParameterInfo (sushi_rpc_pb2.ParameterInfo): the gRPC parameter info object to get the data from.
+        '''
         try:
             self.id = _grpc_ParameterInfo.id
         except:
@@ -71,6 +91,16 @@ class ParameterInfo():
             and self.max_range == other.max_range
 
 class ProcessorInfo():
+    '''
+    Class to represent the processor info received from sushi in a clear way.
+
+    Attributes:
+        id (int): The id of the processor.
+        label (str): The label of the processor.
+        name (str): The name of the processor.
+        parameter_count (int): The number of parameters available to the processor.
+        program_count (int): The number of programs available to the processor.
+    '''
     def __init__(self, _grpc_ProcessorInfo = None):
         try:
             self.id = _grpc_ProcessorInfo.id
@@ -119,6 +149,18 @@ class ProcessorInfo():
 
 
 class TrackInfo():
+    '''
+    Class to represent the track info received from sushi in a clear way.
+
+    Attributes:
+        id (int): The id of the track.
+        label (str): The label of the track.
+        name (str): The name of the track.
+        input_channels (int): The number of input channels available to the track.
+        input_busses (int): The number input busses available to the track.
+        output_channels (int): The number of output channels available to the track.
+        output_busses (int): The number of output busses available to the track.
+    '''
     def __init__(self, _grpc_TrackInfo = None):
         try:
             self.id = _grpc_TrackInfo.id
@@ -187,6 +229,13 @@ class TrackInfo():
             and self.processor_count == other.processor_count
 
 class ProgramInfo():
+    '''
+    Class to represent the program info received from sushi in a clear way.
+
+    Attributes:
+        id (int): The id of the program.
+        name (str): The name of the program.
+    '''
     def __init__(self, _grpc_ProgramInfo = None):
         try:
             self.id = _grpc_ProgramInfo.id.program
