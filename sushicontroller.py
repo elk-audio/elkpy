@@ -8,9 +8,6 @@ import sushi_info_types as infoTypes
 def grpc_error_handling(e):
     print('Grpc error: ' + str(e.code().name) + ', ' + e.details())
 
-def print_hello():
-    print("hello world!")
-
 class SushiController(object):
     ''' 
     A class to control sushi via gRPC.
