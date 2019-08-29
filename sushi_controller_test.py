@@ -3,7 +3,7 @@ import unittest
 import time
 from sushicontroller import SushiController
 from sushicontroller import sushi_rpc_pb2
-from sushicontroller import infoTypes
+from sushicontroller import info_types
 
 SUSHI_ADDRESS = ('localhost:51051')
 
@@ -137,7 +137,7 @@ class TestSushiController(unittest.TestCase):
     def test_get_tracks(self):    
         expected_result = []
 
-        expected_result.append(infoTypes.TrackInfo())
+        expected_result.append(info_types.TrackInfo())
 
         expected_result[0].id = 0
         expected_result[0].label = ''
@@ -257,8 +257,8 @@ class TestSushiControllerTrackControl(unittest.TestCase):
 
         expected_result = []
 
-        expected_result.append(infoTypes.ProcessorInfo())
-        expected_result.append(infoTypes.ProcessorInfo())
+        expected_result.append(info_types.ProcessorInfo())
+        expected_result.append(info_types.ProcessorInfo())
 
         expected_result[0].id = 1
         expected_result[0].label = 'Andes-1'
@@ -279,8 +279,8 @@ class TestSushiControllerTrackControl(unittest.TestCase):
         
         expected_result = []
         
-        expected_result.append(infoTypes.ParameterInfo())
-        expected_result.append(infoTypes.ParameterInfo())
+        expected_result.append(info_types.ParameterInfo())
+        expected_result.append(info_types.ParameterInfo())
         
         expected_result[0].id = 0
         expected_result[0].type = 'FLOAT'
@@ -410,11 +410,11 @@ class TestSushiControllerProcessorControl(unittest.TestCase):
 
         expected_result = []
 
-        expected_result.append(infoTypes.ProgramInfo())
-        expected_result.append(infoTypes.ProgramInfo())
-        expected_result.append(infoTypes.ProgramInfo())
-        expected_result.append(infoTypes.ProgramInfo())
-        expected_result.append(infoTypes.ProgramInfo())
+        expected_result.append(info_types.ProgramInfo())
+        expected_result.append(info_types.ProgramInfo())
+        expected_result.append(info_types.ProgramInfo())
+        expected_result.append(info_types.ProgramInfo())
+        expected_result.append(info_types.ProgramInfo())
 
         expected_result[0].id = 0
         expected_result[0].name = 'Default'
@@ -452,14 +452,14 @@ class TestSushiControllerProcessorControl(unittest.TestCase):
     
         expected_result = []
 
-        expected_result.append(infoTypes.ParameterInfo())
-        expected_result.append(infoTypes.ParameterInfo())
-        expected_result.append(infoTypes.ParameterInfo())
-        expected_result.append(infoTypes.ParameterInfo())
-        expected_result.append(infoTypes.ParameterInfo())
-        expected_result.append(infoTypes.ParameterInfo())
-        expected_result.append(infoTypes.ParameterInfo())
-        expected_result.append(infoTypes.ParameterInfo())
+        expected_result.append(info_types.ParameterInfo())
+        expected_result.append(info_types.ParameterInfo())
+        expected_result.append(info_types.ParameterInfo())
+        expected_result.append(info_types.ParameterInfo())
+        expected_result.append(info_types.ParameterInfo())
+        expected_result.append(info_types.ParameterInfo())
+        expected_result.append(info_types.ParameterInfo())
+        expected_result.append(info_types.ParameterInfo())
 
         expected_result[0].id = 0
         expected_result[0].type = 'FLOAT'
@@ -553,7 +553,7 @@ class TestSushiControllerParameterControl(unittest.TestCase):
     def test_get_parameter_info(self):
         result = self._sc.get_parameter_info(1,0)
 
-        expected_result = infoTypes.ParameterInfo()
+        expected_result = info_types.ParameterInfo()
         expected_result.id = 0
         expected_result.type = 'FLOAT'
         expected_result.label = 'octaves'
@@ -567,7 +567,7 @@ class TestSushiControllerParameterControl(unittest.TestCase):
 
         result = self._sc.get_parameter_info(1,1)
  
-        expected_result = infoTypes.ParameterInfo()
+        expected_result = info_types.ParameterInfo()
         expected_result.id = 1
         expected_result.type = 'FLOAT'
         expected_result.label = 'persistence'

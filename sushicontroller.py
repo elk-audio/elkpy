@@ -1,7 +1,7 @@
 import grpc
 import sushi_rpc_pb2
 import sushi_rpc_pb2_grpc
-import sushi_info_types as infoTypes
+import sushi_info_types as info_types
 
 from enum import IntEnum
 from typing import List
@@ -190,19 +190,19 @@ class SushiController(object):
             grpc_error_handling(e)
 
     # rpc GetTracks(GenericVoidValue) returns (TrackInfoList) {}
-    def get_tracks(self) -> List[infoTypes.TrackInfo]:
+    def get_tracks(self) -> List[info_types.TrackInfo]:
         '''
         Gets a list of all available track.
 
         Returns:
-            List[infoTypes.TrackInfo]: A list with the info of all the available tracks.
+            List[info_types.TrackInfo]: A list with the info of all the available tracks.
         '''
         try:
             response = self._stub.GetTracks(sushi_rpc_pb2.GenericVoidValue())
             
             track_info_list = []
             for track_info in response.tracks:
-                track_info_list.append(infoTypes.TrackInfo(track_info))
+                track_info_list.append(info_types.TrackInfo(track_info))
             return track_info_list
 
         except grpc.RpcError as e:
@@ -477,7 +477,7 @@ class SushiController(object):
             return -1
 
     # rpc GetTrackInfo(TrackIdentifier) returns (TrackInfo) {}
-    def get_track_info(self, _track_identifier: int) -> infoTypes.TrackInfo:
+    def get_track_info(self, _track_identifier: int) -> info_types.TrackInfo:
         '''
         Get the info of a track from its id.
 
@@ -485,13 +485,13 @@ class SushiController(object):
             _track_identifier (int): The id of the track to get the info from.
 
         Returns:
-            infoTypes.TrackInfo: The info of the track matching the id.
+            info_types.TrackInfo: The info of the track matching the id.
         '''
         try:
             response = self._stub.GetTrackInfo(sushi_rpc_pb2.TrackIdentifier(
                 id = _track_identifier
             ))
-            return infoTypes.TrackInfo(response)
+            return info_types.TrackInfo(response)
 
         except grpc.RpcError as e:
             grpc_error_handling(e)
@@ -504,7 +504,7 @@ class SushiController(object):
             )
 
     # rpc GetTrackProcessors(TrackIdentifier) returns (ProcessorInfoList) {}
-    def get_track_processors(self, _track_identifier: int) -> List[infoTypes.ProcessorInfo]:
+    def get_track_processors(self, _track_identifier: int) -> List[info_types.ProcessorInfo]:
         '''
         Get a list of processors assigned on the specified track.
 
@@ -512,7 +512,7 @@ class SushiController(object):
             _track_identifier (int): The id of the track to get the processor list from.
 
         Returns:
-            List[infoTypes.ProcessorInfo]: A list of the info of the processors assigned to the track matching the id.
+            List[info_types.ProcessorInfo]: A list of the info of the processors assigned to the track matching the id.
         '''
         try:
             response = self._stub.GetTrackProcessors(sushi_rpc_pb2.TrackIdentifier(
@@ -521,7 +521,7 @@ class SushiController(object):
             
             processor_info_list = []
             for processor_info in response.processors:
-                processor_info_list.append(infoTypes.ProcessorInfo(processor_info))
+                processor_info_list.append(info_types.ProcessorInfo(processor_info))
             
             return processor_info_list
         
@@ -529,7 +529,7 @@ class SushiController(object):
             grpc_error_handling(e)
     
     # rpc GetTrackParameters(TrackIdentifier) returns (ParameterInfoList) {}
-    def get_track_parameters(self, _track_identifier: int) -> List[infoTypes.ParameterInfo]:
+    def get_track_parameters(self, _track_identifier: int) -> List[info_types.ParameterInfo]:
         '''
         Get a list of parameters available on the specified track.
 
@@ -537,7 +537,7 @@ class SushiController(object):
             _track_identifier (int): The id of the track to get the parameter list from.
 
         Returns:
-            List[infoTypes.ParameterInfo]: A list of the info of the parameters assigned to the track matching the id.
+            List[info_types.ParameterInfo]: A list of the info of the parameters assigned to the track matching the id.
         '''
         try:
             response = self._stub.GetTrackParameters(sushi_rpc_pb2.TrackIdentifier(
@@ -546,7 +546,7 @@ class SushiController(object):
             
             parameter_info_list = []
             for parameter_info in response.parameters:
-                parameter_info_list.append(infoTypes.ParameterInfo(parameter_info))
+                parameter_info_list.append(info_types.ParameterInfo(parameter_info))
             
             return parameter_info_list
 
@@ -580,7 +580,7 @@ class SushiController(object):
             return -1
 
     # rpc GetProcessorInfo (ProcessorIdentifier) returns (ProcessorInfo) {}
-    def get_processor_info(self, _processor_identifier: int) -> infoTypes.ProcessorInfo:
+    def get_processor_info(self, _processor_identifier: int) -> info_types.ProcessorInfo:
         '''
         Get the info of a processor from its id.
 
@@ -588,13 +588,13 @@ class SushiController(object):
             _track_identifier (int): The id of the processor to get the info from.
 
         Returns:
-            infoTypes.ProcessorInfo: The info of the processor matching the id.
+            info_types.ProcessorInfo: The info of the processor matching the id.
         '''
         try:
             response = self._stub.GetProcessorInfo(sushi_rpc_pb2.ProcessorIdentifier(
                 id = _processor_identifier
             ))
-            return infoTypes.ProcessorInfo(response)
+            return info_types.ProcessorInfo(response)
 
         except grpc.RpcError as e:
             grpc_error_handling(e)
@@ -701,7 +701,7 @@ class SushiController(object):
             grpc_error_handling(e)
 
     # rpc GetProcessorPrograms (ProcessorIdentifier) returns (ProgramInfoList) {}
-    def get_processor_programs(self, _processor_identifier: int) -> List[infoTypes.ProgramInfo]:
+    def get_processor_programs(self, _processor_identifier: int) -> List[info_types.ProgramInfo]:
         '''
         Get a list of the available programs of the specified processor.
 
@@ -709,7 +709,7 @@ class SushiController(object):
             _processor_identifier (int): The id of the processor to get the programs from.
 
         Returns:
-            List[infoTypes.ProgramInfo]: A list of the programs available to the processor matching the id.
+            List[info_types.ProgramInfo]: A list of the programs available to the processor matching the id.
         '''
         try:
             response = self._stub.GetProcessorPrograms(sushi_rpc_pb2.ProcessorIdentifier(
@@ -718,7 +718,7 @@ class SushiController(object):
             
             program_info_list = []
             for program_info in response.programs:
-                program_info_list.append(infoTypes.ProgramInfo(program_info))
+                program_info_list.append(info_types.ProgramInfo(program_info))
             
             return program_info_list
 
@@ -744,7 +744,7 @@ class SushiController(object):
             grpc_error_handling(e)
 
     # rpc GetProcessorParameters (ProcessorIdentifier) returns (ParameterInfoList) {}
-    def get_processor_parameters(self, _processor_identifier: int) -> List[infoTypes.ParameterInfo]:
+    def get_processor_parameters(self, _processor_identifier: int) -> List[info_types.ParameterInfo]:
         '''
         Get a list of the parameters available to the specified processor.
 
@@ -752,7 +752,7 @@ class SushiController(object):
             _processor_identifier (int): The id of the processor to get the parameters from.
 
         Returns:
-            List[infoTypes.ParameterInfo]: A list of the parameters available to the processor matching the id.
+            List[info_types.ParameterInfo]: A list of the parameters available to the processor matching the id.
         '''
         try:
             response = self._stub.GetProcessorParameters(sushi_rpc_pb2.ProcessorIdentifier(
@@ -761,7 +761,7 @@ class SushiController(object):
             
             parameter_info_list = []
             for parameter_info in response.parameters:
-                parameter_info_list.append(infoTypes.ParameterInfo(parameter_info))
+                parameter_info_list.append(info_types.ParameterInfo(parameter_info))
             
             return parameter_info_list
 
@@ -797,7 +797,7 @@ class SushiController(object):
             grpc_error_handling(e)
 
     # rpc GetParameterInfo (ParameterIdentifier) returns (ParameterInfo) {}
-    def get_parameter_info(self, _processor_identifier: int, _parameter_identifier: int) -> infoTypes.ParameterInfo:
+    def get_parameter_info(self, _processor_identifier: int, _parameter_identifier: int) -> info_types.ParameterInfo:
         '''
         Get info about the specified parameter on the specified processor.
 
@@ -806,14 +806,14 @@ class SushiController(object):
             _parameter_identifier (int): The id of the parameter to get the info from.
 
         Returns:
-            infoTypes.ParameterInfo: Info of the parameter matching the id.
+            info_types.ParameterInfo: Info of the parameter matching the id.
         '''
         try:
             response = self._stub.GetParameterInfo(sushi_rpc_pb2.ParameterIdentifier(
                 processor_id = _processor_identifier,
                 parameter_id = _parameter_identifier
             ))
-            return infoTypes.ParameterInfo(response)
+            return info_types.ParameterInfo(response)
 
         except grpc.RpcError as e:
             grpc_error_handling(e)
