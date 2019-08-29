@@ -1,9 +1,10 @@
 import grpc
-from enum import IntEnum
-from typing import List
 import sushi_rpc_pb2
 import sushi_rpc_pb2_grpc
 import sushi_info_types as infoTypes
+
+from enum import IntEnum
+from typing import List
 
 def grpc_error_handling(e):
     print('Grpc error: ' + str(e.code().name) + ', ' + e.details())
