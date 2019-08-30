@@ -25,8 +25,11 @@ class SushiController(object):
 
         Parameters:
             address (str): 'ip-addres:port' The ip-addres and port at which to connect to sushi.
-        '''
-        channel = grpc.insecure_channel(address)
+        ''' 
+        try:
+            channel = grpc.insecure_channel(address)
+        except AttributeError as e:
+            raise TypeError("Parameter address = %s. Should be a string containing the ip-address and port of sushi ('ip-address:port')" %address) from e
         self._stub = sushi_rpc_pb2_grpc.SushiControllerStub(channel)
 
     # rpc GetSamplerate (GenericVoidValue) returns (GenericFloatValue) {}
@@ -62,7 +65,6 @@ class SushiController(object):
 
         except grpc.RpcError as e:
             grpc_error_handling(e)
-            return -1
 
     # rpc SetPlayingMode (PlayingMode) returns (GenericVoidValue) {}
     # TODO: PlayingMode DUMMY=0 not working
@@ -101,7 +103,6 @@ class SushiController(object):
         
         except grpc.RpcError as e:
             grpc_error_handling(e)
-            return -1
 
     # rpc SetSyncMode (SyncMode) returns (GenericVoidValue) {}
     # TODO: DUMMY=0 mode doesn't seem to work
