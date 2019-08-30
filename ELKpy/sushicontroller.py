@@ -137,7 +137,6 @@ class SushiController(object):
             return response.value
         except grpc.RpcError as e:
             grpc_error_handling(e)
-            return -1
 
     # rpc SetTempo (GenericFloatValue) returns (GenericVoidValue) {}
     def set_tempo(self, tempo: float) -> None:
@@ -170,7 +169,6 @@ class SushiController(object):
         
         except grpc.RpcError as e:
             grpc_error_handling(e)
-            return -1, -1
 
     # rpc SetTimeSignature (TimeSignature) returns (GenericVoidValue) {}
     def set_time_signature(self, numerator: int, denominator: int) -> None:
@@ -360,7 +358,6 @@ class SushiController(object):
 
         except grpc.RpcError as e:
             grpc_error_handling(e)
-            return -1, -1, -1
 
     # rpc GetTrackTimings(TrackIdentifier) returns (CpuTimings) {}
     def get_track_timings(self, track_identifier: int) -> (float, float, float):
@@ -383,7 +380,6 @@ class SushiController(object):
 
         except grpc.RpcError as e:
             grpc_error_handling(e)
-            return -1, -1, -1
 
     # rpc GetProcessorTimings(ProcessorIdentifier) returns (CpuTimings) {}
     def get_processor_timings(self, processor_identifier: int) -> (float, float, float):
@@ -406,7 +402,6 @@ class SushiController(object):
         
         except grpc.RpcError as e:
             grpc_error_handling(e)
-            return -1, -1, -1
 
     # rpc ResetAllTimings(GenericVoidValue) returns (GenericVoidValue) {}
     def reset_all_timings(self) -> None:
@@ -474,7 +469,6 @@ class SushiController(object):
         
         except grpc.RpcError as e:
             grpc_error_handling(e)
-            return -1
 
     # rpc GetTrackInfo(TrackIdentifier) returns (TrackInfo) {}
     def get_track_info(self, track_identifier: int) -> info_types.TrackInfo:
@@ -495,13 +489,6 @@ class SushiController(object):
 
         except grpc.RpcError as e:
             grpc_error_handling(e)
-            return sushi_rpc_pb2.TrackInfo(
-                name = 'null',
-                input_channels = -1,
-                input_busses = -1,
-                output_channels = -1,
-                output_busses = -1
-            )
 
     # rpc GetTrackProcessors(TrackIdentifier) returns (ProcessorInfoList) {}
     def get_track_processors(self, track_identifier: int) -> List[info_types.ProcessorInfo]:
@@ -577,7 +564,6 @@ class SushiController(object):
         
         except grpc.RpcError as e:
             grpc_error_handling(e)
-            return -1
 
     # rpc GetProcessorInfo (ProcessorIdentifier) returns (ProcessorInfo) {}
     def get_processor_info(self, processor_identifier: int) -> info_types.ProcessorInfo:
@@ -626,7 +612,7 @@ class SushiController(object):
 
         Parameters:
             processor_identifier (int): The id of the processor to set the bypass state of.
-            _bypass_sate (bool): The bypass state of the processor matching the id.
+            bypass_sate (bool): The bypass state of the processor matching the id.
         '''
         try:
             self._stub.SetProcessorBypassState(sushi_rpc_pb2.ProcessorBypassStateSetRequest(
