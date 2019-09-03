@@ -127,7 +127,7 @@ class SushiController(object):
                 grpc_error_handling(e)
             
     # rpc GetSyncMode (GenericVoidValue) returns (SyncMode) {}
-    def get_sync_mode(self) -> int:
+    def get_sync_mode(self) -> SyncMode:
         '''
         Get the current sync mode.
 
@@ -139,30 +139,31 @@ class SushiController(object):
         '''
         try:
             response = self._stub.GetSyncMode(sushi_rpc_pb2.GenericVoidValue())
-            return response.mode
+            return SyncMode(response.mode)
         
         except grpc.RpcError as e:
             grpc_error_handling(e)
 
     # rpc SetSyncMode (SyncMode) returns (GenericVoidValue) {}
     # TODO: DUMMY=0 mode doesn't seem to work
-    def set_sync_mode(self, sync_mode: int) -> None:
+    def set_sync_mode(self, sync_mode: SyncMode) -> None:
         '''
         Set the sync mode.
 
         Parameters:
-            sync_mode (int): The sync mode to set.
+            sync_mode (SyncMode): The sync mode to set.
                             1 = Internal,
                             2 = MIDI,
                             3 = Link
         '''
-        try:
-            self._stub.SetSyncMode(sushi_rpc_pb2.SyncMode(
-                mode = int(sync_mode)
-            ))
-        
-        except grpc.RpcError as e:
-            grpc_error_handling(e)
+        if SyncMode(sync_mode) in SyncMode:
+            try:
+                self._stub.SetSyncMode(sushi_rpc_pb2.SyncMode(
+                    mode = int(sync_mode)
+                ))
+            
+            except grpc.RpcError as e:
+                grpc_error_handling(e)
 
     # rpc GetTempo (GenericVoidValue) returns (GenericFloatValue) {}
     def get_tempo(self) -> float:
