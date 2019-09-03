@@ -1,3 +1,11 @@
+# local python stuff
 __pycache__/
+
+# vscode specific files
 .vscode/
+
+# proto file for sushi
 *.proto
+
+# local examples
+local_examples/
