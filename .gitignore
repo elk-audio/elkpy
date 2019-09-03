@@ -1,3 +1,8 @@
+# local python stuff
 __pycache__/
+
+# vscode specific files
 .vscode/
-*.proto
+
+# local examples
+local_examples/

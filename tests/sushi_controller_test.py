@@ -1,7 +1,7 @@
 import sys
 import unittest
 import time
-from ELKpy.sushicontroller import SushiController
+from ELKpy import sushicontroller as sc
 from ELKpy import sushi_rpc_pb2
 from ELKpy import sushi_info_types as info_types
 
@@ -12,7 +12,7 @@ SUSHI_ADDRESS = ('localhost:51051')
 
 class TestSushiController(unittest.TestCase):
     def setUp(self):
-        self._sc = SushiController(SUSHI_ADDRESS)
+        self._sc = sc.SushiController(SUSHI_ADDRESS)
 
     def test_get_samplerate(self):
         self.assertEqual(self._sc.get_samplerate(), 48000.0)
@@ -23,28 +23,26 @@ class TestSushiController(unittest.TestCase):
     def test_set_playing_mode_positive(self):
         wait_time = 0.1
 
-        # TODO: DUMMY NOT AVAIALBLE
-
         for i in range(1, 4):
             self._sc.set_playing_mode(i)
             time.sleep(wait_time)
             self.assertEqual(self._sc.get_playing_mode(), i)
             time.sleep(wait_time)
 
-        self._sc.set_playing_mode(self._sc.PlayingMode.STOPPED)
+        self._sc.set_playing_mode(sc.PlayingMode.STOPPED)
         time.sleep(wait_time)
         self.assertEqual(self._sc.get_playing_mode(),
-                         int(self._sc.PlayingMode.STOPPED))
+                         sc.PlayingMode.STOPPED)
         time.sleep(wait_time)
-        self._sc.set_playing_mode(self._sc.PlayingMode.PLAYING)
-        time.sleep(wait_time)
-        self.assertEqual(self._sc.get_playing_mode(),
-                         int(self._sc.PlayingMode.PLAYING))
-        time.sleep(wait_time)
-        self._sc.set_playing_mode(self._sc.PlayingMode.RECORDING)
+        self._sc.set_playing_mode(sc.PlayingMode.PLAYING)
         time.sleep(wait_time)
         self.assertEqual(self._sc.get_playing_mode(),
-                         int(self._sc.PlayingMode.RECORDING))
+                         sc.PlayingMode.PLAYING)
+        time.sleep(wait_time)
+        self._sc.set_playing_mode(sc.PlayingMode.RECORDING)
+        time.sleep(wait_time)
+        self.assertEqual(self._sc.get_playing_mode(),
+                         sc.PlayingMode.RECORDING)
         time.sleep(wait_time)
 
         self._sc.set_playing_mode(1)
@@ -70,26 +68,24 @@ class TestSushiController(unittest.TestCase):
     def test_set_sync_mode(self):
         wait_time = 0.1
 
-        # TODO: DUMMY=0 mode doesn't seem to work
-
         for i in range(1, 4):
             self._sc.set_sync_mode(i)
             time.sleep(wait_time)
             self.assertEqual(self._sc.get_sync_mode(), i)
             time.sleep(wait_time)
 
-        self._sc.set_sync_mode(self._sc.SyncMode.INTERNAL)
+        self._sc.set_sync_mode(sc.SyncMode.INTERNAL)
         time.sleep(wait_time)
         self.assertEqual(self._sc.get_sync_mode(),
-                         int(self._sc.SyncMode.INTERNAL))
+                         sc.SyncMode.INTERNAL)
         time.sleep(wait_time)
-        self._sc.set_sync_mode(self._sc.SyncMode.MIDI)
+        self._sc.set_sync_mode(sc.SyncMode.MIDI)
         time.sleep(wait_time)
-        self.assertEqual(self._sc.get_sync_mode(), int(self._sc.SyncMode.MIDI))
+        self.assertEqual(self._sc.get_sync_mode(), sc.SyncMode.MIDI)
         time.sleep(wait_time)
-        self._sc.set_sync_mode(self._sc.SyncMode.LINK)
+        self._sc.set_sync_mode(sc.SyncMode.LINK)
         time.sleep(wait_time)
-        self.assertEqual(self._sc.get_sync_mode(), int(self._sc.SyncMode.LINK))
+        self.assertEqual(self._sc.get_sync_mode(), sc.SyncMode.LINK)
         time.sleep(wait_time)
 
         self._sc.set_sync_mode(1)
@@ -155,7 +151,7 @@ class TestSushiController(unittest.TestCase):
 
 class TestSushiControllerKeyboardControl(unittest.TestCase):
     def setUp(self):
-        self._sc = SushiController(SUSHI_ADDRESS)
+        self._sc = sc.SushiController(SUSHI_ADDRESS)
 
     def test_keyboard_control(self):
         wait_time = 0.5
@@ -175,7 +171,7 @@ class TestSushiControllerKeyboardControl(unittest.TestCase):
 
 class TestSushiControllerCPUTimings(unittest.TestCase):
     def setUp(self):
-        self._sc = SushiController(SUSHI_ADDRESS)
+        self._sc = sc.SushiController(SUSHI_ADDRESS)
 
     def test_get_engine_timings(self):
         self._sc.reset_all_timings()
@@ -215,7 +211,7 @@ class TestSushiControllerCPUTimings(unittest.TestCase):
 
 class TestSushiControllerTrackControl(unittest.TestCase):
     def setUp(self):
-        self._sc = SushiController(SUSHI_ADDRESS)
+        self._sc = sc.SushiController(SUSHI_ADDRESS)
 
     def test_get_track_id(self):
         result = self._sc.get_track_id('main')
@@ -238,24 +234,6 @@ class TestSushiControllerTrackControl(unittest.TestCase):
 
     def test_get_track_processors(self):
         result = self._sc.get_track_processors(0)
-        # expected_result = sushi_rpc_pb2.ProcessorInfoList(
-        #     processors=(
-        #         sushi_rpc_pb2.ProcessorInfo(
-        #             id=1,
-        #             label='Andes-1',
-        #             name='andes',
-        #             parameter_count=8,
-        #             program_count=100
-        #         ),
-        #         sushi_rpc_pb2.ProcessorInfo(
-        #             id=2,
-        #             label='Temper',
-        #             name='Temper',
-        #             parameter_count=7,
-        #             program_count=5
-        #         )
-        #     )
-        # )
 
         expected_result = []
 
@@ -305,7 +283,7 @@ class TestSushiControllerTrackControl(unittest.TestCase):
 
 class TestSushiControllerProcessorControl(unittest.TestCase):
     def setUp(self):
-        self._sc = SushiController(SUSHI_ADDRESS)
+        self._sc = sc.SushiController(SUSHI_ADDRESS)
 
     def test_get_processor_id(self):
         result = self._sc.get_processor_id("andes")
@@ -541,7 +519,7 @@ class TestSushiControllerProcessorControl(unittest.TestCase):
 
 class TestSushiControllerParameterControl(unittest.TestCase):
     def setUp(self):
-        self._sc = SushiController(SUSHI_ADDRESS)
+        self._sc = sc.SushiController(SUSHI_ADDRESS)
 
     def test_get_parameter_id(self):
         result = self._sc.get_parameter_id(1,'octaves')
