@@ -5,7 +5,7 @@ __pycache__/
 .vscode/
 
 # proto file for sushi
-*.proto
+sushi_rpc.proto
 
 # local examples
 local_examples/
