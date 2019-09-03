@@ -23,8 +23,6 @@ class TestSushiController(unittest.TestCase):
     def test_set_playing_mode_positive(self):
         wait_time = 0.1
 
-        # TODO: DUMMY NOT AVAIALBLE
-
         for i in range(1, 4):
             self._sc.set_playing_mode(i)
             time.sleep(wait_time)
@@ -69,8 +67,6 @@ class TestSushiController(unittest.TestCase):
 
     def test_set_sync_mode(self):
         wait_time = 0.1
-
-        # TODO: DUMMY=0 mode doesn't seem to work
 
         for i in range(1, 4):
             self._sc.set_sync_mode(i)
@@ -238,24 +234,6 @@ class TestSushiControllerTrackControl(unittest.TestCase):
 
     def test_get_track_processors(self):
         result = self._sc.get_track_processors(0)
-        # expected_result = sushi_rpc_pb2.ProcessorInfoList(
-        #     processors=(
-        #         sushi_rpc_pb2.ProcessorInfo(
-        #             id=1,
-        #             label='Andes-1',
-        #             name='andes',
-        #             parameter_count=8,
-        #             program_count=100
-        #         ),
-        #         sushi_rpc_pb2.ProcessorInfo(
-        #             id=2,
-        #             label='Temper',
-        #             name='Temper',
-        #             parameter_count=7,
-        #             program_count=5
-        #         )
-        #     )
-        # )
 
         expected_result = []
 
