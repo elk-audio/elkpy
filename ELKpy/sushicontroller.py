@@ -9,8 +9,46 @@ from typing import List
 _author__ = "Ruben Svensson"
 __copyright__ = "Copyright 2019, Mind Music Labs"
 
+################
+# Custom Enums #
+################
+
+class PlayingMode(IntEnum):
+    '''
+    Enum class to hold the values matching the different playing modes.
+    '''
+    STOPPED = 1
+    PLAYING = 2
+    RECORDING = 3
+
+class SyncMode(IntEnum):
+    '''
+    Enum class to hold the values matching the different sync modes.
+    '''
+    INTERNAL = 1
+    MIDI = 2
+    LINK = 3
+
+class ParameterType(IntEnum):
+    '''
+    Enum class to hold the values matching the different variable types.
+    '''
+    BOOL = 1
+    INT = 2
+    FLOAT = 3
+    STRING_PROPERTY = 4
+    DATA_PROPERTY = 5
+
+############################
+# Error handling functions #
+############################
+
 def grpc_error_handling(e):
     print('Grpc error: ' + str(e.code().name) + ', ' + e.details())
+
+###############################
+# Main sushi controller class #
+###############################
 
 class SushiController(object):
     ''' 
@@ -29,7 +67,7 @@ class SushiController(object):
         try:
             channel = grpc.insecure_channel(address)
         except AttributeError as e:
-            raise TypeError("Parameter address = %s. Should be a string containing the ip-address and port of sushi ('ip-address:port')" %address) from e
+            raise TypeError(f"Parameter address = {address}. Should be a string containing the ip-address and port of sushi ('ip-address:port')") from e
         self._stub = sushi_rpc_pb2_grpc.SushiControllerStub(channel)
 
     # rpc GetSamplerate (GenericVoidValue) returns (GenericFloatValue) {}
@@ -61,33 +99,35 @@ class SushiController(object):
         '''
         try: 
             response = self._stub.GetPlayingMode(sushi_rpc_pb2.GenericVoidValue())
-            return response.mode
+            return PlayingMode(response.mode)
 
         except grpc.RpcError as e:
             grpc_error_handling(e)
 
     # rpc SetPlayingMode (PlayingMode) returns (GenericVoidValue) {}
     # TODO: PlayingMode DUMMY=0 not working
-    def set_playing_mode(self, playing_mode: int) -> None:
+    def set_playing_mode(self, playing_mode: PlayingMode) -> None:
         '''
         Set the playing mode.
         
         Parameters:
-            playing_mode (int): The playing mode to set.
+            playing_mode (PlayingMode): The playing mode to set.
                                 1 = Stopped,
                                 2 = Playing,
                                 3 = Recording (not implemented)
         '''
-        try:
-            self._stub.SetPlayingMode(sushi_rpc_pb2.PlayingMode(
-                mode = int(playing_mode)
-            ))
         
-        except grpc.RpcError as e:
-            grpc_error_handling(e)
+        if PlayingMode(playing_mode) in PlayingMode:
+            try:
+                self._stub.SetPlayingMode(sushi_rpc_pb2.PlayingMode(
+                    mode = int(playing_mode)
+                ))
+            
+            except grpc.RpcError as e:
+                grpc_error_handling(e)
             
     # rpc GetSyncMode (GenericVoidValue) returns (SyncMode) {}
-    def get_sync_mode(self) -> int:
+    def get_sync_mode(self) -> SyncMode:
         '''
         Get the current sync mode.
 
@@ -99,30 +139,31 @@ class SushiController(object):
         '''
         try:
             response = self._stub.GetSyncMode(sushi_rpc_pb2.GenericVoidValue())
-            return response.mode
+            return SyncMode(response.mode)
         
         except grpc.RpcError as e:
             grpc_error_handling(e)
 
     # rpc SetSyncMode (SyncMode) returns (GenericVoidValue) {}
     # TODO: DUMMY=0 mode doesn't seem to work
-    def set_sync_mode(self, sync_mode: int) -> None:
+    def set_sync_mode(self, sync_mode: SyncMode) -> None:
         '''
         Set the sync mode.
 
         Parameters:
-            sync_mode (int): The sync mode to set.
+            sync_mode (SyncMode): The sync mode to set.
                             1 = Internal,
                             2 = MIDI,
                             3 = Link
         '''
-        try:
-            self._stub.SetSyncMode(sushi_rpc_pb2.SyncMode(
-                mode = int(sync_mode)
-            ))
-        
-        except grpc.RpcError as e:
-            grpc_error_handling(e)
+        if SyncMode(sync_mode) in SyncMode:
+            try:
+                self._stub.SetSyncMode(sushi_rpc_pb2.SyncMode(
+                    mode = int(sync_mode)
+                ))
+            
+            except grpc.RpcError as e:
+                grpc_error_handling(e)
 
     # rpc GetTempo (GenericVoidValue) returns (GenericFloatValue) {}
     def get_tempo(self) -> float:
@@ -944,36 +985,3 @@ class SushiController(object):
 
         except grpc.RpcError as e:
             grpc_error_handling(e)
-
-    #########################
-    # //Custom data objects #
-    #########################
-
-    class PlayingMode(IntEnum):
-        '''
-        Enum class to hold the values matching the different playing modes.
-        '''
-        DUMMY = 0
-        STOPPED = 1
-        PLAYING = 2
-        RECORDING = 3
-
-    class SyncMode(IntEnum):
-        '''
-        Enum class to hold the values matching the different sync modes.
-        '''
-        DUMMY = 0
-        INTERNAL = 1
-        MIDI = 2
-        LINK = 3
-
-    class ParameterType(IntEnum):
-        '''
-        Enum class to hold the values matching the different variable types.
-        '''
-        DUMMY = 0
-        BOOL = 1
-        INT = 2
-        FLOAT = 3
-        STRING_PROPERTY = 4
-        DATA_PROPERTY = 5
