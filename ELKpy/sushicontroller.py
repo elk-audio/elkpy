@@ -42,9 +42,41 @@ class ParameterType(IntEnum):
 ############################
 # Error handling functions #
 ############################
+class SushiUnkownError(Exception):
+    pass
 
-def grpc_error_handling(e):
-    print('Grpc error: ' + str(e.code().name) + ', ' + e.details())
+class SushiFailedPreconditionError(Exception):
+    pass
+
+class SushiNotFoundError(Exception):
+    pass
+
+class SushiOutOfRangeError(Exception):
+    pass
+
+class SushiInvalidArgumentError(Exception):
+    pass
+
+class SushiInternalError(Exception):
+    pass
+
+def grpc_error_handling(e, context_info = ''):
+    if (e.code().name == 'UNKNOWN'):
+        raise SushiUnkownError(e.details() , context_info) from e
+    elif (e.code().name == 'FAILED_PRECONDITION'):
+        raise SushiFailedPreconditionError(e.details() , context_info) from e
+    elif (e.code().name == 'NOT_FOUND'):
+        raise SushiNotFoundError(e.details() , context_info) from e
+    elif (e.code().name == 'OUT_OF_RANGE'):
+        raise SushiOutOfRangeError(e.details() , context_info) from e
+    elif (e.code().name == 'INVALID_ARGUMENT'):
+        raise SushiInvalidArgumentError(e.details() , context_info) from e
+    elif (e.code().name == 'INTERNAL'):
+        raise SushiInternalError(e.details() , context_info) from e
+    else:
+        print(context_info)
+        raise e
+      #  print('Grpc error: ' + str e.code().name) + ', ' + e.details())
 
 ###############################
 # Main sushi controller class #
@@ -124,7 +156,7 @@ class SushiController(object):
                 ))
             
             except grpc.RpcError as e:
-                grpc_error_handling(e)
+                grpc_error_handling(e, f" With playing mode: {playing_mode}")
             
     # rpc GetSyncMode (GenericVoidValue) returns (SyncMode) {}
     def get_sync_mode(self) -> SyncMode:
@@ -163,7 +195,7 @@ class SushiController(object):
                 ))
             
             except grpc.RpcError as e:
-                grpc_error_handling(e)
+                grpc_error_handling(e, f" With sync mode: {sync_mode}")
 
     # rpc GetTempo (GenericVoidValue) returns (GenericFloatValue) {}
     def get_tempo(self) -> float:
@@ -193,7 +225,7 @@ class SushiController(object):
             ))
 
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f" With tempo: {tempo}")
 
     # rpc GetTimeSignature (GenericVoidValue) returns (TimeSignature) {}
     def get_time_signature(self) -> (int, int):
@@ -227,7 +259,7 @@ class SushiController(object):
             ))
         
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f" With numerator: {numerator}, denominator: {denominator}")
 
     # rpc GetTracks(GenericVoidValue) returns (TrackInfoList) {}
     def get_tracks(self) -> List[info_types.TrackInfo]:
@@ -273,7 +305,7 @@ class SushiController(object):
             ))
 
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f" With track id: {track_identifier}, channel: {channel}, note: {note}, velocity: {velocity}")
 
     # rpc SendNoteOff(NoteOffRequest) returns (GenericVoidValue) {}
     def send_note_off(self, track_identifier: int, channel: int, note: int, velocity: float) -> None:
@@ -295,7 +327,7 @@ class SushiController(object):
             ))
 
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f" With track id: {track_identifier}, channel: {channel}, note: {note}, velocity: {velocity}")
     
     # rpc SendNoteAftertouch(NoteAftertouchRequest) returns (GenericVoidValue) {}
     def send_note_aftertouch(self, track_identifier: int, channel: int, note: int, value: float) -> None:
@@ -317,7 +349,7 @@ class SushiController(object):
             ))
         
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f" With track id: {track_identifier}, channel: {channel}, note: {note}, value: {value}")
 
     # rpc SendAftertouch(NoteModulationRequest) returns (GenericVoidValue) {}
     def send_aftertouch(self, track_identifier: int, channel: int, value: float) -> None:
@@ -337,7 +369,7 @@ class SushiController(object):
             ))
         
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f" With track id: {track_identifier}, channel: {channel}, value: {value}")
 
     # rpc SendPitchBend(NoteModulationRequest) returns (GenericVoidValue) {}
     def send_pitch_bend(self, track_identifier: int, channel: int, value: float) -> None:
@@ -357,7 +389,7 @@ class SushiController(object):
             ))
 
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f" With track id: {track_identifier}, channel: {channel}, value: {value}")
 
     # rpc SendModulation(NoteModulationRequest) returns (GenericVoidValue) {}
     def send_modulation(self, track_identifier: int, channel: int, value: float) -> None:
@@ -377,7 +409,7 @@ class SushiController(object):
             ))
         
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f" With track id: {track_identifier}, channel: {channel}, value: {value}")
 
     ###################
     # // Cpu timings  #
@@ -420,7 +452,7 @@ class SushiController(object):
             return response.average, response.min, response.max
 
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f"With track id: {track_identifier}")
 
     # rpc GetProcessorTimings(ProcessorIdentifier) returns (CpuTimings) {}
     def get_processor_timings(self, processor_identifier: int) -> (float, float, float):
@@ -442,7 +474,7 @@ class SushiController(object):
             return response.average, response.min, response.max
         
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f"With processor id: {processor_identifier}")
 
     # rpc ResetAllTimings(GenericVoidValue) returns (GenericVoidValue) {}
     def reset_all_timings(self) -> None:
@@ -469,7 +501,7 @@ class SushiController(object):
             ))
 
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f"With track id: {track_identifier}")
 
     # rpc ResetProcessorTimings(ProcessorIdentifier) returns (GenericVoidValue) {}
     def reset_processor_timings(self, processor_identifier: int) -> None:
@@ -485,7 +517,7 @@ class SushiController(object):
             ))
 
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f"With processor id: {processor_identifier}")
 
     ####################
     # // Track control #
@@ -509,7 +541,7 @@ class SushiController(object):
             return response.id
         
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f"With track name: {track_name}")
 
     # rpc GetTrackInfo(TrackIdentifier) returns (TrackInfo) {}
     def get_track_info(self, track_identifier: int) -> info_types.TrackInfo:
@@ -529,7 +561,7 @@ class SushiController(object):
             return info_types.TrackInfo(response)
 
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f"With track id: {track_identifier}")
 
     # rpc GetTrackProcessors(TrackIdentifier) returns (ProcessorInfoList) {}
     def get_track_processors(self, track_identifier: int) -> List[info_types.ProcessorInfo]:
@@ -554,7 +586,7 @@ class SushiController(object):
             return processor_info_list
         
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f"With track id: {track_identifier}")
     
     # rpc GetTrackParameters(TrackIdentifier) returns (ParameterInfoList) {}
     def get_track_parameters(self, track_identifier: int) -> List[info_types.ParameterInfo]:
@@ -579,7 +611,7 @@ class SushiController(object):
             return parameter_info_list
 
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f"With track id: {track_identifier}")
     # // list requests left out for now
 
     ########################
@@ -604,7 +636,7 @@ class SushiController(object):
             return response.id
         
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f"With processor name: {processor_name}")
 
     # rpc GetProcessorInfo (ProcessorIdentifier) returns (ProcessorInfo) {}
     def get_processor_info(self, processor_identifier: int) -> info_types.ProcessorInfo:
@@ -624,7 +656,7 @@ class SushiController(object):
             return info_types.ProcessorInfo(response)
 
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f"With processor id: {processor_identifier}")
 
     # rpc GetProcessorBypassState (ProcessorIdentifier) returns (GenericBoolValue) {}
     def get_processor_bypass_state(self, processor_identifier: int) -> bool:
@@ -644,7 +676,7 @@ class SushiController(object):
             return response.value
 
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f"With processor id: {processor_identifier}")
 
     # rpc SetProcessorBypassState (ProcessorBypassStateSetRequest) returns (GenericVoidValue) {}
     def set_processor_bypass_state(self, processor_identifier: int, bypass_state: bool) -> None:
@@ -662,7 +694,7 @@ class SushiController(object):
             ))
         
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f"With processor id: {processor_identifier}, bypass state: {bypass_sate}")
 
     # rpc GetProcessorCurrentProgram (ProcessorIdentifier) returns (ProgramIdentifier) {}
     def get_processor_current_program(self, processor_identifier: int) -> int:
@@ -682,7 +714,7 @@ class SushiController(object):
             return response.program
 
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f"With processor id: {processor_identifier}")
 
     # rpc GetProcessorCurrentProgramName (ProcessorIdentifier) returns (GenericStringValue) {}
     def get_processor_current_program_name(self, processor_identifier: int) -> str:
@@ -702,7 +734,7 @@ class SushiController(object):
             return response.value
 
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f"With processor id: {processor_identifier}")
 
     # rpc GetProcessorProgramName (ProcessorProgramIdentifier) returns (GenericStringValue) {}
     def get_processor_program_name(self, processor_identifier: int, program_identifier: int) -> str:
@@ -724,7 +756,7 @@ class SushiController(object):
             return response.value
 
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f"With processor id: {processor_identifier}, program id: {program_identifier}")
 
     # rpc GetProcessorPrograms (ProcessorIdentifier) returns (ProgramInfoList) {}
     def get_processor_programs(self, processor_identifier: int) -> List[info_types.ProgramInfo]:
@@ -749,7 +781,7 @@ class SushiController(object):
             return program_info_list
 
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f"With processor id: {processor_identifier}")
 
     # rpc SetProcessorProgram (ProcessorProgramSetRequest) returns (GenericVoidValue) {}
     def set_processor_program(self, processor_identifier: int, program_identifier: int) -> None:
@@ -767,7 +799,7 @@ class SushiController(object):
             ))
         
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f"With processor id: {processor_identifier}, program id: {program_identifier}")
 
     # rpc GetProcessorParameters (ProcessorIdentifier) returns (ParameterInfoList) {}
     def get_processor_parameters(self, processor_identifier: int) -> List[info_types.ParameterInfo]:
@@ -792,7 +824,7 @@ class SushiController(object):
             return parameter_info_list
 
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f"With processor id: {processor_identifier}")
 
     # // list requests left out
 
@@ -820,7 +852,7 @@ class SushiController(object):
             return response.processor_id, response.parameter_id
 
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f"With processor id: {processor_identifier}, parameter name: {parameter_name}")
 
     # rpc GetParameterInfo (ParameterIdentifier) returns (ParameterInfo) {}
     def get_parameter_info(self, processor_identifier: int, parameter_identifier: int) -> info_types.ParameterInfo:
@@ -842,7 +874,7 @@ class SushiController(object):
             return info_types.ParameterInfo(response)
 
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f"With processor id: {processor_identifier}, parameter id: {parameter_identifier}")
 
     # rpc GetParameterValue(ParameterIdentifier) returns (GenericFloatValue) {}
     def get_parameter_value(self, processor_identifier: int, parameter_identifier: int) -> float:
@@ -864,7 +896,7 @@ class SushiController(object):
             return response.value
         
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f"With processor id: {processor_identifier}, parameter id: {parameter_identifier}")
 
     # rpc GetParameterValueNormalised(ParameterIdentifier) returns (GenericFloatValue) {}
     def get_parameter_value_normalised(self, processor_identifier: int, parameter_identifier: int) -> float:
@@ -886,7 +918,7 @@ class SushiController(object):
             return response.value
 
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f"With processor id: {processor_identifier}, parameter id: {parameter_identifier}")
 
     # rpc GetParameterValueAsString(ParameterIdentifier) returns (GenericStringValue) {}
     def get_parameter_value_as_string(self, processor_identifier: int, parameter_identifier: int) -> str:
@@ -908,7 +940,7 @@ class SushiController(object):
             return response.value
 
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f"With processor id: {processor_identifier}, parameter id: {parameter_identifier}")
         
     # rpc GetStringPropertyValue(ParameterIdentifier) returns (GenericStringValue) {}
     # TODO: Not implemented in sushi yet
@@ -924,7 +956,7 @@ class SushiController(object):
             return response.value
 
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f"With processor id: {processor_identifier}, parameter id: {parameter_identifier}")
 
     # rpc SetParameterValue(ParameterSetRequest) returns (GenericVoidValue) {}
     def set_parameter_value(self, processor_identifier: int, parameter_identifier: int, value: float) -> None:
@@ -945,7 +977,7 @@ class SushiController(object):
             ))
 
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f"With processor id: {processor_identifier}, parameter id: {parameter_identifier}, value: {value}")
 
     # rpc SetParameterValueNormalised(ParameterSetRequest) returns (GenericVoidValue) {}
     def set_parameter_value_normalised(self, processor_identifier: int, parameter_identifier: int, value: float) -> None:
@@ -966,7 +998,7 @@ class SushiController(object):
             ))
 
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f"With processor id: {processor_identifier}, parameter id: {parameter_identifier}, value: {value}")
 
     # rpc SetStringPropertyValue(StringPropertySetRequest) returns (GenericVoidValue) {}
     # TODO: Not implemented in sushi yet
@@ -984,4 +1016,4 @@ class SushiController(object):
             ))
 
         except grpc.RpcError as e:
-            grpc_error_handling(e)
+            grpc_error_handling(e, f"With processor id: {processor_identifier}, parameter id: {parameter_identifier}, value: {value}")
