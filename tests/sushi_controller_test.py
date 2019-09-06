@@ -523,12 +523,12 @@ class TestSushiControllerParameterControl(unittest.TestCase):
 
     def test_get_parameter_id(self):
         result = self._sc.get_parameter_id(1,'octaves')
-        expected_result = (0,0)
+        expected_result = (0)
 
         self.assertEqual(result,expected_result)
 
         result = self._sc.get_parameter_id(1,'persistence')
-        expected_result = (0,1)
+        expected_result = (1)
 
         self.assertEqual(result,expected_result)
 
