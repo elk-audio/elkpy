@@ -1,10 +1,10 @@
 import grpc
-from . import sushi_rpc_pb2
-from . import sushi_rpc_pb2_grpc
+from . import grpc_gen
 from . import sushi_info_types as info_types
-
 from enum import IntEnum
 from typing import List
+
+sushi_rpc_pb2, sushi_rpc_pb2_grpc = grpc_gen.modules_from_proto("./sushi_rpc.proto")
 
 _author__ = "Ruben Svensson"
 __copyright__ = "Copyright 2019, Mind Music Labs"

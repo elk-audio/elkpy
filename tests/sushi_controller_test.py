@@ -2,8 +2,10 @@ import sys
 import unittest
 import time
 from ELKpy import sushicontroller as sc
-from ELKpy import sushi_rpc_pb2
 from ELKpy import sushi_info_types as info_types
+
+from ELKpy import grpc_gen
+sushi_rpc_pb2, sushi_rpc_pb2_grpc = grpc_gen.modules_from_proto("./sushi_rpc.proto")
 
 SUSHI_ADDRESS = ('localhost:51051')
 

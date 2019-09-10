@@ -2,7 +2,9 @@ import sys
 import unittest
 import time
 from ELKpy import sushi_info_types as types
-from ELKpy import sushi_rpc_pb2
+
+from ELKpy import grpc_gen
+sushi_rpc_pb2, sushi_rpc_pb2_grpc = grpc_gen.modules_from_proto("./sushi_rpc.proto")
 
 class sushi_parameter_info_test(unittest.TestCase):
     def test_all_parameters(self):
