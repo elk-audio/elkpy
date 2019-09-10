@@ -51,19 +51,6 @@ class TestSushiController(unittest.TestCase):
         time.sleep(wait_time)
         self.assertEqual(self._sc.get_playing_mode(), 1)
 
-    def test_set_playing_mode_false(self):
-        wait_time = 0.1
-
-        self._sc.set_playing_mode(-1)
-        time.sleep(wait_time)
-        self.assertNotEqual(self._sc.get_playing_mode(), -1)
-        time.sleep(wait_time)
-
-        self._sc.set_playing_mode(4)
-        time.sleep(wait_time)
-        self.assertNotEqual(self._sc.get_playing_mode(), 4)
-        time.sleep(wait_time)
-
     def test_get_sync_mode(self):
         self.assertEqual(self._sc.get_sync_mode(), 1)
 
