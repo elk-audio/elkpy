@@ -47,7 +47,7 @@ class ParameterType(IntEnum):
 # Info Classes #
 ################
 
-class ParameterInfo():
+class ParameterInfo(object):
     '''
     Class to represent the parameter info received from sushi in a clear way.
 
@@ -137,7 +137,7 @@ class ParameterInfo():
             and self.min_range == other.min_range \
             and self.max_range == other.max_range
 
-class ProcessorInfo():
+class ProcessorInfo(object):
     '''
     Class to represent the processor info received from sushi in a clear way.
 
@@ -195,7 +195,7 @@ class ProcessorInfo():
             and self.program_count == other.program_count
 
 
-class TrackInfo():
+class TrackInfo(object):
     '''
     Class to represent the track info received from sushi in a clear way.
 
@@ -275,7 +275,7 @@ class TrackInfo():
             and self.output_busses == other.output_busses \
             and self.processor_count == other.processor_count
 
-class ProgramInfo():
+class ProgramInfo(object):
     '''
     Class to represent the program info received from sushi in a clear way.
 
