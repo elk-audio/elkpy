@@ -41,29 +41,100 @@ class SushiProcessor(object):
             self._programs[program.name] = program.id
 
     def set_parameter_value(self, parameter_name: str, value: float) -> None:
-        pass
+        '''
+        Set the value of parameter by name.
+
+        Parameters:
+            parameter_name (str): The name of the parameter to set the value of.
+            value (float): The value to set the parameter to.
+        '''
+        self._controller.set_parameter_value(self._id, self._parameters[parameter_name], value)
 
     def get_parameter_value(self, parameter_name: str) -> float:
-        pass
+        '''
+        Get the value of a parameter by name.
+
+        Parameters:
+            parameter_name (str): The name of the parameter to get the value from.
+
+        Returns:
+            float: The current value of the parameter.
+        '''
+        return self._controller.get_parameter_value(self._id, self._parameters[parameter_name])
 
     def get_parameters(self) -> List[str]:
-        pass
+        '''
+        Get a list of the names of the parameters available to the processor.
+
+        Returns:
+            List[str]: List of parameter names.
+        '''
+        return list(self._parameters)
 
     def get_parameter_values(self) -> dict:
-        pass
+        '''
+        Get the current value of the parameters with their name as the key.
 
-    def set_program(self, program_name: str):
-        pass
+        Returns:
+            dict: Dictionary with key as parameter names and value as the current parameter value.
+        '''
+        parameter_values = {}
+        for param in self._parameters:
+            parameter_values[param] = self._controller.get_parameter_value(self._id, self._parameters[param])
+
+        return parameter_values
+
+    def set_program(self, program_name: str) -> None:
+        '''
+        Set the current program of the processor with the program name
+
+        Parameters:
+            program_name (str): The name of the program to set the processor to.
+        '''
+        self._controller.set_processor_program(self._id, self._programs[program_name])
 
     def set_program_next(self):
-        pass
+        '''
+        Set the processor to the next program or loopback to the beginning if at the end of the program list
+        '''
+        number_of_programs = len(self._programs)
+        current_program_index = self._controller.get_processor_current_program(self._id)
+        
+        if current_program_index == number_of_programs-1:
+            new_program_index = 0
+        else:
+            new_program_index = current_program_index + 1
+
+        self._controller.set_processor_program(self._id, new_program_index)
 
     def set_program_previous(self):
-        pass
+        '''
+        Set the processor to the previous program or loopback to the end if at the start of the program list
+        '''
+        number_of_programs = len(self._programs)
+        current_program_index = self._controller.get_processor_current_program(self._id)
+        
+        if current_program_index == 0:
+            new_program_index = number_of_programs-1
+        else:
+            new_program_index = current_program_index - 1
+
+        self._controller.set_processor_program(self._id, new_program_index)
 
     def get_program(self) -> str:
-        pass
+        '''
+        Get the name of the current program.
+
+            Returns (str): The name of the current program.
+        '''
+        return self._controller.get_processor_current_program_name(self._id)
 
     def get_programs(self) -> List[str]:
-        pass
+        '''
+        Get a list of the names of the available programs.
+
+            Returns:
+                List[str]: The names of the available programs.
+        '''
+        return list(self._programs)
 
