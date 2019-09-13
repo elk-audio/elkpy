@@ -9,25 +9,30 @@ class SushiProcessor(object):
     Attributes:
         _name (str): The name of the processor.
         _controller (SushiController): The sushi controller to use.
+        _channel (int): The channel to send keyboard messages on.
+        _track_id (int): The id of the track the processor is assigned to.
         _id (int): The id corresponding to the name of the processor.
         _parameters (dict): A mapping from parameter name to parameter id.
         _programs (dict): A mapping from program name to program id.
     '''
-    def __init__(self, processor_name: str, controller: SushiController):
+    def __init__(self, processor_name: str, controller: SushiController, channel: int = 1):
         '''
         Constructor for the sushi processor. Takes the name and the controller used to control sushi.
 
         Parameters:
             processor_name (str): The name of the processor to control.
             controller (SushiController): The controller to use for controlling the processor.
+            channel (int): The channel to send keyboard contorl messages to. (deafults to 1)
         '''
         self._name = processor_name
         self._controller = controller
+        self._channel = channel
         
         # TODO: Use try block when error handling is approved
         for track in controller.get_tracks():
             for processor in controller.get_track_processors(track.id):
                 if processor.name == self._name:
+                    self._track_id = track.id
                     self._id = processor.id
 
         # TODO: Use try block when error handling is approved
@@ -91,7 +96,7 @@ class SushiProcessor(object):
     ###################
     # Program control #
     ###################
-    
+
     def set_program(self, program_name: str) -> None:
         '''
         Set the current program of the processor with the program name
@@ -146,3 +151,24 @@ class SushiProcessor(object):
         '''
         return list(self._programs)
 
+    ####################
+    # Keyboard control #
+    ####################
+
+    def send_note_on(self, channel: int, note: int, velocity: float):
+        pass
+
+    def send_note_off(self, channel: int, note: int, velocity: float):
+        pass
+
+    def send_note_aftertouch(self, channel: int, note: int, value: float):
+        pass
+
+    def send_aftertouch(self, channel: int, value: float):
+        pass
+
+    def send_pitch_bend(self, channel: int, value: float):
+        pass
+
+    def send_modulation(self, channel: int, value: float):
+        pass
