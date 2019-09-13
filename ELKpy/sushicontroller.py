@@ -74,10 +74,6 @@ class SushiController(object):
 
     # rpc SetPlayingMode (PlayingMode) returns (GenericVoidValue) {}
     def set_playing_mode(self, playing_mode: info_types.PlayingMode) -> None:
-<<<<<<< HEAD
->>>>>>> 662c9db... fixed error in types due to moving enums
-=======
->>>>>>> cd42586... small thing
         '''
         Set the playing mode.
         
