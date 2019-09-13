@@ -67,14 +67,13 @@ class SushiController(object):
         '''
         try: 
             response = self._stub.GetPlayingMode(sushi_rpc_pb2.GenericVoidValue())
-            return PlayingMode(response.mode)
+            return info_types.PlayingMode(response.mode)
 
         except grpc.RpcError as e:
             grpc_error_handling(e)
 
     # rpc SetPlayingMode (PlayingMode) returns (GenericVoidValue) {}
-    # TODO: PlayingMode DUMMY=0 not working
-    def set_playing_mode(self, playing_mode: PlayingMode) -> None:
+    def set_playing_mode(self, playing_mode: info_types.PlayingMode) -> None:
         '''
         Set the playing mode.
         
@@ -85,7 +84,7 @@ class SushiController(object):
                                 3 = Recording (not implemented)
         '''
         
-        if PlayingMode(playing_mode) in PlayingMode:
+        if info_types.PlayingMode(playing_mode) in info_types.PlayingMode:
             try:
                 self._stub.SetPlayingMode(sushi_rpc_pb2.PlayingMode(
                     mode = int(playing_mode)
@@ -95,7 +94,7 @@ class SushiController(object):
                 grpc_error_handling(e)
             
     # rpc GetSyncMode (GenericVoidValue) returns (SyncMode) {}
-    def get_sync_mode(self) -> SyncMode:
+    def get_sync_mode(self) -> info_types.SyncMode:
         '''
         Get the current sync mode.
 
@@ -107,14 +106,14 @@ class SushiController(object):
         '''
         try:
             response = self._stub.GetSyncMode(sushi_rpc_pb2.GenericVoidValue())
-            return SyncMode(response.mode)
+            return info_types.SyncMode(response.mode)
         
         except grpc.RpcError as e:
             grpc_error_handling(e)
 
     # rpc SetSyncMode (SyncMode) returns (GenericVoidValue) {}
     # TODO: DUMMY=0 mode doesn't seem to work
-    def set_sync_mode(self, sync_mode: SyncMode) -> None:
+    def set_sync_mode(self, sync_mode: info_types.SyncMode) -> None:
         '''
         Set the sync mode.
 
@@ -124,7 +123,7 @@ class SushiController(object):
                             2 = MIDI,
                             3 = Link
         '''
-        if SyncMode(sync_mode) in SyncMode:
+        if info_types.SyncMode(sync_mode) in info_types.SyncMode:
             try:
                 self._stub.SetSyncMode(sushi_rpc_pb2.SyncMode(
                     mode = int(sync_mode)
