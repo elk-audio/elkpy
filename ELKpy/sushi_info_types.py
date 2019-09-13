@@ -1,9 +1,53 @@
+<<<<<<< Updated upstream
 from . import sushi_rpc_pb2
+=======
+<<<<<<< Updated upstream
+from . import grpc_gen
+sushi_rpc_pb2, sushi_rpc_pb2_grpc = grpc_gen.modules_from_proto("./sushi_rpc.proto")
+=======
+from . import sushi_rpc_pb2
+from enum import IntEnum
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
 
 __author__ = "Ruben Svensson"
 __copyright__ = "Copyright 2019, Mind Music Labs"
 
-class ParameterInfo():
+################
+# Custom Enums #
+################
+
+class PlayingMode(IntEnum):
+    '''
+    Enum class to hold the values matching the different playing modes.
+    '''
+    STOPPED = 1
+    PLAYING = 2
+    RECORDING = 3
+
+class SyncMode(IntEnum):
+    '''
+    Enum class to hold the values matching the different sync modes.
+    '''
+    INTERNAL = 1
+    MIDI = 2
+    LINK = 3
+
+class ParameterType(IntEnum):
+    '''
+    Enum class to hold the values matching the different variable types.
+    '''
+    BOOL = 1
+    INT = 2
+    FLOAT = 3
+    STRING_PROPERTY = 4
+    DATA_PROPERTY = 5
+
+################
+# Info Classes #
+################
+
+class ParameterInfo(object):
     '''
     Class to represent the parameter info received from sushi in a clear way.
 
@@ -93,7 +137,7 @@ class ParameterInfo():
             and self.min_range == other.min_range \
             and self.max_range == other.max_range
 
-class ProcessorInfo():
+class ProcessorInfo(object):
     '''
     Class to represent the processor info received from sushi in a clear way.
 
@@ -151,7 +195,7 @@ class ProcessorInfo():
             and self.program_count == other.program_count
 
 
-class TrackInfo():
+class TrackInfo(object):
     '''
     Class to represent the track info received from sushi in a clear way.
 
@@ -231,7 +275,7 @@ class TrackInfo():
             and self.output_busses == other.output_busses \
             and self.processor_count == other.processor_count
 
-class ProgramInfo():
+class ProgramInfo(object):
     '''
     Class to represent the program info received from sushi in a clear way.
 
