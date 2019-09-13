@@ -39,6 +39,10 @@ class SushiProcessor(object):
         self._programs = {}
         for program in controller.get_processor_programs(self._id):
             self._programs[program.name] = program.id
+    
+    #####################
+    # Parameter Control #
+    #####################
 
     def set_parameter_value(self, parameter_name: str, value: float) -> None:
         '''
@@ -83,7 +87,11 @@ class SushiProcessor(object):
             parameter_values[param] = self._controller.get_parameter_value(self._id, self._parameters[param])
 
         return parameter_values
-
+    
+    ###################
+    # Program control #
+    ###################
+    
     def set_program(self, program_name: str) -> None:
         '''
         Set the current program of the processor with the program name
