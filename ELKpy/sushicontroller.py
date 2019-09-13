@@ -785,7 +785,7 @@ class SushiController(object):
                 processor = sushi_rpc_pb2.ProcessorIdentifier(id = processor_identifier),
                 ParameterName = parameter_name
             ))
-            return response.processor_id, response.parameter_id
+            return response.parameter_id
 
         except grpc.RpcError as e:
             grpc_error_handling(e)
