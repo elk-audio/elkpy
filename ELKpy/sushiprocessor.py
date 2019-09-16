@@ -89,6 +89,24 @@ class SushiProcessor(object):
             parameter_values[param] = self._controller.get_parameter_value(self._id, self._parameters[param])
 
         return parameter_values
+
+    def get_bypass_state(self) -> bool:
+        '''
+        Get the bypass state of the processor.
+
+        Returns:
+            bool: The bypass state of the processor.
+        '''
+        return self._controller.get_processor_bypass_state(self._id)
+
+    def set_bypass_state(self, bypass_state: bool) -> None:
+        '''
+        Set the bypass state of the processor.
+
+        Parameters:
+            bypass_state (bool): The bypass state to set the processor to.
+        '''
+        self._controller.set_processor_bypass_state(self._id, bypass_state)
     
     ###################
     # Program control #
