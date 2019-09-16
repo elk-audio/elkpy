@@ -45,7 +45,7 @@ class ParameterType(IntEnum):
 class SushiUnkownError(Exception):
     pass
 
-class SushiFailedPreconditionError(Exception):
+class SushiUnsupportedOperationError(Exception):
     pass
 
 class SushiNotFoundError(Exception):
@@ -64,7 +64,7 @@ def grpc_error_handling(e, context_info = ''):
     if (e.code().name == 'UNKNOWN'):
         raise SushiUnkownError(e.details() , context_info) from e
     elif (e.code().name == 'FAILED_PRECONDITION'):
-        raise SushiFailedPreconditionError(e.details() , context_info) from e
+        raise SushiUnsupportedOperationError(e.details() , context_info) from e
     elif (e.code().name == 'NOT_FOUND'):
         raise SushiNotFoundError(e.details() , context_info) from e
     elif (e.code().name == 'OUT_OF_RANGE'):
