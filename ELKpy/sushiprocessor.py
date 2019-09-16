@@ -15,18 +15,16 @@ class SushiProcessor(object):
         _parameters (dict): A mapping from parameter name to parameter id.
         _programs (dict): A mapping from program name to program id.
     '''
-    def __init__(self, processor_name: str, controller: SushiController, channel: int = 1):
+    def __init__(self, processor_name: str, controller: SushiController):
         '''
         Constructor for the sushi processor. Takes the name and the controller used to control sushi.
 
         Parameters:
             processor_name (str): The name of the processor to control.
             controller (SushiController): The controller to use for controlling the processor.
-            channel (int): The channel to send keyboard contorl messages to. (deafults to 1)
         '''
         self._name = processor_name
         self._controller = controller
-        self._channel = channel
         
         # TODO: Use try block when error handling is approved
         for track in controller.get_tracks():
@@ -156,19 +154,64 @@ class SushiProcessor(object):
     ####################
 
     def send_note_on(self, channel: int, note: int, velocity: float):
-        pass
+        '''
+        Send a note on message to the track containing the processor.
+
+        Parameters:
+            channel (int): The channel to send the message on.
+            note (int): The midi note value to send.
+            velocity (float): The velocity of the note as a float between 0-1.
+        '''
+        self._controller.send_note_on(self._track_id, channel, note, velocity)
 
     def send_note_off(self, channel: int, note: int, velocity: float):
-        pass
+        '''
+        Send a note off message to the track containing the processor.
+
+        Parameters:
+            channel (int): The channel to send the message on.
+            note (int): The midi note value to send.
+            velocity (float): The velocity of the note as a float between 0-1.
+        '''
+        self._controller.send_note_off(self._track_id, channel, note, velocity)
 
     def send_note_aftertouch(self, channel: int, note: int, value: float):
-        pass
+        '''
+        Send a note aftertouch message to the track containing the processor.
+
+        Parameters:
+            channel (int): The channel to send the message on.
+            note (int): The midi note value to send.
+            value (float): The aftertouch value of the note as a float between 0-1.
+        '''
+        self._controller.send_note_aftertouch(self._track_id, channel, note, value)
 
     def send_aftertouch(self, channel: int, value: float):
-        pass
+        '''
+        Send a aftertouch message to the track containing the processor.
+
+        Parameters:
+            channel (int): The channel to send the message on.
+            value (float): The aftertouch value of the note as a float between 0-1.
+        '''
+        self._controller.send_aftertouch(self._track_id, channel, value)
 
     def send_pitch_bend(self, channel: int, value: float):
-        pass
+        '''
+        Send a pitch bend message to the track containing the processor.
+
+        Parameters:
+            channel (int): The channel to send the message on.
+            value (float): The pitch bend value of the note as a float between 0-1.
+        '''
+        self._controller.send_pitch_bend(self._track_id, channel, value)
 
     def send_modulation(self, channel: int, value: float):
-        pass
+        '''
+        Send a modulation message to the track containing the processor.
+
+        Parameters:
+            channel (int): The channel to send the message on.
+            value (float): The modulation value of the note as a float between 0-1.
+        '''
+        self._controller.send_pitch_bend(self._track_id, channel, value)
