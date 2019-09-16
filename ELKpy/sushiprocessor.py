@@ -25,27 +25,19 @@ class SushiProcessor(object):
         self._name = processor_name
         self._controller = controller
         self._track_id = -1
-        self._id = -1
+        self._id = self._controller.get_processor_id(self._name)
         self._parameters = {}
         self._programs = {}
-        # TODO: Use try block when error handling is approved
-        for track in controller.get_tracks():
-            if self._name == track.name:
-                self._track_id = track.id
-                self._id = track.id
-            else:
-                for processor in controller.get_track_processors(track.id):
-                    if processor.name == self._name:
-                        self._track_id = track.id
-                        self._id = processor.id
 
-                # TODO: Use try block when error handling is approved
-                for program in controller.get_processor_programs(self._id):
-                    self._programs[program.name] = program.id
-
+        
         # TODO: Use try block when error handling is approved
         for parameter in controller.get_processor_parameters(self._id):
             self._parameters[parameter.name] = parameter.id
+
+        if (self._controller.get_processor_info(self._id).program_count > 0):
+            # TODO: Use try block when error handling is approved
+            for program in controller.get_processor_programs(self._id):
+                self._programs[program.name] = program.id
     
     #####################
     # Parameter Control #
