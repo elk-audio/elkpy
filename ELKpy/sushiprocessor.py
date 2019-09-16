@@ -124,7 +124,10 @@ class SushiProcessor(object):
         Parameters:
             program_name (str): The name of the program to set the processor to.
         '''
-        self._controller.set_processor_program(self._id, self._programs[program_name])
+        try:
+            self._controller.set_processor_program(self._id, self._programs[program_name])
+        except KeyError:
+            self._controller.set_processor_program(self._id, program_name)
 
     def set_program_next(self):
         '''
