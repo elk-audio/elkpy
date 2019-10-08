@@ -1,5 +1,4 @@
 from . import grpc_gen
-sushi_rpc_pb2, sushi_rpc_pb2_grpc = grpc_gen.modules_from_proto("./sushi_rpc.proto")
 
 __author__ = "Ruben Svensson"
 __copyright__ = "Copyright 2019, Mind Music Labs"
