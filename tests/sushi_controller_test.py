@@ -2,10 +2,10 @@ import os
 import sys
 import unittest
 import time
-from ELKpy import sushicontroller as sc
-from ELKpy import sushi_info_types as info_types
+from elkpy import sushicontroller as sc
+from elkpy import sushi_info_types as info_types
 
-from ELKpy import grpc_gen
+from elkpy import grpc_gen
 
 proto_file = os.environ.get('SUSHI_GRPC_ELKPY_PROTO')
 if proto_file is None:
