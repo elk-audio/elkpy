@@ -1,6 +1,5 @@
-from . import sushi_rpc_pb2
-from . import sushi_rpc_pb2
 from enum import IntEnum
+from . import grpc_gen
 
 __author__ = "Ruben Svensson"
 __copyright__ = "Copyright 2019, Mind Music Labs"

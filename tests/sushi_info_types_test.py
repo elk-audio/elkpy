@@ -1,15 +1,26 @@
+import os
 import sys
+import inspect
 import unittest
 import time
 from ELKpy import sushi_info_types as types
-from ELKpy import sushi_rpc_pb2
 
-class sushi_parameter_info_test(unittest.TestCase):
+from ELKpy import grpc_gen
+
+proto_file = os.environ.get('SUSHI_GRPC_ELKPY_PROTO')
+if proto_file is None:
+    print("Environment variable SUSHI_GRPC_ELKPY_PROTO not defined, set it to point the .proto definition")
+    sys.exit(-1)
+
+SUSHI_PROTO, _dummy = grpc_gen.modules_from_proto(proto_file)
+
+class TestSushiParameterInfo(unittest.TestCase):
+
     def test_all_parameters(self):
         result = types.ParameterInfo(
-            sushi_rpc_pb2.ParameterInfo(
+            SUSHI_PROTO.ParameterInfo(
                 id = 1,
-                type = sushi_rpc_pb2.ParameterType(type = 1),
+                type = SUSHI_PROTO.ParameterType(type = 1),
                 label = 'test',
                 name = 'test',
                 unit = 'test',
@@ -32,8 +43,8 @@ class sushi_parameter_info_test(unittest.TestCase):
 
     def test_missing_id(self):
         result = types.ParameterInfo(
-            sushi_rpc_pb2.ParameterInfo(
-                type = sushi_rpc_pb2.ParameterType(type = 1),
+            SUSHI_PROTO.ParameterInfo(
+                type = SUSHI_PROTO.ParameterType(type = 1),
                 label = 'test',
                 name = 'test',
                 unit = 'test',
@@ -56,7 +67,7 @@ class sushi_parameter_info_test(unittest.TestCase):
 
     def test_missing_type(self):
         result = types.ParameterInfo(
-            sushi_rpc_pb2.ParameterInfo(
+            SUSHI_PROTO.ParameterInfo(
                 id = 1,
                 label = 'test',
                 name = 'test',
@@ -80,9 +91,9 @@ class sushi_parameter_info_test(unittest.TestCase):
 
     def test_missing_label(self):
         result = types.ParameterInfo(
-            sushi_rpc_pb2.ParameterInfo(
+            SUSHI_PROTO.ParameterInfo(
                 id = 1,
-                type = sushi_rpc_pb2.ParameterType(type = 1),
+                type = SUSHI_PROTO.ParameterType(type = 1),
                 name = 'test',
                 unit = 'test',
                 automatable = True,
@@ -104,9 +115,9 @@ class sushi_parameter_info_test(unittest.TestCase):
 
     def test_missing_name(self):
         result = types.ParameterInfo(
-            sushi_rpc_pb2.ParameterInfo(
+            SUSHI_PROTO.ParameterInfo(
                 id = 1,
-                type = sushi_rpc_pb2.ParameterType(type = 1),
+                type = SUSHI_PROTO.ParameterType(type = 1),
                 label = 'test',
                 unit = 'test',
                 automatable = True,
@@ -128,9 +139,9 @@ class sushi_parameter_info_test(unittest.TestCase):
 
     def test_missing_unit(self):
         result = types.ParameterInfo(
-            sushi_rpc_pb2.ParameterInfo(
+            SUSHI_PROTO.ParameterInfo(
                 id = 1,
-                type = sushi_rpc_pb2.ParameterType(type = 1),
+                type = SUSHI_PROTO.ParameterType(type = 1),
                 label = 'test',
                 name = 'test',
                 automatable = True,
@@ -152,9 +163,9 @@ class sushi_parameter_info_test(unittest.TestCase):
 
     def test_missing_automatable(self):
         result = types.ParameterInfo(
-            sushi_rpc_pb2.ParameterInfo(
+            SUSHI_PROTO.ParameterInfo(
                 id = 1,
-                type = sushi_rpc_pb2.ParameterType(type = 1),
+                type = SUSHI_PROTO.ParameterType(type = 1),
                 label = 'test',
                 name = 'test',
                 unit = 'test',
@@ -176,9 +187,9 @@ class sushi_parameter_info_test(unittest.TestCase):
 
     def test_missing_min_range(self):
         result = types.ParameterInfo(
-            sushi_rpc_pb2.ParameterInfo(
+            SUSHI_PROTO.ParameterInfo(
                 id = 1,
-                type = sushi_rpc_pb2.ParameterType(type = 1),
+                type = SUSHI_PROTO.ParameterType(type = 1),
                 label = 'test',
                 name = 'test',
                 unit = 'test',
@@ -200,9 +211,9 @@ class sushi_parameter_info_test(unittest.TestCase):
 
     def test_missing_max_range(self):
         result = types.ParameterInfo(
-            sushi_rpc_pb2.ParameterInfo(
+            SUSHI_PROTO.ParameterInfo(
                 id = 1,
-                type = sushi_rpc_pb2.ParameterType(type = 1),
+                type = SUSHI_PROTO.ParameterType(type = 1),
                 label = 'test',
                 name = 'test',
                 unit = 'test',
@@ -222,10 +233,11 @@ class sushi_parameter_info_test(unittest.TestCase):
 
         self.assertEqual(result, expected_result)
 
-class sushi_processor_info_test(unittest.TestCase):
+class TestSushiProcessorInfo(unittest.TestCase):
+
     def test_all_parameters(self):
         result = types.ProcessorInfo(
-            sushi_rpc_pb2.ProcessorInfo(
+            SUSHI_PROTO.ProcessorInfo(
                 id = 1,
                 label = 'test',
                 name = 'test',
@@ -244,7 +256,7 @@ class sushi_processor_info_test(unittest.TestCase):
 
     def test_missing_id(self):
         result = types.ProcessorInfo(
-            sushi_rpc_pb2.ProcessorInfo(
+            SUSHI_PROTO.ProcessorInfo(
                 label = 'test',
                 name = 'test',
                 parameter_count = 10,
@@ -262,7 +274,7 @@ class sushi_processor_info_test(unittest.TestCase):
 
     def test_missing_label(self):
         result = types.ProcessorInfo(
-            sushi_rpc_pb2.ProcessorInfo(
+            SUSHI_PROTO.ProcessorInfo(
                 id = 1,
                 name = 'test',
                 parameter_count = 10,
@@ -280,7 +292,7 @@ class sushi_processor_info_test(unittest.TestCase):
 
     def test_missing_name(self):
         result = types.ProcessorInfo(
-            sushi_rpc_pb2.ProcessorInfo(
+            SUSHI_PROTO.ProcessorInfo(
                 id = 1,
                 label = 'test',
                 parameter_count = 10,
@@ -298,7 +310,7 @@ class sushi_processor_info_test(unittest.TestCase):
 
     def test_missing_parameter_count(self):
         result = types.ProcessorInfo(
-            sushi_rpc_pb2.ProcessorInfo(
+            SUSHI_PROTO.ProcessorInfo(
                 id = 1,
                 label = 'test',
                 name = 'test',
@@ -316,7 +328,7 @@ class sushi_processor_info_test(unittest.TestCase):
 
     def test_missing_program_count(self):
         result = types.ProcessorInfo(
-            sushi_rpc_pb2.ProcessorInfo(
+            SUSHI_PROTO.ProcessorInfo(
                 id = 1,
                 label = 'test',
                 name = 'test',
@@ -332,9 +344,10 @@ class sushi_processor_info_test(unittest.TestCase):
 
         self.assertEqual(result, expected_result)
 
-class sushi_track_info_test(unittest.TestCase):
+class TestSushiTrackInfo(unittest.TestCase):
+
     def test_all_parameters(self):
-        result = types.TrackInfo(sushi_rpc_pb2.TrackInfo(
+        result = types.TrackInfo(SUSHI_PROTO.TrackInfo(
             id = 1,
             label = 'test',
             name = 'test',
@@ -358,7 +371,7 @@ class sushi_track_info_test(unittest.TestCase):
         self.assertEqual(result, expected_result)
 
     def test_missing_id(self):
-        result = types.TrackInfo(sushi_rpc_pb2.TrackInfo(
+        result = types.TrackInfo(SUSHI_PROTO.TrackInfo(
             label = 'test',
             name = 'test',
             input_channels = 2,
@@ -381,7 +394,7 @@ class sushi_track_info_test(unittest.TestCase):
         self.assertEqual(result, expected_result)
 
     def test_missing_label(self):
-        result = types.TrackInfo(sushi_rpc_pb2.TrackInfo(
+        result = types.TrackInfo(SUSHI_PROTO.TrackInfo(
             id = 1,
             name = 'test',
             input_channels = 2,
@@ -404,7 +417,7 @@ class sushi_track_info_test(unittest.TestCase):
         self.assertEqual(result, expected_result)
 
     def test_missing_name(self):
-        result = types.TrackInfo(sushi_rpc_pb2.TrackInfo(
+        result = types.TrackInfo(SUSHI_PROTO.TrackInfo(
             id = 1,
             label = 'test',
             input_channels = 2,
@@ -427,7 +440,7 @@ class sushi_track_info_test(unittest.TestCase):
         self.assertEqual(result, expected_result)
 
     def test_missing_input_channels(self):
-        result = types.TrackInfo(sushi_rpc_pb2.TrackInfo(
+        result = types.TrackInfo(SUSHI_PROTO.TrackInfo(
             id = 1,
             label = 'test',
             name = 'test',
@@ -450,7 +463,7 @@ class sushi_track_info_test(unittest.TestCase):
         self.assertEqual(result, expected_result)
         
     def test_missing_busses(self):
-        result = types.TrackInfo(sushi_rpc_pb2.TrackInfo(
+        result = types.TrackInfo(SUSHI_PROTO.TrackInfo(
             id = 1,
             label = 'test',
             name = 'test',
@@ -473,7 +486,7 @@ class sushi_track_info_test(unittest.TestCase):
         self.assertEqual(result, expected_result)
     
     def test_missing_output_channels(self):
-        result = types.TrackInfo(sushi_rpc_pb2.TrackInfo(
+        result = types.TrackInfo(SUSHI_PROTO.TrackInfo(
             id = 1,
             label = 'test',
             name = 'test',
@@ -496,7 +509,7 @@ class sushi_track_info_test(unittest.TestCase):
         self.assertEqual(result, expected_result)
 
     def test_missing_output_busses(self):
-        result = types.TrackInfo(sushi_rpc_pb2.TrackInfo(
+        result = types.TrackInfo(SUSHI_PROTO.TrackInfo(
             id = 1,
             label = 'test',
             name = 'test',
@@ -519,7 +532,7 @@ class sushi_track_info_test(unittest.TestCase):
         self.assertEqual(result, expected_result)
 
     def test_missing_processor_count(self):
-        result = types.TrackInfo(sushi_rpc_pb2.TrackInfo(
+        result = types.TrackInfo(SUSHI_PROTO.TrackInfo(
             id = 1,
             label = 'test',
             name = 'test',
@@ -541,10 +554,11 @@ class sushi_track_info_test(unittest.TestCase):
 
         self.assertEqual(result, expected_result)
 
-class sushi_program_info_test(unittest.TestCase):
+class TestSushiProgramInfo(unittest.TestCase):
+
     def test_all_parameters(self):
-        result = types.ProgramInfo(sushi_rpc_pb2.ProgramInfo(
-            id = sushi_rpc_pb2.ProgramIdentifier(program = 1),
+        result = types.ProgramInfo(SUSHI_PROTO.ProgramInfo(
+            id = SUSHI_PROTO.ProgramIdentifier(program = 1),
             name = 'test'
         ))
 
@@ -556,7 +570,7 @@ class sushi_program_info_test(unittest.TestCase):
         self.assertEqual(result, expected_result)
 
     def test_missing_id(self):
-        result = types.ProgramInfo(sushi_rpc_pb2.ProgramInfo(
+        result = types.ProgramInfo(SUSHI_PROTO.ProgramInfo(
             name = 'test'
         ))
 
@@ -568,8 +582,8 @@ class sushi_program_info_test(unittest.TestCase):
         self.assertEqual(result, expected_result)
 
     def test_missing_name(self):
-        result = types.ProgramInfo(sushi_rpc_pb2.ProgramInfo(
-            id = sushi_rpc_pb2.ProgramIdentifier(program = 1)
+        result = types.ProgramInfo(SUSHI_PROTO.ProgramInfo(
+            id = SUSHI_PROTO.ProgramIdentifier(program = 1)
         ))
 
         expected_result = types.ProgramInfo()
@@ -579,8 +593,7 @@ class sushi_program_info_test(unittest.TestCase):
 
         self.assertEqual(result, expected_result)
 
-
-
     
 if __name__ == "__main__":
     unittest.main()
+

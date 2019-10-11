@@ -1,9 +1,18 @@
+import os
 import sys
 import unittest
 import time
 from ELKpy import sushicontroller as sc
-from ELKpy import sushi_rpc_pb2
 from ELKpy import sushi_info_types as info_types
+
+from ELKpy import grpc_gen
+
+proto_file = os.environ.get('SUSHI_GRPC_ELKPY_PROTO')
+if proto_file is None:
+    print("Environment variable SUSHI_GRPC_ELKPY_PROTO not defined, set it to point the .proto definition")
+    sys.exit(-1)
+
+SUSHI_PROTO, _dummy = grpc_gen.modules_from_proto(proto_file)
 
 SUSHI_ADDRESS = ('localhost:51051')
 
@@ -48,19 +57,6 @@ class TestSushiController(unittest.TestCase):
         self._sc.set_playing_mode(1)
         time.sleep(wait_time)
         self.assertEqual(self._sc.get_playing_mode(), 1)
-
-    def test_set_playing_mode_false(self):
-        wait_time = 0.1
-
-        self._sc.set_playing_mode(-1)
-        time.sleep(wait_time)
-        self.assertNotEqual(self._sc.get_playing_mode(), -1)
-        time.sleep(wait_time)
-
-        self._sc.set_playing_mode(4)
-        time.sleep(wait_time)
-        self.assertNotEqual(self._sc.get_playing_mode(), 4)
-        time.sleep(wait_time)
 
     def test_get_sync_mode(self):
         self.assertEqual(self._sc.get_sync_mode(), 1)
@@ -221,7 +217,7 @@ class TestSushiControllerTrackControl(unittest.TestCase):
 
     def test_get_track_info(self):
         result = self._sc.get_track_info(0)
-        expected_result = sushi_rpc_pb2.TrackInfo(
+        expected_result = SUSHI_PROTO.TrackInfo(
             name='main',
             input_channels=2,
             input_busses=1,
@@ -300,7 +296,7 @@ class TestSushiControllerProcessorControl(unittest.TestCase):
 
     def test_get_processor_info(self):
         result = self._sc.get_processor_info(0)
-        expected_result = sushi_rpc_pb2.ProcessorInfo(
+        expected_result = SUSHI_PROTO.ProcessorInfo(
             name='main',
             parameter_count=2
         )
@@ -309,7 +305,7 @@ class TestSushiControllerProcessorControl(unittest.TestCase):
             self.assertEqual(result, expected_result)
 
         result = self._sc.get_processor_info(1)
-        expected_result = sushi_rpc_pb2.ProcessorInfo(
+        expected_result = SUSHI_PROTO.ProcessorInfo(
             id=1,
             label='Andes-1',
             name='andes',
@@ -321,7 +317,7 @@ class TestSushiControllerProcessorControl(unittest.TestCase):
             self.assertEqual(result, expected_result)
 
         result = self._sc.get_processor_info(2)
-        expected_result = sushi_rpc_pb2.ProcessorInfo(
+        expected_result = SUSHI_PROTO.ProcessorInfo(
             id=2,
             label='Temper',
             name='Temper',
