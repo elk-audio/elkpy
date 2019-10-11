@@ -4,7 +4,6 @@ from . import sushi_info_types as info_types
 from enum import IntEnum
 from typing import List
 
-sushi_rpc_pb2, sushi_rpc_pb2_grpc = grpc_gen.modules_from_proto("./sushi_rpc.proto")
 
 _author__ = "Ruben Svensson"
 __copyright__ = "Copyright 2019, Mind Music Labs"
@@ -57,18 +56,23 @@ class SushiController(object):
     Attributes:
         _stub (SushiControllerStub): Connection stubs to the gRPC interface implemented in sushi.
     '''
-    def __init__(self, address = 'localhost:51051'):
+    def __init__(self,
+                 address = 'localhost:51051',
+                 sushi_proto_def = './sushi_rpc.proto'):
         '''
         The constructor for the SushiController class.
 
         Parameters:
             address (str): 'ip-addres:port' The ip-addres and port at which to connect to sushi.
+            sushi_proto_def (str): path to .proto file with SUSHI's gRPC services definition
         ''' 
         try:
             channel = grpc.insecure_channel(address)
         except AttributeError as e:
             raise TypeError(f"Parameter address = {address}. Should be a string containing the ip-address and port of sushi ('ip-address:port')") from e
-        self._stub = sushi_rpc_pb2_grpc.SushiControllerStub(channel)
+
+        self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
+        self._stub = self._sushi_grpc.SushiControllerStub(channel)
 
     # rpc GetSamplerate (GenericVoidValue) returns (GenericFloatValue) {}
     def get_samplerate(self) -> float:
@@ -79,7 +83,7 @@ class SushiController(object):
             float: Current samplerate.  
         '''
         try:
-            response = self._stub.GetSamplerate(sushi_rpc_pb2.GenericVoidValue())
+            response = self._stub.GetSamplerate(self._sushi_proto.GenericVoidValue())
             return response.value
 
         except grpc.RpcError as e:
@@ -98,7 +102,7 @@ class SushiController(object):
                 3 = Recording (not implemented)
         '''
         try: 
-            response = self._stub.GetPlayingMode(sushi_rpc_pb2.GenericVoidValue())
+            response = self._stub.GetPlayingMode(self._sushi_proto.GenericVoidValue())
             return PlayingMode(response.mode)
 
         except grpc.RpcError as e:
@@ -119,7 +123,7 @@ class SushiController(object):
         
         if PlayingMode(playing_mode) in PlayingMode:
             try:
-                self._stub.SetPlayingMode(sushi_rpc_pb2.PlayingMode(
+                self._stub.SetPlayingMode(self._sushi_proto.PlayingMode(
                     mode = int(playing_mode)
                 ))
             
@@ -138,7 +142,7 @@ class SushiController(object):
                 3 = Link
         '''
         try:
-            response = self._stub.GetSyncMode(sushi_rpc_pb2.GenericVoidValue())
+            response = self._stub.GetSyncMode(self._sushi_proto.GenericVoidValue())
             return SyncMode(response.mode)
         
         except grpc.RpcError as e:
@@ -158,7 +162,7 @@ class SushiController(object):
         '''
         if SyncMode(sync_mode) in SyncMode:
             try:
-                self._stub.SetSyncMode(sushi_rpc_pb2.SyncMode(
+                self._stub.SetSyncMode(self._sushi_proto.SyncMode(
                     mode = int(sync_mode)
                 ))
             
@@ -174,7 +178,7 @@ class SushiController(object):
             float: Current tempo in BPM(Beats Per Minute).
         '''
         try:
-            response = self._stub.GetTempo(sushi_rpc_pb2.GenericVoidValue())
+            response = self._stub.GetTempo(self._sushi_proto.GenericVoidValue())
             return response.value
         except grpc.RpcError as e:
             grpc_error_handling(e)
@@ -188,7 +192,7 @@ class SushiController(object):
             tempo (float): The tempo in BPM(Beats Per Minute).
         '''
         try:
-            self._stub.SetTempo(sushi_rpc_pb2.GenericFloatValue(
+            self._stub.SetTempo(self._sushi_proto.GenericFloatValue(
                 value = tempo
             ))
 
@@ -205,7 +209,7 @@ class SushiController(object):
             int: The denominator of the time signature.
         '''
         try:
-            response = self._stub.GetTimeSignature(sushi_rpc_pb2.GenericVoidValue())
+            response = self._stub.GetTimeSignature(self._sushi_proto.GenericVoidValue())
             return response.numerator, response.denominator
         
         except grpc.RpcError as e:
@@ -221,7 +225,7 @@ class SushiController(object):
             denominator (int): The denominator of the time signature. Should be either 4 or 8.
         '''
         try:
-            self._stub.SetTimeSignature(sushi_rpc_pb2.TimeSignature(
+            self._stub.SetTimeSignature(self._sushi_proto.TimeSignature(
                 numerator = numerator,
                 denominator = denominator
             ))
@@ -238,7 +242,7 @@ class SushiController(object):
             List[info_types.TrackInfo]: A list with the info of all the available tracks.
         '''
         try:
-            response = self._stub.GetTracks(sushi_rpc_pb2.GenericVoidValue())
+            response = self._stub.GetTracks(self._sushi_proto.GenericVoidValue())
             
             track_info_list = []
             for track_info in response.tracks:
@@ -265,8 +269,8 @@ class SushiController(object):
 
         '''
         try:
-            self._stub.SendNoteOn(sushi_rpc_pb2.NoteOnRequest(
-                track = sushi_rpc_pb2.TrackIdentifier(id = track_identifier),
+            self._stub.SendNoteOn(self._sushi_proto.NoteOnRequest(
+                track = self._sushi_proto.TrackIdentifier(id = track_identifier),
                 channel = channel,
                 note = note,
                 velocity = velocity
@@ -287,8 +291,8 @@ class SushiController(object):
             velocity (float): The velocity of the note. Should be in range (0.0-1.0).
         '''
         try:
-            self._stub.SendNoteOff(sushi_rpc_pb2.NoteOffRequest(
-                track = sushi_rpc_pb2.TrackIdentifier(id = track_identifier),
+            self._stub.SendNoteOff(self._sushi_proto.NoteOffRequest(
+                track = self._sushi_proto.TrackIdentifier(id = track_identifier),
                 channel = channel,
                 note = note,
                 velocity = velocity
@@ -309,8 +313,8 @@ class SushiController(object):
             value (float): The aftertouch value of the note. Should be in range (0.0-1.0).
         '''
         try:
-            self._stub.SendNoteAftertouch(sushi_rpc_pb2.NoteAftertouchRequest(
-                track = sushi_rpc_pb2.TrackIdentifier(id = track_identifier),
+            self._stub.SendNoteAftertouch(self._sushi_proto.NoteAftertouchRequest(
+                track = self._sushi_proto.TrackIdentifier(id = track_identifier),
                 channel = channel,
                 note = note,
                 value = value
@@ -330,8 +334,8 @@ class SushiController(object):
             value (float): The aftertouch value. Should be in range (0.0-1.0).
         '''
         try:
-            self._stub.SendAftertouch(sushi_rpc_pb2.NoteModulationRequest(
-                track = sushi_rpc_pb2.TrackIdentifier(id = track_identifier),
+            self._stub.SendAftertouch(self._sushi_proto.NoteModulationRequest(
+                track = self._sushi_proto.TrackIdentifier(id = track_identifier),
                 channel = channel,
                 value = value
             ))
@@ -350,8 +354,8 @@ class SushiController(object):
             value (float): The pitch bend value. Should be in range (0.0-1.0).
         '''
         try:
-            self._stub.SendPitchBend(sushi_rpc_pb2.NoteModulationRequest(
-                track = sushi_rpc_pb2.TrackIdentifier(id = track_identifier),
+            self._stub.SendPitchBend(self._sushi_proto.NoteModulationRequest(
+                track = self._sushi_proto.TrackIdentifier(id = track_identifier),
                 channel = channel,
                 value = value
             ))
@@ -370,8 +374,8 @@ class SushiController(object):
             value (float): The modulation value. Should be in range (0.0-1.0).
         '''
         try:
-            self._stub.SendModulation(sushi_rpc_pb2.NoteModulationRequest(
-                track = sushi_rpc_pb2.TrackIdentifier(id = track_identifier),
+            self._stub.SendModulation(self._sushi_proto.NoteModulationRequest(
+                track = self._sushi_proto.TrackIdentifier(id = track_identifier),
                 channel = channel,
                 value = value
             ))
@@ -394,7 +398,7 @@ class SushiController(object):
             float: The maximum engine processing time in ms.
         '''
         try:
-            response = self._stub.GetEngineTimings(sushi_rpc_pb2.GenericVoidValue())
+            response = self._stub.GetEngineTimings(self._sushi_proto.GenericVoidValue())
             return response.average, response.min, response.max
 
         except grpc.RpcError as e:
@@ -414,7 +418,7 @@ class SushiController(object):
             float: The maximum track processing time in ms.
         '''
         try:
-            response = self._stub.GetTrackTimings(sushi_rpc_pb2.TrackIdentifier(
+            response = self._stub.GetTrackTimings(self._sushi_proto.TrackIdentifier(
                 id = track_identifier
             ))
             return response.average, response.min, response.max
@@ -436,7 +440,7 @@ class SushiController(object):
             float: The maximum processor processing time in ms.
         '''
         try:
-            response = self._stub.GetProcessorTimings(sushi_rpc_pb2.ProcessorIdentifier(
+            response = self._stub.GetProcessorTimings(self._sushi_proto.ProcessorIdentifier(
                 id = processor_identifier
             ))
             return response.average, response.min, response.max
@@ -450,7 +454,7 @@ class SushiController(object):
         Reset all the timings.
         '''
         try:
-            self._stub.ResetAllTimings(sushi_rpc_pb2.GenericVoidValue())
+            self._stub.ResetAllTimings(self._sushi_proto.GenericVoidValue())
         
         except grpc.RpcError as e:
             grpc_error_handling(e)
@@ -464,7 +468,7 @@ class SushiController(object):
             track_identifier (int): The id of the track to reset the timings of.
         '''
         try:
-            self._stub.ResetTrackTimings(sushi_rpc_pb2.TrackIdentifier(
+            self._stub.ResetTrackTimings(self._sushi_proto.TrackIdentifier(
                 id = track_identifier
             ))
 
@@ -480,7 +484,7 @@ class SushiController(object):
             processor_identifier (int): The id of the processor to reset the timings of.
         '''
         try:
-            self._stub.ResetProcessorTimings(sushi_rpc_pb2.ProcessorIdentifier(
+            self._stub.ResetProcessorTimings(self._sushi_proto.ProcessorIdentifier(
                 id = processor_identifier
             ))
 
@@ -503,7 +507,7 @@ class SushiController(object):
             int: The id of the track matching the name.
         '''
         try:
-            response = self._stub.GetTrackId(sushi_rpc_pb2.GenericStringValue(
+            response = self._stub.GetTrackId(self._sushi_proto.GenericStringValue(
                 value = track_name
             ))
             return response.id
@@ -523,7 +527,7 @@ class SushiController(object):
             info_types.TrackInfo: The info of the track matching the id.
         '''
         try:
-            response = self._stub.GetTrackInfo(sushi_rpc_pb2.TrackIdentifier(
+            response = self._stub.GetTrackInfo(self._sushi_proto.TrackIdentifier(
                 id = track_identifier
             ))
             return info_types.TrackInfo(response)
@@ -543,7 +547,7 @@ class SushiController(object):
             List[info_types.ProcessorInfo]: A list of the info of the processors assigned to the track matching the id.
         '''
         try:
-            response = self._stub.GetTrackProcessors(sushi_rpc_pb2.TrackIdentifier(
+            response = self._stub.GetTrackProcessors(self._sushi_proto.TrackIdentifier(
                 id = track_identifier
             ))
             
@@ -568,7 +572,7 @@ class SushiController(object):
             List[info_types.ParameterInfo]: A list of the info of the parameters assigned to the track matching the id.
         '''
         try:
-            response = self._stub.GetTrackParameters(sushi_rpc_pb2.TrackIdentifier(
+            response = self._stub.GetTrackParameters(self._sushi_proto.TrackIdentifier(
                 id = track_identifier
             ))
             
@@ -598,7 +602,7 @@ class SushiController(object):
             int: The id of the processor matching the name.
         '''
         try:
-            response = self._stub.GetProcessorId(sushi_rpc_pb2.GenericStringValue(
+            response = self._stub.GetProcessorId(self._sushi_proto.GenericStringValue(
                 value = processor_name
             ))
             return response.id
@@ -618,7 +622,7 @@ class SushiController(object):
             info_types.ProcessorInfo: The info of the processor matching the id.
         '''
         try:
-            response = self._stub.GetProcessorInfo(sushi_rpc_pb2.ProcessorIdentifier(
+            response = self._stub.GetProcessorInfo(self._sushi_proto.ProcessorIdentifier(
                 id = processor_identifier
             ))
             return info_types.ProcessorInfo(response)
@@ -638,7 +642,7 @@ class SushiController(object):
             bool: The bypass state of the processor matching the id.
         '''
         try:
-            response = self._stub.GetProcessorBypassState(sushi_rpc_pb2.ProcessorIdentifier(
+            response = self._stub.GetProcessorBypassState(self._sushi_proto.ProcessorIdentifier(
                 id = processor_identifier
             ))
             return response.value
@@ -656,8 +660,8 @@ class SushiController(object):
             bypass_sate (bool): The bypass state of the processor matching the id.
         '''
         try:
-            self._stub.SetProcessorBypassState(sushi_rpc_pb2.ProcessorBypassStateSetRequest(
-                processor = sushi_rpc_pb2.ProcessorIdentifier(id = processor_identifier),
+            self._stub.SetProcessorBypassState(self._sushi_proto.ProcessorBypassStateSetRequest(
+                processor = self._sushi_proto.ProcessorIdentifier(id = processor_identifier),
                 value = bypass_state
             ))
         
@@ -676,7 +680,7 @@ class SushiController(object):
             int: The id of the processors current program.
         '''
         try:
-            response = self._stub.GetProcessorCurrentProgram(sushi_rpc_pb2.ProcessorIdentifier(
+            response = self._stub.GetProcessorCurrentProgram(self._sushi_proto.ProcessorIdentifier(
                 id = processor_identifier
             ))
             return response.program
@@ -696,7 +700,7 @@ class SushiController(object):
             str: The name of the processors current program.
         '''
         try:
-            response = self._stub.GetProcessorCurrentProgramName(sushi_rpc_pb2.ProcessorIdentifier(
+            response = self._stub.GetProcessorCurrentProgramName(self._sushi_proto.ProcessorIdentifier(
                 id = processor_identifier
             ))
             return response.value
@@ -717,8 +721,8 @@ class SushiController(object):
             str: The name of the program matching the processor and program id.
         '''
         try:
-            response = self._stub.GetProcessorProgramName(sushi_rpc_pb2.ProcessorProgramIdentifier(
-                processor = sushi_rpc_pb2.ProcessorIdentifier(id = processor_identifier),
+            response = self._stub.GetProcessorProgramName(self._sushi_proto.ProcessorProgramIdentifier(
+                processor = self._sushi_proto.ProcessorIdentifier(id = processor_identifier),
                 program = program_identifier
             ))
             return response.value
@@ -738,7 +742,7 @@ class SushiController(object):
             List[info_types.ProgramInfo]: A list of the programs available to the processor matching the id.
         '''
         try:
-            response = self._stub.GetProcessorPrograms(sushi_rpc_pb2.ProcessorIdentifier(
+            response = self._stub.GetProcessorPrograms(self._sushi_proto.ProcessorIdentifier(
                 id = processor_identifier
             ))
             
@@ -761,9 +765,9 @@ class SushiController(object):
             program_identifier (int): The id of the program to set.
         '''
         try:
-            self._stub.SetProcessorProgram(sushi_rpc_pb2.ProcessorProgramSetRequest(
-                processor = sushi_rpc_pb2.ProcessorIdentifier(id = processor_identifier),
-                program = sushi_rpc_pb2.ProgramIdentifier(program = program_identifier)
+            self._stub.SetProcessorProgram(self._sushi_proto.ProcessorProgramSetRequest(
+                processor = self._sushi_proto.ProcessorIdentifier(id = processor_identifier),
+                program = self._sushi_proto.ProgramIdentifier(program = program_identifier)
             ))
         
         except grpc.RpcError as e:
@@ -781,7 +785,7 @@ class SushiController(object):
             List[info_types.ParameterInfo]: A list of the parameters available to the processor matching the id.
         '''
         try:
-            response = self._stub.GetProcessorParameters(sushi_rpc_pb2.ProcessorIdentifier(
+            response = self._stub.GetProcessorParameters(self._sushi_proto.ProcessorIdentifier(
                 id = processor_identifier
             ))
             
@@ -813,8 +817,8 @@ class SushiController(object):
             int: The id of the parameter matching the parameter name.
         '''
         try:
-            response = self._stub.GetParameterId(sushi_rpc_pb2.ParameterIdRequest(
-                processor = sushi_rpc_pb2.ProcessorIdentifier(id = processor_identifier),
+            response = self._stub.GetParameterId(self._sushi_proto.ParameterIdRequest(
+                processor = self._sushi_proto.ProcessorIdentifier(id = processor_identifier),
                 ParameterName = parameter_name
             ))
             return response.processor_id, response.parameter_id
@@ -835,7 +839,7 @@ class SushiController(object):
             info_types.ParameterInfo: Info of the parameter matching the id.
         '''
         try:
-            response = self._stub.GetParameterInfo(sushi_rpc_pb2.ParameterIdentifier(
+            response = self._stub.GetParameterInfo(self._sushi_proto.ParameterIdentifier(
                 processor_id = processor_identifier,
                 parameter_id = parameter_identifier
             ))
@@ -857,7 +861,7 @@ class SushiController(object):
             float: The value of the parameter matching the id.
         '''
         try:
-            response = self._stub.GetParameterValue(sushi_rpc_pb2.ParameterIdentifier(
+            response = self._stub.GetParameterValue(self._sushi_proto.ParameterIdentifier(
                 processor_id = processor_identifier,
                 parameter_id = parameter_identifier
             ))
@@ -879,7 +883,7 @@ class SushiController(object):
             float: The normalised value of the parameter matching the id.
         '''
         try:
-            response = self._stub.GetParameterValueNormalised(sushi_rpc_pb2.ParameterIdentifier(
+            response = self._stub.GetParameterValueNormalised(self._sushi_proto.ParameterIdentifier(
                 processor_id = processor_identifier,
                 parameter_id = parameter_identifier
             ))
@@ -901,7 +905,7 @@ class SushiController(object):
             str: The value as a string of the parameter matching the id.
         '''
         try:
-            response = self._stub.GetParameterValueAsString(sushi_rpc_pb2.ParameterIdentifier(
+            response = self._stub.GetParameterValueAsString(self._sushi_proto.ParameterIdentifier(
                 processor_id = processor_identifier,
                 parameter_id = parameter_identifier
             ))
@@ -917,7 +921,7 @@ class SushiController(object):
         CURRENTLY NOT IMPLEMENTED IN SUSHI
         '''
         try:
-            response = self._stub.GetStringPropertyValue(sushi_rpc_pb2.ParameterIdentifier(
+            response = self._stub.GetStringPropertyValue(self._sushi_proto.ParameterIdentifier(
                 processor_id = processor_identifier,
                 parameter_id = parameter_identifier
             ))
@@ -936,8 +940,8 @@ class SushiController(object):
             parameter_identifier (int): The id of the parameter to set the value of.
         '''
         try:
-            self._stub.SetParameterValue(sushi_rpc_pb2.ParameterSetRequest(
-                parameter = sushi_rpc_pb2.ParameterIdentifier(
+            self._stub.SetParameterValue(self._sushi_proto.ParameterSetRequest(
+                parameter = self._sushi_proto.ParameterIdentifier(
                     processor_id = processor_identifier,
                     parameter_id = parameter_identifier
                     ),
@@ -957,8 +961,8 @@ class SushiController(object):
             parameter_identifier (int): The id of the parameter to set the normalised value of.
         '''
         try:
-            self._stub.SetParameterValueNormalised(sushi_rpc_pb2.ParameterSetRequest(
-                parameter = sushi_rpc_pb2.ParameterIdentifier(
+            self._stub.SetParameterValueNormalised(self._sushi_proto.ParameterSetRequest(
+                parameter = self._sushi_proto.ParameterIdentifier(
                     processor_id = processor_identifier,
                     parameter_id = parameter_identifier
                 ),
@@ -975,8 +979,8 @@ class SushiController(object):
         CURRENTLY NOT IMPLEMTED IN SUSHI
         '''
         try:
-            self._stub.SetStringPropertyValue(sushi_rpc_pb2.StringPropertySetRequest(
-                property = sushi_rpc_pb2.ParameterIdentifier(
+            self._stub.SetStringPropertyValue(self._sushi_proto.StringPropertySetRequest(
+                property = self._sushi_proto.ParameterIdentifier(
                     processor_id = processor_identifier,
                     parameter_id = parameter_identifier
                 ),

@@ -28,6 +28,8 @@ controller = sc.SushiController()
 ```
 The default gRPC address is `localhost:51051` if you want to connect to another address. You can pass it as an argument to the constructor of the controller on the form `ip-address:port`.
 
+The second argument to the constructor of SushiController is a path to the `sushi_rpc.proto` file with Protobuf protocol definition. If empty, the class will look into the current working directory for a file with that name.
+
 To use the controller simply use the methods of the controller object. For example:
 ```python
 # Get a list of the tracks available in sushi
@@ -50,3 +52,12 @@ For a full documentation of the available methods. Use:
 $ pydoc3 ELKpy.sushicontroller.SushiController
 ```
 from where the ELKpy folder is located.
+
+### Running Unit Tests ###
+Before running unit tests with the unittest command-line interface, you need to export the environment variable `SUSHI_GRPC_ELKPY_PROTO` pointing to the Sushi's `.proto` definition file.
+
+Example:
+```
+$ export SUSHI_GRPC_ELKPY_PROTO=./sushi_rpc.proto
+$ python3 -m unittest tests/sushi_controller_test.py
+
