@@ -21,7 +21,7 @@ SUSHI_ADDRESS = ('localhost:51051')
 
 class TestSushiController(unittest.TestCase):
     def setUp(self):
-        self._sc = sc.SushiController(SUSHI_ADDRESS)
+        self._sc = sc.SushiController(SUSHI_ADDRESS, proto_file)
 
     def test_get_samplerate(self):
         self.assertEqual(self._sc.get_samplerate(), 48000.0)
@@ -38,20 +38,20 @@ class TestSushiController(unittest.TestCase):
             self.assertEqual(self._sc.get_playing_mode(), i)
             time.sleep(wait_time)
 
-        self._sc.set_playing_mode(sc.PlayingMode.STOPPED)
+        self._sc.set_playing_mode(info_types.PlayingMode.STOPPED)
         time.sleep(wait_time)
         self.assertEqual(self._sc.get_playing_mode(),
-                         sc.PlayingMode.STOPPED)
+                         info_types.PlayingMode.STOPPED)
         time.sleep(wait_time)
-        self._sc.set_playing_mode(sc.PlayingMode.PLAYING)
-        time.sleep(wait_time)
-        self.assertEqual(self._sc.get_playing_mode(),
-                         sc.PlayingMode.PLAYING)
-        time.sleep(wait_time)
-        self._sc.set_playing_mode(sc.PlayingMode.RECORDING)
+        self._sc.set_playing_mode(info_types.PlayingMode.PLAYING)
         time.sleep(wait_time)
         self.assertEqual(self._sc.get_playing_mode(),
-                         sc.PlayingMode.RECORDING)
+                         info_types.PlayingMode.PLAYING)
+        time.sleep(wait_time)
+        self._sc.set_playing_mode(info_types.PlayingMode.RECORDING)
+        time.sleep(wait_time)
+        self.assertEqual(self._sc.get_playing_mode(),
+                         info_types.PlayingMode.RECORDING)
         time.sleep(wait_time)
 
         self._sc.set_playing_mode(1)
@@ -70,18 +70,18 @@ class TestSushiController(unittest.TestCase):
             self.assertEqual(self._sc.get_sync_mode(), i)
             time.sleep(wait_time)
 
-        self._sc.set_sync_mode(sc.SyncMode.INTERNAL)
+        self._sc.set_sync_mode(info_types.SyncMode.INTERNAL)
         time.sleep(wait_time)
         self.assertEqual(self._sc.get_sync_mode(),
-                         sc.SyncMode.INTERNAL)
+                         info_types.SyncMode.INTERNAL)
         time.sleep(wait_time)
-        self._sc.set_sync_mode(sc.SyncMode.MIDI)
+        self._sc.set_sync_mode(info_types.SyncMode.MIDI)
         time.sleep(wait_time)
-        self.assertEqual(self._sc.get_sync_mode(), sc.SyncMode.MIDI)
+        self.assertEqual(self._sc.get_sync_mode(), info_types.SyncMode.MIDI)
         time.sleep(wait_time)
-        self._sc.set_sync_mode(sc.SyncMode.LINK)
+        self._sc.set_sync_mode(info_types.SyncMode.LINK)
         time.sleep(wait_time)
-        self.assertEqual(self._sc.get_sync_mode(), sc.SyncMode.LINK)
+        self.assertEqual(self._sc.get_sync_mode(), info_types.SyncMode.LINK)
         time.sleep(wait_time)
 
         self._sc.set_sync_mode(1)
@@ -147,7 +147,7 @@ class TestSushiController(unittest.TestCase):
 
 class TestSushiControllerKeyboardControl(unittest.TestCase):
     def setUp(self):
-        self._sc = sc.SushiController(SUSHI_ADDRESS)
+        self._sc = sc.SushiController(SUSHI_ADDRESS, proto_file)
 
     def test_keyboard_control(self):
         wait_time = 0.5
@@ -167,7 +167,7 @@ class TestSushiControllerKeyboardControl(unittest.TestCase):
 
 class TestSushiControllerCPUTimings(unittest.TestCase):
     def setUp(self):
-        self._sc = sc.SushiController(SUSHI_ADDRESS)
+        self._sc = sc.SushiController(SUSHI_ADDRESS, proto_file)
 
     def test_get_engine_timings(self):
         self._sc.reset_all_timings()
@@ -207,7 +207,7 @@ class TestSushiControllerCPUTimings(unittest.TestCase):
 
 class TestSushiControllerTrackControl(unittest.TestCase):
     def setUp(self):
-        self._sc = sc.SushiController(SUSHI_ADDRESS)
+        self._sc = sc.SushiController(SUSHI_ADDRESS, proto_file)
 
     def test_get_track_id(self):
         result = self._sc.get_track_id('main')
@@ -279,7 +279,7 @@ class TestSushiControllerTrackControl(unittest.TestCase):
 
 class TestSushiControllerProcessorControl(unittest.TestCase):
     def setUp(self):
-        self._sc = sc.SushiController(SUSHI_ADDRESS)
+        self._sc = sc.SushiController(SUSHI_ADDRESS, proto_file)
 
     def test_get_processor_id(self):
         result = self._sc.get_processor_id("andes")
@@ -515,7 +515,7 @@ class TestSushiControllerProcessorControl(unittest.TestCase):
 
 class TestSushiControllerParameterControl(unittest.TestCase):
     def setUp(self):
-        self._sc = sc.SushiController(SUSHI_ADDRESS)
+        self._sc = sc.SushiController(SUSHI_ADDRESS, proto_file)
 
     def test_get_parameter_id(self):
         result = self._sc.get_parameter_id(1,'octaves')

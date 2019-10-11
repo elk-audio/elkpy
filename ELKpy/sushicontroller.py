@@ -1,10 +1,6 @@
 import grpc
 from . import grpc_gen
 from . import sushi_info_types as info_types
-<<<<<<< HEAD
-=======
-from enum import IntEnum
->>>>>>> f/generate_grpc_files_when_run
 from typing import List
 
 
@@ -74,15 +70,10 @@ class SushiController(object):
         try:
             channel = grpc.insecure_channel(address)
         except AttributeError as e:
-<<<<<<< HEAD
             raise TypeError("Parameter address = {}. Should be a string containing the ip-address and port of sushi ('ip-address:port')".format(address)) from e
-        self._stub = sushi_rpc_pb2_grpc.SushiControllerStub(channel)
-=======
-            raise TypeError(f"Parameter address = {address}. Should be a string containing the ip-address and port of sushi ('ip-address:port')") from e
 
         self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
         self._stub = self._sushi_grpc.SushiControllerStub(channel)
->>>>>>> f/generate_grpc_files_when_run
 
     # rpc GetSamplerate (GenericVoidValue) returns (GenericFloatValue) {}
     def get_samplerate(self) -> float:
@@ -112,13 +103,8 @@ class SushiController(object):
                 3 = Recording (not implemented)
         '''
         try: 
-<<<<<<< HEAD
-            response = self._stub.GetPlayingMode(sushi_rpc_pb2.GenericVoidValue())
-            return info_types.PlayingMode(response.mode)
-=======
             response = self._stub.GetPlayingMode(self._sushi_proto.GenericVoidValue())
-            return PlayingMode(response.mode)
->>>>>>> f/generate_grpc_files_when_run
+            return info_types.PlayingMode(response.mode)
 
         except grpc.RpcError as e:
             grpc_error_handling(e)
@@ -156,13 +142,8 @@ class SushiController(object):
                 3 = Link
         '''
         try:
-<<<<<<< HEAD
-            response = self._stub.GetSyncMode(sushi_rpc_pb2.GenericVoidValue())
-            return info_types.SyncMode(response.mode)
-=======
             response = self._stub.GetSyncMode(self._sushi_proto.GenericVoidValue())
-            return SyncMode(response.mode)
->>>>>>> f/generate_grpc_files_when_run
+            return info_types.SyncMode(response.mode)
         
         except grpc.RpcError as e:
             grpc_error_handling(e)
