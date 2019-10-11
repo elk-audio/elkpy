@@ -6,7 +6,7 @@ from ELKpy import sushi_info_types as types
 from ELKpy import grpc_gen
 sushi_rpc_pb2, sushi_rpc_pb2_grpc = grpc_gen.modules_from_proto("./sushi_rpc.proto")
 
-class sushi_parameter_info_test(unittest.TestCase):
+class TestSushiParameterInfo(unittest.TestCase):
     def test_all_parameters(self):
         result = types.ParameterInfo(
             sushi_rpc_pb2.ParameterInfo(
@@ -224,7 +224,7 @@ class sushi_parameter_info_test(unittest.TestCase):
 
         self.assertEqual(result, expected_result)
 
-class sushi_processor_info_test(unittest.TestCase):
+class TestSushiProcessorInfo(unittest.TestCase):
     def test_all_parameters(self):
         result = types.ProcessorInfo(
             sushi_rpc_pb2.ProcessorInfo(
@@ -334,7 +334,7 @@ class sushi_processor_info_test(unittest.TestCase):
 
         self.assertEqual(result, expected_result)
 
-class sushi_track_info_test(unittest.TestCase):
+class TestSushiTrackInfo(unittest.TestCase):
     def test_all_parameters(self):
         result = types.TrackInfo(sushi_rpc_pb2.TrackInfo(
             id = 1,
@@ -543,7 +543,7 @@ class sushi_track_info_test(unittest.TestCase):
 
         self.assertEqual(result, expected_result)
 
-class sushi_program_info_test(unittest.TestCase):
+class TestSushiProgramInfo(unittest.TestCase):
     def test_all_parameters(self):
         result = types.ProgramInfo(sushi_rpc_pb2.ProgramInfo(
             id = sushi_rpc_pb2.ProgramIdentifier(program = 1),
