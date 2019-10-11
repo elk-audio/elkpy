@@ -1,28 +1,24 @@
-# Sushi - gRPC controller warpper #
+# Sushi - gRPC controller wrapper #
 
 A simple wrapper for controlling sushi over gRPC via a python script. 
 
 ### Prerequisites ###
 
-To use this wrapper, [python3.5](https://www.python.org/downloads/) or greater need to be installed.
+To use this wrapper, [python3.5](https://www.python.org/downloads/) or greater need to be installed, together with the `grpcio-tools` Python package. Both are installed by default in the development releases of Elk for the various supported architectures.
 
 ### Installation ###
 
-Clone the repository using:
-```console
-$ git clone repositoryaddress
-```
-Copy the folder ELKpy to the directory where you want to run it from. 
+At the moment, just copy the `elkpy` module folder to the directory where you want to run it from. 
 
 _In the future a more automated install will be created._
 
 ### Usage ###
 
-First import the sushicontroller package. An alias can be used to shorten the length of the code.
+First import the sushicontroller package, e.g.:
 ```python
-from ELKpy import sushicontroller as sc
+from elkpy import sushicontroller as sc
 ```
-An instance of the sushicontroller object can be created using the following:
+Then create an instance of the `SushiController` object:
 ```python
 controller = sc.SushiController()
 ```
@@ -49,9 +45,9 @@ controller.send_note_on(track_id, channel, note, velocity)
 
 For a full documentation of the available methods. Use:
 ```console
-$ pydoc3 ELKpy.sushicontroller.SushiController
+$ pydoc3 elkpy.sushicontroller.SushiController
 ```
-from where the ELKpy folder is located.
+from where the elkpy folder is located.
 
 ### Running Unit Tests ###
 Before running unit tests with the unittest command-line interface, you need to export the environment variable `SUSHI_GRPC_ELKPY_PROTO` pointing to the Sushi's `.proto` definition file.
@@ -60,4 +56,4 @@ Example:
 ```
 $ export SUSHI_GRPC_ELKPY_PROTO=./sushi_rpc.proto
 $ python3 -m unittest tests/sushi_controller_test.py
-
+```
