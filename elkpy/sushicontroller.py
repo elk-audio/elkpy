@@ -390,7 +390,7 @@ class SushiController(object):
     # rpc GetEngineTimings(GenericVoidValue) returns (CpuTimings) {}
     def get_engine_timings(self) -> (float, float, float):
         '''
-        Get the average, max and min timings of the engine. --timing-statistics need to be enabled
+        Get the average, min and max timings of the engine. --timing-statistics need to be enabled
 
         Returns:
             float: The average engine processing time in ms.
@@ -407,7 +407,7 @@ class SushiController(object):
     # rpc GetTrackTimings(TrackIdentifier) returns (CpuTimings) {}
     def get_track_timings(self, track_identifier: int) -> (float, float, float):
         '''
-        Get the average, max and min timings of the specified track. --timing-statistics need to be enabled
+        Get the average, min and max timings of the specified track. --timing-statistics need to be enabled
 
         Parameters:
             track_identifier (int): The id of the track to get timings from.
@@ -429,7 +429,7 @@ class SushiController(object):
     # rpc GetProcessorTimings(ProcessorIdentifier) returns (CpuTimings) {}
     def get_processor_timings(self, processor_identifier: int) -> (float, float, float):
         '''
-        Get the average, max and min timings of the specified processor. --timing-statistics need to be enabled
+        Get the average, min and max timings of the specified processor. --timing-statistics need to be enabled
 
         Parameters:
             processor_identifier (int): The id of the processor to get timings from.
