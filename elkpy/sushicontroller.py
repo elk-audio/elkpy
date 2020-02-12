@@ -16,10 +16,11 @@ __copyright__ = """
 """
 __license__ = "GPL-3.0" 
 
+import threading
 import grpc
 from . import grpc_gen
 from . import sushi_info_types as info_types
-from typing import List
+from typing import List, Callable
 
 
 
@@ -1006,3 +1007,18 @@ class SushiController(object):
         except grpc.RpcError as e:
             grpc_error_handling(e, "With processor id: {}, parameter id: {}, value: {}".format(processor_identifier, parameter_identifier, value))
 
+    def subscribe_to_parameter_notifications(self, callback: Callable[[int, int, float], None]) -> None:
+        '''
+        Subscribe to parameter notifications
+
+        Parameters:
+            callback: A callback function taking a parameter_id, processor_id and value as arguments.
+        '''
+        try:
+            threading.Thread(target=self._subscribe_to_parameter_notifications, args=[callback], daemon=True).start()
+        except grpc.RpcError as e:
+            grpc_error_handling(e, "")
+
+    def _subscribe_to_parameter_notifications(self, callback):
+        for notification in self._stub.SubscribeToParameterUpdates(self._sushi_proto.GenericVoidValue()):
+                callback(notification.parameter.parameter_id, notification.parameter.processor_id, notification.value)
