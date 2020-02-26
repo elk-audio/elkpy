@@ -1007,18 +1007,29 @@ class SushiController(object):
         except grpc.RpcError as e:
             grpc_error_handling(e, "With processor id: {}, parameter id: {}, value: {}".format(processor_identifier, parameter_identifier, value))
 
-    def subscribe_to_parameter_notifications(self, callback: Callable[[int, int, float], None]) -> None:
+    def subscribe_to_parameter_notifications(self, callback: Callable[[int, int, float], None], parameter_blacklist: List[tuple] = None) -> None:
         '''
         Subscribe to parameter notifications
 
         Parameters:
             callback: A callback function taking a parameter_id, processor_id and value as arguments.
+            parameter_blacklist: A list of int tuples defining what parameter changes to blacklist.
+                                 The first int is corresponding to a processor id.
+                                 The second int is corresponding to a parameter id.
+                                 If the list is None all parameters will be subscribed to.
         '''
         try:
-            threading.Thread(target=self._subscribe_to_parameter_notifications, args=[callback], daemon=True).start()
+            threading.Thread(target=self._subscribe_to_parameter_notifications, args=[callback, parameter_blacklist], daemon=True).start()
         except grpc.RpcError as e:
             grpc_error_handling(e, "")
 
-    def _subscribe_to_parameter_notifications(self, callback):
-        for notification in self._stub.SubscribeToParameterUpdates(self._sushi_proto.GenericVoidValue()):
+    def _subscribe_to_parameter_notifications(self, callback, parameter_blacklist):
+        _parameter_blacklist = self._sushi_proto.ParameterNotificationRequest()
+        if not parameter_blacklist == None:
+            for parameter_identifier in parameter_blacklist:
+                _parameter_identifier = _parameter_blacklist.parameters.add()
+                _parameter_identifier.processor_id = parameter_identifier[0]
+                _parameter_identifier.parameter_id = parameter_identifier[1]
+
+        for notification in self._stub.SubscribeToParameterUpdates(_parameter_blacklist):
                 callback(notification.parameter.parameter_id, notification.parameter.processor_id, notification.value)
