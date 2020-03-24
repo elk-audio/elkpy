@@ -887,7 +887,7 @@ class SushiController(object):
             grpc_error_handling(e, "With processor id: {}, parameter id: {}".format(processor_identifier, parameter_identifier))
 
     # rpc GetParameterValueNormalised(ParameterIdentifier) returns (GenericFloatValue) {}
-    def get_parameter_value_normalised(self, processor_identifier: int, parameter_identifier: int) -> float:
+    def get_parameter_value_in_domain(self, processor_identifier: int, parameter_identifier: int) -> float:
         '''
         Get the normalised value of the parameter matching the specified parameter on the specified processor.
 
@@ -899,7 +899,7 @@ class SushiController(object):
             float: The normalised value of the parameter matching the id.
         '''
         try:
-            response = self._stub.GetParameterValueNormalised(self._sushi_proto.ParameterIdentifier(
+            response = self._stub.GetParameterValueInDomain(self._sushi_proto.ParameterIdentifier(
                 processor_id = processor_identifier,
                 parameter_id = parameter_identifier
             ))
@@ -961,27 +961,6 @@ class SushiController(object):
                     processor_id = processor_identifier,
                     parameter_id = parameter_identifier
                     ),
-                value = value
-            ))
-
-        except grpc.RpcError as e:
-            grpc_error_handling(e, "With processor id: {}, parameter id: {}, value: {}".format(processor_identifier, parameter_identifier, value))
-
-    # rpc SetParameterValueNormalised(ParameterSetRequest) returns (GenericVoidValue) {}
-    def set_parameter_value_normalised(self, processor_identifier: int, parameter_identifier: int, value: float) -> None:
-        '''
-        Set the nomralised value of the specified parameter on the specified processor.
-
-        Parameters:
-            processor_identifier (int): The id of the processor that has the parameter to be changed.
-            parameter_identifier (int): The id of the parameter to set the normalised value of.
-        '''
-        try:
-            self._stub.SetParameterValueNormalised(self._sushi_proto.ParameterSetRequest(
-                parameter = self._sushi_proto.ParameterIdentifier(
-                    processor_id = processor_identifier,
-                    parameter_id = parameter_identifier
-                ),
                 value = value
             ))
 
