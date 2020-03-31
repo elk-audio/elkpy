@@ -1033,3 +1033,121 @@ class SushiController(object):
 
         for notification in self._stub.SubscribeToParameterUpdates(_parameter_blacklist):
                 callback(notification.parameter.parameter_id, notification.parameter.processor_id, notification.value)
+
+    def create_stereo_track(self, name: str, output_bus:int, has_input: bool, input_bus:int):
+         '''
+        Create a stereo track and connect it to the given audio busses.
+        Parameters:
+            name (str): The name of the track to create, must be unique.
+            output_bus: The output stereo bus to connect the track to.
+            has_input (bool): Set to True if the track takes audio input.
+            input_bus: The input stereo bus to connect the track to if has_input is set to True.
+
+        '''
+        try:
+            self._stub.CreateStereoTrack(self._sushi_proto.CreateStereoTrackRequest(
+                name = name,
+                output_bus = output_bus,
+                has_input = has_input,
+                input_bus = input_bus))
+
+        except grpc.RpcError as e:
+            grpc_error_handling(e, "With track name: {}, output_bus: {}, input_bus: {}".format(name, output_bus, input_bus))
+
+    def create_mono_track(self, name: str, output_channel: int, has_input: bool, input_channel: int):
+        '''
+        Create a mono track and connect it to the given audio channels.
+        Parameters:
+            name (str): The name of the track to create, must be unique.
+            output_bus: The output stereo channel to connect the track to.
+            has_input (bool): Set to True if the track takes audio input.
+            input_bus: The input stereo channel to connect the track to if has_input is set to True.
+
+        '''
+        try:
+            self._stub.CreateMonoTrack(self._sushi_proto.CreateMonoTrackRequest(
+                name = name,
+                output_channel = output_channel,
+                has_input = has_input,
+                input_channel = input_channel))
+
+        except grpc.RpcError as e:
+            grpc_error_handling(e, "With track name: {}, output_channel: {}, input_channel: {}".format(name, output_channel, input_channel))
+
+    def delete_track(self, track_identifier:int):
+        '''
+        Delete a track and all the plugins on it
+        Parameters:
+            track_identifier (int): The id of the track to delete from Sushi.
+        '''
+        try:
+            self._stub.DeleteTrack(self._sushi_proto.TrackIdentifier(id = track_identifier))
+
+        except grpc.RpcError as e:
+            grpc_error_handling(e, "With track id : {}".format(track_identifier))
+
+    def create_processor_on_track(self, name: str, uid: str, path: str, type: info_types.PluginType, track_identifier:int, add_to_back:bool, before_processor:int):
+        '''
+        Create a processor and load it on the given track
+        Parameters:
+            name (str): The name of the plugin, must be unique.
+            uid (str): The uid of the plugin to create, not used for all plugin types.
+            path (str): The file path to the plugin file to load, not used for all plugin types.
+            type (): The type of plugin to load.
+                                1 = Internal,
+                                2 = Vst2x,
+                                3 = Vst3x,
+                                4 = LV2
+            track_identifier (int): The id if the track to add the plugin to.
+            add_to_back (bool); Add the plugin to the back of the track given in track_identifier.
+            before_processor (int): If add_to_back is set to False, add the plugin before this processor.
+
+        '''
+        try:
+            self._stub.CreateProcessorOnTrack(self._sushi_proto.CreateProcessorRequest(
+                name = name,
+                uid = uid,
+                path = path,
+                type = self._sushi_proto.PluginType(type = int(type)),
+                track = self._sushi_proto.TrackIdentifier(id = track_identifier),
+                position = self._sushi_proto.ProcessorPosition(add_to_back = add_to_back, before_processor = self._sushi_proto.ProcessorIdentifier(id = before_processor))))
+
+        except grpc.RpcError as e:
+            grpc_error_handling(e, "With name: {}, uid: {}, path: {}, type: {}, track: {}, add_to_back: {}, before_processor: {}".format(name, uid, path, type, track_identifier, add_to_back, before_processor))
+
+    def move_processor_on_track(self, processor_identifier: int, source_track_identifier: int, dest_track_identifier: int, add_to_back: bool, before_processor: int):
+         '''
+        Move a processor
+        Parameters:
+            processor_identifier (int): The id of the processor to move
+            source_track_identifier (int): The id of the track to move the processor from.
+            dest_track_identifier (int): The id of the track to move the processor to
+            add_to_back (bool); Add the plugin to the back of the destination track.
+            before_processor (int): If add_to_back is set to False, add the plugin before this processor.
+
+        '''
+        try:
+            self._stub.MoveProcessorOnTrack(self._sushi_proto.MoveProcessorRequest(
+                processor = self._sushi_proto.ProcessorIdentifier(id = processor_identifier),
+                source_track = self._sushi_proto.TrackIdentifier(id = source_track_identifier),
+                dest_track = self._sushi_proto.TrackIdentifier(id = dest_track_identifier),
+                position = self._sushi_proto.ProcessorPosition(add_to_back = add_to_back, before_processor = self._sushi_proto.ProcessorIdentifier(id = before_processor))))
+
+        except grpc.RpcError as e:
+            grpc_error_handling(e, "With processor: {}, source_track: {}, dest_track: {}, add_to_back {}, before_processor: {}".format(processor_identifier, source_track_identifier,dest_track_identifier, add_to_back, before_processor))
+
+    def delete_processor_from_track(self, processor_identifier: int, track_identifier: int):
+        '''
+        Delete a processor from a track
+        Parameters:
+            processor_identifier (int): The id of the processor to delete
+            track_identifier (int): The id of the track the processor is on.
+
+        '''
+        try:
+            self._stub.DeleteProcessorFromTrack(self._sushi_proto.DeleteProcessorRequest(
+                processor = self._sushi_proto.ProcessorIdentifier(id = processor_identifier),
+                track = self._sushi_proto.TrackIdentifier(id = track_identifier)))
+
+        except grpc.RpcError as e:
+            grpc_error_handling(e, "With track id : {}, processor_id: {}".format(track_identifier, processor_identifier))
