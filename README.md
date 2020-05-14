@@ -1,6 +1,6 @@
 # Sushi - gRPC controller wrapper #
 
-A simple wrapper for controlling sushi over gRPC via a python script. 
+A simple wrapper for controlling sushi over gRPC via a python script.
 
 ### Prerequisites ###
 
@@ -8,7 +8,7 @@ To use this wrapper, [python3.5](https://www.python.org/downloads/) or greater n
 
 ### Installation ###
 
-At the moment, just copy the `elkpy` module folder to the directory where you want to run it from. 
+At the moment, just copy the `elkpy` module folder to the directory where you want to run it from.
 
 _In the future a more automated install will be created._
 
@@ -24,7 +24,7 @@ controller = sc.SushiController()
 ```
 The default gRPC address is `localhost:51051` if you want to connect to another address. You can pass it as an argument to the constructor of the controller on the form `ip-address:port`.
 
-The second argument to the constructor of SushiController is a path to the `sushi_rpc.proto` file with Protobuf protocol definition. If empty, the class will look into the current working directory for a file with that name.
+The second argument to the constructor of SushiController is a path to the `sushi_rpc.proto` file with Protobuf protocol definition. If empty, the class will look at `usr/share/sushi/sushi_rpc.proto` which is the deafult installtion path for sushi.
 
 To use the controller simply use the methods of the controller object. For example:
 ```python

@@ -74,8 +74,8 @@ class ParameterInfo(object):
         name (str): The name of the parameter.
         unit (str): The unit of the parameter.
         automatable (bool): If the parameter is automatable or not.
-        min_range (float): The minimum value of the parameter.
-        max_range (float): The maximum value of the parameter.
+        min_domain_value (float): The minimum value of the parameter.
+        max_domain_value (float): The maximum value of the parameter.
     '''
 
     def __init__(self, grpc_ParameterInfo = None):
@@ -118,14 +118,14 @@ class ParameterInfo(object):
             self.automatable = False
 
         try:
-            self.min_range = grpc_ParameterInfo.min_range
+            self.min_domain_value = grpc_ParameterInfo.min_domain_value
         except:
-            self.min_range = 0.0
+            self.min_domain_value = 0.0
 
         try:
-            self.max_range = grpc_ParameterInfo.max_range
+            self.max_domain_value = grpc_ParameterInfo.max_domain_value
         except:
-            self.max_range = 0.0
+            self.max_domain_value = 0.0
 
     def __str__(self):
         s = '{\n'
@@ -135,8 +135,8 @@ class ParameterInfo(object):
         s += ' name: %s \n' %self.name
         s += ' unit: %s \n' %self.unit
         s += ' automatable: %s \n' %self.automatable
-        s += ' min_range: %s \n' %self.min_range
-        s += ' max_range: %s \n' %self.max_range
+        s += ' min_domain_value: %s \n' %self.min_domain_value
+        s += ' max_domain_value: %s \n' %self.max_domain_value
         s += '}'
         return s
 
@@ -150,8 +150,8 @@ class ParameterInfo(object):
             and self.name == other.name \
             and self.unit == other.unit \
             and self.automatable == other .automatable \
-            and self.min_range == other.min_range \
-            and self.max_range == other.max_range
+            and self.min_domain_value == other.min_domain_value \
+            and self.max_domain_value == other.max_domain_value
 
 class ProcessorInfo(object):
     '''
