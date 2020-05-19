@@ -947,7 +947,7 @@ class SushiController(object):
         except grpc.RpcError as e:
             grpc_error_handling(e, "With processor id: {}, parameter id: {}".format(processor_identifier, parameter_identifier))
 
-    # rpc SetParameterValue(ParameterSetRequest) returns (GenericVoidValue) {}
+    # rpc SetParameterValue(ParameterValue) returns (GenericVoidValue) {}
     def set_parameter_value(self, processor_identifier: int, parameter_identifier: int, value: float) -> None:
         '''
         Set the value of the specified parameter on the specified processor.
@@ -957,7 +957,7 @@ class SushiController(object):
             parameter_identifier (int): The id of the parameter to set the value of.
         '''
         try:
-            self._stub.SetParameterValue(self._sushi_proto.ParameterSetRequest(
+            self._stub.SetParameterValue(self._sushi_proto.ParameterValue(
                 parameter = self._sushi_proto.ParameterIdentifier(
                     processor_id = processor_identifier,
                     parameter_id = parameter_identifier
