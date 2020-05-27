@@ -49,6 +49,15 @@ class ParameterType(IntEnum):
     STRING_PROPERTY = 4
     DATA_PROPERTY = 5
 
+class PluginType(IntEnum):
+    '''
+    Enum class to hold the values matching the different plugin types.
+    '''
+    INTERNAL = 1
+    VST2X = 2
+    VST3X = 3
+    LV2 = 4
+
 ################
 # Info Classes #
 ################
@@ -251,9 +260,11 @@ class TrackInfo(object):
             self.output_busses = 0
 
         try:
-            self.processor_count = grpc_TrackInfo.processor_count
+            self.processors = []
+            for processor in grpc_TrackInfo.processors:
+                self.processors.append(processor.id)
         except:
-            self.processor_count = 0
+            self.processors = []
 
     def __str__(self):
         s = '{\n'
@@ -264,7 +275,7 @@ class TrackInfo(object):
         s += ' input_busses: %s \n' %self.input_busses
         s += ' output_channels: %s \n' %self.output_channels
         s += ' output_busses: %s \n' %self.output_busses
-        s += ' processor_count: %s \n' %self.processor_count
+        s += ' processor_count: %s \n' %self.processors
         s += '}'
         return s
 
@@ -279,7 +290,7 @@ class TrackInfo(object):
             and self.input_busses == other.input_busses \
             and self.output_channels == other.output_channels \
             and self.output_busses == other.output_busses \
-            and self.processor_count == other.processor_count
+            and self.processors == other.processors
 
 class ProgramInfo(object):
     '''
