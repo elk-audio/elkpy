@@ -20,6 +20,14 @@ import grpc
 from . import sushierrors
 from . import grpc_gen
 from . import sushi_info_types as info_types
+
+from . import audiographcontroller
+from . import keyboardcontroller
+from . import parametercontroller
+from . import programcontroller
+from . import timingcontroller
+from . import transportcontroller
+
 from typing import List
 
 ###############################
@@ -43,10 +51,9 @@ class SushiController(object):
             address (str): 'ip-addres:port' The ip-addres and port at which to connect to sushi.
             sushi_proto_def (str): path to .proto file with SUSHI's gRPC services definition
         '''
-        try:
-            channel = grpc.insecure_channel(address)
-        except AttributeError as e:
-            raise TypeError("Parameter address = {}. Should be a string containing the ip-address and port of sushi ('ip-address:port')".format(address)) from e
-
-        self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
-        self._stub = self._sushi_grpc.SushiControllerStub(channel)
+        self.audio_graph = audiographcontroller.AudioGraphController(address, sushi_proto_def)
+        self.keyboard = keyboardcontroller.KeyboardController(address, sushi_proto_def)
+        self.parameters = parametercontroller.ParameterController(address, sushi_proto_def)
+        self.programs = programcontroller.ProgramController(address, sushi_proto_def)
+        self.timings = timingcontroller.TimingController(address, sushi_proto_def)
+        self.transport = transportcontroller.TransportController(address, sushi_proto_def)

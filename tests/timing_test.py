@@ -44,7 +44,7 @@ SUSHI_ADDRESS = ('localhost:51051')
 mock_server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 service = timing_service_mock.TimingControllerServiceMockup()
 SUSHI_GRPC.add_TimingControllerServicer_to_server(service, mock_server)
-mock_server.add_insecure_port('localhost:51051')
+mock_server.add_insecure_port(SUSHI_ADDRESS)
 mock_server.start()
 
 class TestTimingController(unittest.TestCase):

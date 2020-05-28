@@ -45,7 +45,7 @@ SUSHI_ADDRESS = ('localhost:51051')
 mock_server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 service = audiograph_service_mock.AudioGraphControllerServiceMockup()
 SUSHI_GRPC.add_AudioGraphControllerServicer_to_server(service, mock_server)
-mock_server.add_insecure_port('localhost:51051')
+mock_server.add_insecure_port(SUSHI_ADDRESS)
 mock_server.start()
 
 class TestAudioGraphController(unittest.TestCase):

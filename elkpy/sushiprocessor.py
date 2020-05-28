@@ -43,20 +43,20 @@ class SushiProcessor(object):
         self._name = processor_name
         self._controller = controller
         self._track_id = -1
-        self._id = self._controller.get_processor_id(self._name)
+        self._id = self._controller.processors.get_processor_id(self._name)
         self._parameters = {}
         self._programs = {}
 
-        
+
         # TODO: Use try block when error handling is approved
-        for parameter in controller.get_processor_parameters(self._id):
+        for parameter in controller.parameters.get_processor_parameters(self._id):
             self._parameters[parameter.name] = parameter.id
 
-        if (self._controller.get_processor_info(self._id).program_count > 0):
+        if (self._controller.processors.get_processor_info(self._id).program_count > 0):
             # TODO: Use try block when error handling is approved
-            for program in controller.get_processor_programs(self._id):
+            for program in controller.processors.get_processor_programs(self._id):
                 self._programs[program.name] = program.id
-    
+
     #####################
     # Parameter Control #
     #####################
@@ -69,7 +69,7 @@ class SushiProcessor(object):
             parameter_name (str): The name of the parameter to set the value of.
             value (float): The value to set the parameter to.
         '''
-        self._controller.set_parameter_value(self._id, self._parameters[parameter_name], value)
+        self._controller.parameters.set_parameter_value(self._id, self._parameters[parameter_name], value)
 
     def get_parameter_value(self, parameter_name: str) -> float:
         '''
@@ -81,7 +81,7 @@ class SushiProcessor(object):
         Returns:
             float: The current value of the parameter.
         '''
-        return self._controller.get_parameter_value(self._id, self._parameters[parameter_name])
+        return self._controller.parameters.get_parameter_value(self._id, self._parameters[parameter_name])
 
     def get_parameters(self) -> List[str]:
         '''
@@ -101,7 +101,7 @@ class SushiProcessor(object):
         '''
         parameter_values = {}
         for param in self._parameters:
-            parameter_values[param] = self._controller.get_parameter_value(self._id, self._parameters[param])
+            parameter_values[param] = self._controller.parameters.get_parameter_value(self._id, self._parameters[param])
 
         return parameter_values
 
@@ -112,7 +112,7 @@ class SushiProcessor(object):
         Returns:
             bool: The bypass state of the processor.
         '''
-        return self._controller.get_processor_bypass_state(self._id)
+        return self._controller.processors.get_processor_bypass_state(self._id)
 
     def set_bypass_state(self, bypass_state: bool) -> None:
         '''
@@ -121,8 +121,8 @@ class SushiProcessor(object):
         Parameters:
             bypass_state (bool): The bypass state to set the processor to.
         '''
-        self._controller.set_processor_bypass_state(self._id, bypass_state)
-    
+        self._controller.processors.set_processor_bypass_state(self._id, bypass_state)
+
     ###################
     # Program control #
     ###################
@@ -135,37 +135,37 @@ class SushiProcessor(object):
             program_name (str): The name of the program to set the processor to.
         '''
         try:
-            self._controller.set_processor_program(self._id, self._programs[program_name])
+            self._controller.processors.set_processor_program(self._id, self._programs[program_name])
         except KeyError:
-            self._controller.set_processor_program(self._id, program_name)
+            self._controller.processors.set_processor_program(self._id, program_name)
 
     def set_program_next(self):
         '''
         Set the processor to the next program or loopback to the beginning if at the end of the program list
         '''
         number_of_programs = len(self._programs)
-        current_program_index = self._controller.get_processor_current_program(self._id)
-        
+        current_program_index = self._controller.processors.get_processor_current_program(self._id)
+
         if current_program_index == number_of_programs-1:
             new_program_index = 0
         else:
             new_program_index = current_program_index + 1
 
-        self._controller.set_processor_program(self._id, new_program_index)
+        self._controller.processors.set_processor_program(self._id, new_program_index)
 
     def set_program_previous(self):
         '''
         Set the processor to the previous program or loopback to the end if at the start of the program list
         '''
         number_of_programs = len(self._programs)
-        current_program_index = self._controller.get_processor_current_program(self._id)
-        
+        current_program_index = self._controller.processors.get_processor_current_program(self._id)
+
         if current_program_index == 0:
             new_program_index = number_of_programs-1
         else:
             new_program_index = current_program_index - 1
 
-        self._controller.set_processor_program(self._id, new_program_index)
+        self._controller.processors.set_processor_program(self._id, new_program_index)
 
     def get_program(self) -> str:
         '''
@@ -173,7 +173,7 @@ class SushiProcessor(object):
 
             Returns (str): The name of the current program.
         '''
-        return self._controller.get_processor_current_program_name(self._id)
+        return self._controller.processors.get_processor_current_program_name(self._id)
 
     def get_programs(self) -> List[str]:
         '''
@@ -197,7 +197,7 @@ class SushiProcessor(object):
             note (int): The midi note value to send.
             velocity (float): The velocity of the note as a float between 0-1.
         '''
-        self._controller.send_note_on(self._track_id, channel, note, velocity)
+        self._controller.keyboard.send_note_on(self._track_id, channel, note, velocity)
 
     def send_note_off(self, channel: int, note: int, velocity: float):
         '''
@@ -208,7 +208,7 @@ class SushiProcessor(object):
             note (int): The midi note value to send.
             velocity (float): The velocity of the note as a float between 0-1.
         '''
-        self._controller.send_note_off(self._track_id, channel, note, velocity)
+        self._controller.keyboard.send_note_off(self._track_id, channel, note, velocity)
 
     def send_note_aftertouch(self, channel: int, note: int, value: float):
         '''
@@ -219,7 +219,7 @@ class SushiProcessor(object):
             note (int): The midi note value to send.
             value (float): The aftertouch value of the note as a float between 0-1.
         '''
-        self._controller.send_note_aftertouch(self._track_id, channel, note, value)
+        self._controller.keyboard.send_note_aftertouch(self._track_id, channel, note, value)
 
     def send_aftertouch(self, channel: int, value: float):
         '''
@@ -229,7 +229,7 @@ class SushiProcessor(object):
             channel (int): The channel to send the message on.
             value (float): The aftertouch value of the note as a float between 0-1.
         '''
-        self._controller.send_aftertouch(self._track_id, channel, value)
+        self._controller.keyboard.send_aftertouch(self._track_id, channel, value)
 
     def send_pitch_bend(self, channel: int, value: float):
         '''
@@ -239,7 +239,7 @@ class SushiProcessor(object):
             channel (int): The channel to send the message on.
             value (float): The pitch bend value of the note as a float between 0-1.
         '''
-        self._controller.send_pitch_bend(self._track_id, channel, value)
+        self._controller.keyboard.send_pitch_bend(self._track_id, channel, value)
 
     def send_modulation(self, channel: int, value: float):
         '''
@@ -249,4 +249,4 @@ class SushiProcessor(object):
             channel (int): The channel to send the message on.
             value (float): The modulation value of the note as a float between 0-1.
         '''
-        self._controller.send_pitch_bend(self._track_id, channel, value)
+        self._controller.keyboard.send_pitch_bend(self._track_id, channel, value)
