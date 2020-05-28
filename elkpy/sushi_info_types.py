@@ -91,7 +91,7 @@ class ParameterInfo(object):
         
         grpc_types = {0: "DUMMY", 1: "BOOL", 2: "INT", 3: "FLOAT", 4: "STRING_PROPERTY", 5: "DATA_PROPERTY"}
         try:
-            self.type = grpc_types.get(grpc_ParameterInfo.type.type)
+            self.type = ParameterType(grpc_ParameterInfo.type.type)
 
         except:
             self.type = "DUMMY"
