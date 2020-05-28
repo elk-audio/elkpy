@@ -4,17 +4,17 @@ __copyright__ = """
     Copyright 2017-2019 Modern Ancient Instruments Networked AB, dba Elk
 
     elkpy is free software: you can redistribute it and/or modify it under the terms of the
-    GNU General Public License as published by the Free Software Foundation, either version 3 
+    GNU General Public License as published by the Free Software Foundation, either version 3
     of the License, or (at your option) any later version.
 
     elkpy is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
-    even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+    even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License along with elkpy.  If
     not, see <http://www.gnu.org/licenses/>.
 """
-__license__ = "GPL-3.0" 
+__license__ = "GPL-3.0"
 
 from enum import IntEnum
 from . import grpc_gen
@@ -88,7 +88,7 @@ class ParameterInfo(object):
             self.id = grpc_ParameterInfo.id
         except:
             self.id = 0
-        
+
         grpc_types = {0: "DUMMY", 1: "BOOL", 2: "INT", 3: "FLOAT", 4: "STRING_PROPERTY", 5: "DATA_PROPERTY"}
         try:
             self.type = ParameterType(grpc_ParameterInfo.type.type)
@@ -101,7 +101,7 @@ class ParameterInfo(object):
         except:
             self.label = ''
 
-        try:            
+        try:
             self.name = grpc_ParameterInfo.name
         except:
             self.name = ''
@@ -166,9 +166,9 @@ class ProcessorInfo(object):
     def __init__(self, grpc_ProcessorInfo = None):
         try:
             self.id = grpc_ProcessorInfo.id
-        except: 
+        except:
             self.id = 0
-        
+
         try:
             self.label = grpc_ProcessorInfo.label
         except:
@@ -228,7 +228,7 @@ class TrackInfo(object):
             self.id = grpc_TrackInfo.id
         except:
             self.id = 0
-        
+
         try:
             self.label = grpc_TrackInfo.label
         except:
@@ -317,7 +317,7 @@ class ProgramInfo(object):
         s += ' name: %s \n' %self.name
         s += '}'
         return s
-    
+
     def __repr__(self):
         return self.__str__()
 
