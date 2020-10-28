@@ -19,7 +19,6 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     install_requires=[
-        'grpcio',
         'protobuf',
     ],
     python_requires='>=3.6',
