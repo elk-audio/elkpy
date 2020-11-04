@@ -324,3 +324,40 @@ class ProgramInfo(object):
     def __eq__(self, other):
         return self.id == other.id \
             and self.name == other.name
+
+
+class AudioConnection(object):
+    '''
+    Class to represent an audio connection info received from Sushi in a cleaner way.
+
+    Attributes:
+        track (TrackIdentifier): an int
+        track_channel (int):
+        engine_channel (int):
+    '''
+    def __init__(self, grpc_AudioConnection = None):
+        try:
+            self.track = grpc_AudioConnection.track.id
+        except:
+            self.track = 0
+        try:
+            self.track_channel = grpc_AudioConnection.track_channel
+        except:
+            self.track_channel = 0
+        try:
+            self.engine_channel = grpc_AudioConnection.engine_channel
+        except:
+            self.engine_channel = 0
+
+    def __str__(self):
+        return f"{{ \n track: {self.track}\n" \
+               f" track_channel: {self.track_channel}\n" \
+               f" engine_channel: {self.engine_channel}\n}}"
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __eq__(self, other):
+        return self.track == other.track \
+               and self.track_channel == other.track_channel \
+               and self.engine_channel == other.engine_channel
