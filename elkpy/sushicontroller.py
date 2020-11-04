@@ -28,6 +28,7 @@ from . import parametercontroller
 from . import programcontroller
 from . import timingcontroller
 from . import transportcontroller
+from . import audioroutingcontroller
 
 from typing import List
 from typing import List, Callable
@@ -100,3 +101,4 @@ class SushiController(object):
         self.programs = programcontroller.ProgramController(address, sushi_proto_def)
         self.timings = timingcontroller.TimingController(address, sushi_proto_def)
         self.transport = transportcontroller.TransportController(address, sushi_proto_def)
+        self.audio_routing = audioroutingcontroller.AudioRoutingController(address, sushi_proto_def)
