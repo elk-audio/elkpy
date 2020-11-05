@@ -30,6 +30,8 @@ from . import timingcontroller
 from . import transportcontroller
 from . import audioroutingcontroller
 from . import midicontroller
+from . import cvgatecontroller
+from . import osccontroller
 
 from typing import List
 from typing import List, Callable
@@ -104,3 +106,5 @@ class SushiController(object):
         self.transport = transportcontroller.TransportController(address, sushi_proto_def)
         self.audio_routing = audioroutingcontroller.AudioRoutingController(address, sushi_proto_def)
         self.midi_controller = midicontroller.MidiController(address, sushi_proto_def)
+        self.cv_gate_controller = cvgatecontroller.CvGateController(address, sushi_proto_def)
+        self.osc_controller = osccontroller.OscController(address, sushi_proto_def)
