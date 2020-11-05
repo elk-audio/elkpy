@@ -156,93 +156,161 @@ class MidiController(object):
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, f"With processor_id: {processor_id}")
 
-    def connect_kbd_input_to_track(self, conn: info_types.MidiKbdConnection) -> None:
+    def connect_kbd_input_to_track(self, track: int, channel: int, port: int, raw_midi: bool) -> None:
         """
         Connects a Midi Keyboard input connection to a track
         Args:
-            conn: a MidiKbdConnection object
+            track:
+            channel:
+            port:
+            raw_midi:
         """
         try:
-            self._stub.ConnectKbdInputToTrack(conn)
+            self._stub.ConnectKbdInputToTrack(self._sushi_proto.MidiKbdConnection(track=track,
+                                                                                  channel=channel,
+                                                                                  port=port,
+                                                                                  raw_midi=raw_midi))
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, f"With MidiKbdConnection: {conn}")
+            sushierrors.grpc_error_handling(e, f"With MidiKbdConnection: track: {track}, channel: {channel}, "
+                                               f"port: {port}, raw_midi: {raw_midi}")
 
-    def connect_kbd_output_from_track(self, conn: info_types.MidiKbdConnection) -> None:
+    def connect_kbd_output_from_track(self, track: int, channel: int, port: int, raw_midi: bool) -> None:
         """
         Connects a Midi Keyboard connection to a track
         Args:
-            conn: a MidiKbdConnection object
+            track:
+            channel:
+            port:
+            raw_midi:
         """
         try:
-            self._stub.ConnectKbdInputToTrack(conn)
+            self._stub.ConnectKbdInputToTrack(self._sushi_proto.MidiKbdConnection(track=track,
+                                                                                  channel=channel,
+                                                                                  port=port,
+                                                                                  raw_midi=raw_midi))
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, f"With MidiKbdConnection: {conn}")
+            sushierrors.grpc_error_handling(e, f"With MidiKbdConnection: track: {track}, channel: {channel}, "
+                                               f"port: {port}, raw_midi: {raw_midi}")
 
-    def connect_cc_to_parameter(self, conn: info_types.MidiCCConnection) -> None:
+    def connect_cc_to_parameter(self, parameter: int, channel: int, port: int, cc_number: int,
+                                min_range: float, max_range: float, relative_mode: bool) -> None:
         """
         Connects a Midi CC connection to a parameter
         Args:
-            conn: a MidiCCConnection object
+            parameter:
+            channel:
+            port:
+            cc_number:
+            min_range:
+            max_range:
+            relative_mode: bool
         """
         try:
-            self._stub.ConnectCCToParameter(conn)
+            self._stub.ConnectCCToParameter(self._sushi_proto.MidiCCConnection(parameter=parameter,
+                                                                               channel=channel,
+                                                                               port=port,
+                                                                               cc_number=cc_number,
+                                                                               min_range=min_range,
+                                                                               max_range=max_range,
+                                                                               relative_mode=relative_mode))
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, f"With MidiCCConnection: {conn}")
+            sushierrors.grpc_error_handling(e, f"With MidiCCConnection: parameter: {parameter}, channel: {channel}, "
+                                               f"port: {port}, cc_number: {cc_number}, min_range: {min_range}, "
+                                               f"max_range: {max_range}, relative_mode: {relative_mode}.")
 
-    def connect_pc_to_processor(self, conn: info_types.MidiPCConnection) -> None:
+    def connect_pc_to_processor(self, processor: int, channel: int, port: int) -> None:
         """
         Connects a Midi PC connection to a processor
         Args:
-            conn: a MidiPCConnection object
+            processor:
+            channel:
+            port:
         """
         try:
-            self._stub.ConnectPCToProcessor(conn)
+            self._stub.ConnectPCToProcessor(self._sushi_proto.MidiPCConnection(processor=processor,
+                                                                               channel=channel,
+                                                                               port=port))
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, f"With MidiPCConnection: {conn}")
+            sushierrors.grpc_error_handling(e, f"With MidiPCConnection: processor: {processor}, channel: {channel}, "
+                                               f"port: {port}.")
 
-    def disconnect_kbd_input(self, conn: info_types.MidiKbdConnection) -> None:
+    def disconnect_kbd_input(self, track: int, channel: int, port: int, raw_midi: bool) -> None:
         """
         Disconnects a Midi Keyboard input connection from a track
         Args:
-            conn: a MidiKbdConnection object
+            track:
+            channel:
+            port:
+            raw_midi:
         """
         try:
-            self._stub.DisconnectKbdInput(conn)
+            self._stub.DisconnectKbdInput(self._sushi_proto.MidiKbdConnection(track=track,
+                                                                              channel=channel,
+                                                                              port=port,
+                                                                              raw_midi=raw_midi))
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, f"With MidiKbdConnection: {conn}")
+            sushierrors.grpc_error_handling(e, f"With MidiKbdConnection: track: {track}, channel: {channel}, "
+                                               f"port: {port}, raw_midi: {raw_midi}.")
 
-    def disconnect_kbd_output(self, conn: info_types.MidiKbdConnection) -> None:
+    def disconnect_kbd_output(self, track: int, channel: int, port: int, raw_midi: bool) -> None:
         """
         Disconnects a Midi Keyboard output connection from a track
         Args:
-            conn: a MidiKbdConnection object
+            track:
+            channel:
+            port:
+            raw_midi:
         """
         try:
-            self._stub.DisconnectKbdOutput(conn)
+            self._stub.DisconnectKbdOutput(self._sushi_proto.MidiKbdConnection(track=track,
+                                                                               channel=channel,
+                                                                               port=port,
+                                                                               raw_midi=raw_midi))
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, f"With MidiKbdConnection: {conn}")
+            sushierrors.grpc_error_handling(e, f"With MidiKbdConnection: track: {track}, channel: {channel}, "
+                                               f"port: {port}, raw_midi: {raw_midi}.")
 
-    def disconnect_cc(self, conn: info_types.MidiCCConnection) -> None:
+    def disconnect_cc(self, parameter: int, channel: int, port: int, cc_number: int,
+                                min_range: float, max_range: float, relative_mode: bool) -> None:
         """
         Disconnects a Midi CC connection
         Args:
-            conn: a MidiCCConnection object
+            parameter:
+            channel:
+            port:
+            cc_number:
+            min_range:
+            max_range:
+            relative_mode: bool
         """
         try:
-            self._stub.DisconnectCC(conn)
+            self._stub.DisconnectCC(self._sushi_proto.MidiCCConnection(parameter=parameter,
+                                                                       channel=channel,
+                                                                       port=port,
+                                                                       cc_number=cc_number,
+                                                                       min_range=min_range,
+                                                                       max_range=max_range,
+                                                                       relative_mode=relative_mode))
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, f"With MidiCCConnection: {conn}")
+            sushierrors.grpc_error_handling(e, f"With MidiCCConnection: parameter: {parameter}, channel: {channel}, "
+                                               f"port: {port}, cc_number: {cc_number}, min_range: {min_range}, "
+                                               f"max_range: {max_range}, relative_mode: {relative_mode}.")
 
-    def disconnect_pc(self, conn: info_types.MidiPCConnection) -> None:
+    def disconnect_pc(self, processor: int, channel: int, port: int) -> None:
         """
         Disconnects a Midi PC connection
         Args:
-            conn: a MidiPCConnection object
+            processor:
+            channel:
+            port:
         """
         try:
-            self._stub.DisconnectPC(conn)
+            self._stub.DisconnectPC(self._sushi_proto.MidiPCConnection(processor=processor,
+                                                                       channel=channel,
+                                                                       port=port))
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, f"With MidiPCConnection: {conn}")
+            sushierrors.grpc_error_handling(e, f"With MidiPCConnection: processor: {processor}, channel: {channel}, "
+                                               f"port: {port}.")
 
     def disconnect_all_cc_from_processor(self, processor_id: int) -> None:
         """

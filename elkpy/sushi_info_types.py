@@ -499,3 +499,72 @@ class MidiPCConnection(object):
     def __eq__(self, other):
         return self.processor == other.processor and self.channel == other.channel \
                and self.port == other.port
+
+
+class CvConnection(object):
+    """
+    Class to represent a CV connection in Sushi in a cleaner way
+    Attributes:
+        parameter (int)
+        cv_port_id (int)
+    """
+    def __init__(self, grpc_CvConnection=None):
+        try:
+            self.parameter = grpc_CvConnection.parameter.id
+        except:
+            self.parameter = 0
+        try:
+            self.cv_port_id = grpc_CvConnection.cv_port_id
+        except:
+            self.cv_port_id = 0
+
+    def __str__(self):
+        return f"{{\n parameter: {self.parameter}\n" \
+               f" cv_port_id: {self.cv_port_id}\n}}"
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __eq__(self, other):
+        return self.parameter == other.parameter and self.cv_port_id == other.cv_port_id
+
+
+class GateConnection(object):
+    """
+    Class to represent a Gate connection in Sushi in a cleaner way
+    Attributes:
+        processor (int)
+        gate_port_id (int)
+        channel (int)
+        note_no (int)
+    """
+    def __init__(self, grpc_CvConnection=None):
+        try:
+            self.processor = grpc_CvConnection.processor.id
+        except:
+            self.processor = 0
+        try:
+            self.gate_port_id = grpc_CvConnection.gate_port_id
+        except:
+            self.gate_port_id = 0
+        try:
+            self.channel = grpc_CvConnection.channel
+        except:
+            self.channel = 0
+        try:
+            self.note_no = grpc_CvConnection.note_no
+        except:
+            self.note_no = 0
+
+    def __str__(self):
+        return f"{{\n processor: {self.processor}\n" \
+               f" gate_port_id: {self.gate_port_id}\n" \
+               f" channel: {self.channel}\n" \
+               f" note_no: {self.note_no}\n}}"
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __eq__(self, other):
+        return self.processor == other.processor and self.gate_port_id == other.gate_port_id \
+               and self.channel == other.channel and self.note_no == other.note_no
