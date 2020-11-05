@@ -361,3 +361,141 @@ class AudioConnection(object):
         return self.track == other.track \
                and self.track_channel == other.track_channel \
                and self.engine_channel == other.engine_channel
+
+
+class MidiKbdConnection(object):
+    """
+    Class to represent a MIDI keyboard connection in Sushi in a cleaner way.
+
+    Attributes:
+        track (_sushi_proto.TrackIdentifier): a track id
+        channel (_sushi_proto.MidiChannel): a MIDI channel
+        port (int): a MIDI port number
+        raw_midi (bool): is this track a raw MIDI track or not.
+    """
+    def __init__(self, grpc_MidiKbdConnection=None):
+        try:
+            self.track = grpc_MidiKbdConnection.track.id
+        except:
+            self.track = 0
+        try:
+            self.channel = grpc_MidiKbdConnection.channel.channel
+        except:
+            self.channel = 0
+        try:
+            self.port = grpc_MidiKbdConnection.port
+        except:
+            self.port = 0
+        try:
+            self.raw_midi = grpc_MidiKbdConnection.raw_midi
+        except:
+            self.raw_midi = False
+
+    def __str__(self):
+        return f"{{\n track: {self.track}\n" \
+               f" channel: {self.channel}\n" \
+               f" port: {self.port}\n" \
+               f" raw_midi: {self.raw_midi}\n}}"
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __eq__(self, other):
+        return self.track == other.track and self.channel == other.channel \
+               and self.port == other.port and self.raw_midi == other.raw_midi
+
+
+class MidiCCConnection(object):
+    """
+    Class to represent a MIDI Continious Controller connection in Sushi in a cleaner way.
+    Attributes:
+        parameter (_sushi_proto.ParameterIdentifier):
+        channel (MidiChannel)
+        port (int)
+        cc_number (int)
+        min_range (float)
+        max_range (float)
+        relative_mode (bool)
+    """
+    def __init__(self, grpc_MidiCCConnection=None):
+        try:
+            self.parameter = grpc_MidiCCConnection.parameter.parameter_id
+        except:
+            self.parameter = 0
+        try:
+            self.channel = grpc_MidiCCConnection.channel.channel
+        except:
+            self.channel = 0
+        try:
+            self.port = grpc_MidiCCConnection.port
+        except:
+            self.port = 0
+        try:
+            self.cc_number = grpc_MidiCCConnection.cc_number
+        except:
+            self.cc_number = 0
+        try:
+            self.min_range = grpc_MidiCCConnection.min_range
+        except:
+            self.min_range = 0.0
+        try:
+            self.max_range = grpc_MidiCCConnection.max_range
+        except:
+            self.max_range = 0.0
+        try:
+            self.relative_mode = grpc_MidiCCConnection.relative_mode
+        except:
+            self.relative_mode = False
+
+    def __str__(self):
+        return f"{{\n parameter: {self.parameter}\n" \
+               f" channel: {self.channel}\n" \
+               f" port: {self.port}\n" \
+               f" cc_number: {self.cc_number}\n" \
+               f" min_range: {self.min_range}\n" \
+               f" max_range: {self.max_range}\n" \
+               f" relative_mode: {self.relative_mode}\n}}"
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __eq__(self, other):
+        return self.parameter == other.parameter and self.channel == other.channel and self.port == other.port \
+               and self.cc_number == other.cc_number and self.min_range == other.min_range \
+               and self.max_range == other.max_range and self.relative_mode == other.relative_mode
+
+
+class MidiPCConnection(object):
+    """
+    Class to represent a MIDI Program Change connection in Sushi in a cleaner way.
+
+    Attributes:
+        processor (_sushi_proto.ProcessorIdentifier): a processor id
+        channel (_sushi_proto.MidiChannel): a MIDI channel
+        port (int): a MIDI port number
+    """
+    def __init__(self, grpc_MidiPCConnection=None):
+        try:
+            self.processor = grpc_MidiPCConnection.processor.id
+        except:
+            self.processor = 0
+        try:
+            self.channel = grpc_MidiPCConnection.channel.channel
+        except:
+            self.channel = 0
+        try:
+            self.port = grpc_MidiPCConnection.port
+        except:
+            self.port = 0
+
+    def __str__(self):
+        return f"{{\n processor: {self.processor}\n" \
+               f" channel: {self.channel}\n" \
+               f" port: {self.port}\n}}"
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __eq__(self, other):
+        return self.processor == other.processor and self.channel == other.channel \
+               and self.port == other.port
