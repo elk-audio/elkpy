@@ -29,6 +29,7 @@ from . import programcontroller
 from . import timingcontroller
 from . import transportcontroller
 from . import audioroutingcontroller
+from . import midicontroller
 
 from typing import List
 from typing import List, Callable
@@ -102,3 +103,4 @@ class SushiController(object):
         self.timings = timingcontroller.TimingController(address, sushi_proto_def)
         self.transport = transportcontroller.TransportController(address, sushi_proto_def)
         self.audio_routing = audioroutingcontroller.AudioRoutingController(address, sushi_proto_def)
+        self.midi_controller = midicontroller.MidiController(address, sushi_proto_def)
