@@ -18,7 +18,7 @@ __license__ = "GPL-3.0"
 
 import grpc
 import asyncio
-import _thread
+from threading import Thread
 from . import sushierrors
 from . import sushi_info_types as info_types
 from . import grpc_gen
@@ -32,9 +32,14 @@ from typing import List
 class NotificationController(object):
     """
     Class to manage subscriptions to Sushi notifications (changes, updates, ...)
+    It allows the User, through simple API calls, to subscribe to any notification stream implemented in Sushi,
+    and to attach call-back functions to each subscribed stream.
+
+    (See the API section at the bottom of this class.)
 
     Attributes:
-        _stub (NotificationControllerStub): Connection stub to the gRPC Notification controller interface in Sushi
+        address: gRPC server IP (str: ip:port)
+        loop: an asynchronous event loop
     """
     def __init__(self,
                  address='localhost:51051',
@@ -45,122 +50,157 @@ class NotificationController(object):
             address (str): 'ip-address:port' The ip-address and port at which to connect to sushi.
             sushi_proto_def (str): path to .proto file with SUSHI's gRPC services definition.
         """
-        self._start_notification_client()
+        self.address = address
+        self.loop = asyncio.get_event_loop()
+        self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
+        notification_thread = Thread(target=self._run_notification_loop, args=(self.loop,))
+        notification_thread.start()
+
+    def _run_notification_loop(self, loop):
+        """ Attaches the asyncio event loop to the thread and start looping over it.
+            Should not be called by the User.
+            """
+        asyncio.set_event_loop(loop)
+        loop.run_forever()
+
+    #################################################
+    # Notification stream processing                #
+    # Should not be called directly by the user.    #
+    #################################################
+
+    async def process_transport_change_notifications(self, call_back=None):
         try:
-            channel = grpc.aio.insecure_channel(address)
-        except AttributeError as e:
-            raise TypeError(f"Parameter address = {address}. "
+            async with grpc.aio.insecure_channel(self.address) as channel:
+                stub = self._sushi_grpc.NotificationControllerStub(channel)
+                stream = stub.SubscribeToTransportChanges(self._sushi_proto.GenericVoidValue())
+                async for notification in stream:
+                    # User logic here
+                    if call_back and callable(call_back):
+                        call_back()
+                    print(notification)
+        except grpc.RpcError as e:
+            sushierrors.grpc_error_handling(e)
+        except AttributeError:
+            raise TypeError(f"Parameter address = {self.address}. "
                             f"Should be a string containing the IP address and port to Sushi")
 
-        self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
-        self._stub = self._sushi_grpc.NotificationControllerStub(channel)
+    async def process_timing_update_notifications(self, call_back=None):
+        try:
+            async with grpc.aio.insecure_channel(self.address) as channel:
+                stub = self._sushi_grpc.NotificationControllerStub(channel)
+                stream = stub.SubscribeToTimingUpdates(self._sushi_proto.GenericVoidValue())
+                async for notification in stream:
+                    # User logic here
+                    if call_back and callable(call_back):
+                        call_back()
+                    else:
+                        raise TypeError("No valid call-back function has been provided for Timing Update "
+                                        "notification processing ")
+        except grpc.RpcError as e:
+            sushierrors.grpc_error_handling(e)
+        except AttributeError:
+            raise TypeError(f"Parameter address = {self.address}. "
+                            f"Should be a string containing the IP address and port to Sushi")
 
-    def _start_notification_client(self):
-        _thread.start_new_thread(self._start_loop, ())
+    async def process_track_change_notifications(self, call_back=None):
+        try:
+            async with grpc.aio.insecure_channel(self.address) as channel:
+                stub = self._sushi_grpc.NotificationControllerStub(channel)
+                stream = stub.SubscribeToTrackChanges(self._sushi_proto.GenericVoidValue())
+                async for notification in stream:
+                    # User logic here
+                    if call_back and callable(call_back):
+                        call_back()
+                    else:
+                        raise TypeError("No valid call-back function has been provided for Track Change "
+                                        "notification processing ")
+        except grpc.RpcError as e:
+            sushierrors.grpc_error_handling(e)
+        except AttributeError:
+            raise TypeError(f"Parameter address = {self.address}. "
+                            f"Should be a string containing the IP address and port to Sushi")
 
-    def _start_loop(self):
-        # Create new event loop and assigning it to this thread
-        self.loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self.loop)
-        # Starting the loop
-        self.loop.run_forever()
+    async def process_processor_change_notifications(self, call_back=None):
+        try:
+            async with grpc.aio.insecure_channel(self.address) as channel:
+                stub = self._sushi_grpc.NotificationControllerStub(channel)
+                stream = stub.SubscribeToProcessorChanges(self._sushi_proto.GenericVoidValue())
+                async for notification in stream:
+                    # User logic here
+                    if call_back and callable(call_back):
+                        call_back()
+                    else:
+                        raise TypeError("No valid call-back function has been provided for Processor Change "
+                                        "notification processing ")
+        except grpc.RpcError as e:
+            sushierrors.grpc_error_handling(e)
+        except AttributeError:
+            raise TypeError(f"Parameter address = {self.address}. "
+                            f"Should be a string containing the IP address and port to Sushi")
+
+    async def process_parameter_update_notifications(self, param_list: List, call_back=None):
+        try:
+            async with grpc.aio.insecure_channel(self.address) as channel:
+                stub = self._sushi_grpc.NotificationControllerStub(channel)
+                stream = stub.SubscribeToParameterUpdates(self._sushi_proto.ParameterIdentifierList(param_list))
+                async for notification in stream:
+                    # User logic here
+                    if call_back and callable(call_back):
+                        call_back()
+                    else:
+                        raise TypeError("No valid call-back function has been provided for Parameter Update "
+                                        "notification processing ")
+        except grpc.RpcError as e:
+            sushierrors.grpc_error_handling(e)
+        except AttributeError:
+            raise TypeError(f"Parameter address = {self.address}. "
+                            f"Should be a string containing the IP address and port to Sushi")
 
     ####################################################
     # API : Subscription to Sushi notification streams #
     ####################################################
 
-    def subscribe_to_transport_changes(self) -> None:
+    def subscribe_to_transport_changes(self, cb) -> None:
         """
-        Subscribes to Transport changes notification stream from Sushi
-        It receives a gRPC stream from the server, passes it to a listener and queues it up in the async loop.
-
-        User needs to implement their own logic to process_transport_change_notifications()
+            Subscribes to Transport changes notification stream from Sushi
+            User needs to implement their own stream consumer logic and pass it as cb.
+        Args:
+             cb: a callable that will be called for each notification received from the stream.
         """
-        try:
-            stream = self._stub.SubscribeToTransportChanges(self._sushi_proto.GenericVoidValue())
-            self.loop.create_task(self.process_transport_change_notifications(stream))
-        except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e)
+        asyncio.run_coroutine_threadsafe(self.process_transport_change_notifications(cb), self.loop)
 
-    def subscribe_to_timing_updates(self):
+    def subscribe_to_timing_updates(self, cb):
         """
-        Subscribes to Timing update notification stream from Sushi
-        It receives a gRPC stream from the server, passes it to a listener and queues it up in the async loop.
+            Subscribes to Timing update notification stream from Sushi
+            User needs to implement their own stream consumer logic and pass it as cb.
+        Args:
+             cb: a callable that will be called for each notification received from the stream.        """
+        asyncio.run_coroutine_threadsafe(self.process_timing_update_notifications(cb), self.loop)
 
-        User needs to implement their own logic to process these notification in the placeholder methods below
+    def subscribe_to_track_changes(self, cb):
         """
-        try:
-            stream = self._stub.SubscribeToTimingUpdates(self._sushi_proto.GenericVoidValue())
-            self.loop.create_task(self.process_timing_update_notifications(stream))
-        except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e)
-
-    def subscribe_to_track_changes(self):
+            Subscribes to Track change notification stream from Sushi.
+            User needs to implement their own stream consumer logic and pass it as cb.
+        Args:
+             cb: a callable that will be called for each notification received from the stream.
         """
-        Subscribes to Track change notification stream from Sushi
-        It receives a gRPC stream from the server, passes it to a listener and queues it up in the async loop.
+        asyncio.run_coroutine_threadsafe(self.process_track_change_notifications(cb), self.loop)
 
-        User needs to implement their own logic to process these notification in the placeholder methods below
+    def subscribe_to_processor_changes(self, cb):
         """
-        try:
-            stream = self._stub.SubscribeToTrackChanges(self._sushi_proto.GenericVoidValue())
-            self.loop.create_task(self.process_track_change_notifications(stream))
-        except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e)
-
-    def subscribe_to_processor_changes(self):
+            Subscribes to Processor change notification stream from Sushi.
+            User needs to implement their own stream consumer logic and pass it as cb.
+        Args:
+             cb: a callable that will be called for each notification received from the stream.
         """
-        Subscribes to Processor change notification stream from Sushi
-        It receives a gRPC stream from the server, passes it to a listener and queues it up in the async loop.
+        asyncio.run_coroutine_threadsafe(self.process_processor_change_notifications(cb), self.loop)
 
-        User needs to implement their own logic to process these notification in the placeholder methods below
+    def subscribe_to_parameter_updates(self, param_list: List[int], cb):
         """
-        try:
-            stream = self._stub.SubscribeToProcessorChanges(self._sushi_proto.GenericVoidValue())
-            self.loop.create_task(self.process_processor_change_notifications(stream))
-        except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e)
-
-    def subscribe_to_parameter_updates(self, param_list: List[int]):
-        """
-        Subscribes to Parameter update notification stream from Sushi
-        It receives a gRPC stream from the server, passes it to a listener and queues it up in the async loop.
-
-        User needs to implement their own logic to process these notification in the placeholder methods below
+            Subscribes to Parameter update notification stream from Sushi
+            User needs to implement their own logic to process these notification in the placeholder methods below
         Args:
             param_list: a list of parameter IDs for which to get update notifications.
+            cb: a callable that will be called for each notification received from the stream.
         """
-        try:
-            stream = self._stub.SubscribeToParameterUpdates(self._sushi_proto.GenericVoidValue())
-            self.loop.create_task(self.process_parameter_update_notifications(stream))
-        except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e)
-
-    ########################################
-    # API : Notification stream processing #
-    ########################################
-
-    async def process_transport_change_notifications(self, stream):
-        async for notification in stream:
-            # User logic here
-            print(notification)
-
-    async def process_timing_update_notifications(self, stream):
-        async for notification in stream:
-            # User logic here
-            print(notification)
-
-    async def process_track_change_notifications(self, stream):
-        async for notification in stream:
-            # User logic here
-            print(notification)
-
-    async def process_processor_change_notifications(self, stream):
-        async for notification in stream:
-            # User logic here
-            print(notification)
-
-    async def process_parameter_update_notifications(self, stream):
-        async for notification in stream:
-            # User logic here
-            print(notification)
+        asyncio.run_coroutine_threadsafe(self.process_parameter_update_notifications(param_list, cb), self.loop)
