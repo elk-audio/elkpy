@@ -48,28 +48,28 @@ class SystemController(object):
         self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
         self._stub = self._sushi_grpc.SystemControllerStub(channel)
 
-    def get_sushi_version(self):
+    def get_sushi_version(self) -> str:
         try:
             response = self._stub.GetSushiVersion(self._sushi_proto.GenericVoidValue())
             return response.value
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def get_build_info(self):
+    def get_build_info(self) -> list:
         try:
             response = self._stub.GetBuildInfo(self._sushi_proto.GenericVoidValue())
-            return response.value
+            return response
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def get_input_audio_channel_count(self):
+    def get_input_audio_channel_count(self) -> int:
         try:
             response = self._stub.GetInputAudioChannelCount(self._sushi_proto.GenericVoidValue())
             return response.value
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def get_output_audio_channel_count(self):
+    def get_output_audio_channel_count(self) -> int:
         try:
             response = self._stub.GetOutputAudioChannelCount(self._sushi_proto.GenericVoidValue())
             return response.value
