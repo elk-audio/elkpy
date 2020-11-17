@@ -29,7 +29,8 @@ from typing import List
 
 class TransportController(object):
     '''
-    A class to control the transport in sushi via gRPC.
+    A class to control the transport in sushi via gRPC. It controls transport related information in sushi
+    like samplerate, playback mode, sync mode, time signature and tempo.
 
     Attributes:
         _stub (TransportControllerStub): Connection stubs to the gRPC transport interface implemented in sushi.
@@ -38,7 +39,7 @@ class TransportController(object):
                  address = 'localhost:51051',
                  sushi_proto_def = '/usr/share/sushi/sushi_rpc.proto'):
         '''
-        The constructor for the TransportController class.
+        The constructor for the TransportController class setting up the gRPC connection with sushi.
 
         Parameters:
             address (str): 'ip-addres:port' The ip-addres and port at which to connect to sushi.

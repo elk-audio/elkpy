@@ -29,7 +29,8 @@ from typing import List
 
 class ProgramController(object):
     '''
-    A class to control the program in sushi via gRPC.
+    A class to control the program in sushi via gRPC. It controls the programs for the processors and
+    can set programs and the get the current program as well as other programs availble.
 
     Attributes:
         _stub (ProgramControllerStub): Connection stubs to the gRPC program interface implemented in sushi.
@@ -38,7 +39,7 @@ class ProgramController(object):
                  address = 'localhost:51051',
                  sushi_proto_def = '/usr/share/sushi/sushi_rpc.proto'):
         '''
-        The constructor for the ProgramController class.
+        The constructor for the ProgramController class setting up the gRPC connection with sushi.
 
         Parameters:
             address (str): 'ip-addres:port' The ip-addres and port at which to connect to sushi.

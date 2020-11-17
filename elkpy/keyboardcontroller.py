@@ -29,7 +29,8 @@ from typing import List
 
 class KeyboardController(object):
     '''
-    A class to control the keyboard in sushi via gRPC.
+    A class to control the keyboard in sushi via gRPC. It can send typical keyboard events like
+    note on, note off, pitch bend, modulation and after touch.
 
     Attributes:
         _stub (KeyboardControllerStub): Connection stubs to the gRPC keyboard interface implemented in sushi.
@@ -38,7 +39,7 @@ class KeyboardController(object):
                  address = 'localhost:51051',
                  sushi_proto_def = '/usr/share/sushi/sushi_rpc.proto'):
         '''
-        The constructor for the KeyboardController class.
+        The constructor for the KeyboardController class setting up the gRPC connection with sushi.
 
         Parameters:
             address (str): 'ip-addres:port' The ip-addres and port at which to connect to sushi.
@@ -65,7 +66,6 @@ class KeyboardController(object):
             channel (int): The channel on which the message should be sent.
             note (int): The note to send. Follows the MIDI standard where middle c = 60.
             velocity (float): The velocity of the note. Should be in range (0.0-1.0).
-
         '''
         try:
             self._stub.SendNoteOn(self._sushi_proto.NoteOnRequest(

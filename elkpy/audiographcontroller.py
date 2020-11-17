@@ -29,7 +29,8 @@ from typing import List
 
 class AudioGraphController(object):
     '''
-    A class to control the audio graph in sushi via gRPC.
+    A class to control the audio graph in sushi via gRPC. It has functions to create, move, delete and get info
+    about audio graph object like tracks and processors.
 
     Attributes:
         _stub (AudioGraphControllerStub): Connection stubs to the gRPC audio graph interface implemented in sushi.
@@ -38,7 +39,7 @@ class AudioGraphController(object):
                  address = 'localhost:51051',
                  sushi_proto_def = '/usr/share/sushi/sushi_rpc.proto'):
         '''
-        The constructor for the AudioGraphController class.
+        The constructor for the AudioGraphController class setting up the gRPC connection with sushi.
 
         Parameters:
             address (str): 'ip-addres:port' The ip-addres and port at which to connect to sushi.
@@ -247,8 +248,8 @@ class AudioGraphController(object):
 
         Parameters:
             name (str): The name of the new track.
-            output_busses (int): The output busses to connect the multibus track to.
-            input_busses (int): The input buesses to connect the multibus track to.
+            output_busses (int): The number of output busses to assign the new track.
+            input_busses (int): The number of input busses to assign the new track.
         '''
         try:
             self._stub.CreateMultibusTrack(self._sushi_proto.CreateMultibusTrackRequest(

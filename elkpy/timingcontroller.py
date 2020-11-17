@@ -29,7 +29,8 @@ from typing import List
 
 class TimingController(object):
     '''
-    A class to control the timing in sushi via gRPC.
+    A class to control the timing in sushi via gRPC. It can get and reset the different timing statistics
+    provided by sushi.
 
     Attributes:
         _stub (TimingControllerStub): Connection stubs to the gRPC timing interface implemented in sushi.
@@ -38,7 +39,7 @@ class TimingController(object):
                  address = 'localhost:51051',
                  sushi_proto_def = '/usr/share/sushi/sushi_rpc.proto'):
         '''
-        The constructor for the TimingController class.
+        The constructor for the TimingController class setting up the gRPC connection with sushi.
 
         Parameters:
             address (str): 'ip-addres:port' The ip-addres and port at which to connect to sushi.
@@ -55,6 +56,7 @@ class TimingController(object):
     def get_timings_enabled(self) -> bool:
         '''
         Get the state of timing statstics.
+
         Returns:
             bool: True if statistics is enabled, False if not.
         '''
@@ -68,6 +70,7 @@ class TimingController(object):
     def set_timings_enabled(self, enabled: bool) -> None:
         '''
         Set the state of timing statstics.
+
         Parameters:
             bool: True if statistics is enabled, False if not.
         '''
@@ -80,6 +83,7 @@ class TimingController(object):
     def get_engine_timings(self) -> (float, float, float):
         '''
         Get the average, min and max timings of the engine.
+
         Returns:
             float: The average engine processing time in ms.
             float: The minimum engine processing time in ms.

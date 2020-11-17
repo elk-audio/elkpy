@@ -29,7 +29,9 @@ from typing import List
 
 class ParameterController(object):
     '''
-    A class to control the parameter in sushi via gRPC.
+    A class to control the parameter in sushi via gRPC. It manages the parameters of sushi. Enabling
+    getting and setting of values as well as getting info about what parameters are availble and their
+    ranges, types, etc.
 
     Attributes:
         _stub (ParameterControllerStub): Connection stubs to the gRPC parameter interface implemented in sushi.
@@ -38,7 +40,7 @@ class ParameterController(object):
                  address = 'localhost:51051',
                  sushi_proto_def = '/usr/share/sushi/sushi_rpc.proto'):
         '''
-        The constructor for the ParameterController class.
+        The constructor for the ParameterController class setting up the gRPC connection with sushi.
 
         Parameters:
             address (str): 'ip-addres:port' The ip-addres and port at which to connect to sushi.

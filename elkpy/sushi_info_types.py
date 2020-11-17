@@ -26,6 +26,11 @@ from . import grpc_gen
 class PlayingMode(IntEnum):
     '''
     Enum class to hold the values matching the different playing modes.
+
+    Attributes:
+        STOPPED,
+        PLAYING,
+        RECORDING
     '''
     STOPPED = 1
     PLAYING = 2
@@ -34,6 +39,11 @@ class PlayingMode(IntEnum):
 class SyncMode(IntEnum):
     '''
     Enum class to hold the values matching the different sync modes.
+
+    Attributes:
+        INTERNAL,
+        MIDI,
+        LINK
     '''
     INTERNAL = 1
     MIDI = 2
@@ -41,7 +51,14 @@ class SyncMode(IntEnum):
 
 class ParameterType(IntEnum):
     '''
-    Enum class to hold the values matching the different variable types.
+    Enum class to hold the values matching the different parameter types.
+
+    Attributes:
+        BOOL,
+        INT,
+        FLOAT,
+        STRING_PROPERTY,
+        DATA_PROPERTY
     '''
     BOOL = 1
     INT = 2
@@ -52,6 +69,12 @@ class ParameterType(IntEnum):
 class PluginType(IntEnum):
     '''
     Enum class to hold the values matching the different plugin types.
+
+    Attributes:
+        INTERNAL,
+        VST2X,
+        VST3X,
+        LV2
     '''
     INTERNAL = 1
     VST2X = 2
@@ -408,6 +431,7 @@ class MidiKbdConnection(object):
 class MidiCCConnection(object):
     """
     Class to represent a MIDI Continious Controller connection in Sushi in a cleaner way.
+
     Attributes:
         parameter (_sushi_proto.ParameterIdentifier):
         channel (MidiChannel)
@@ -504,9 +528,10 @@ class MidiPCConnection(object):
 class CvConnection(object):
     """
     Class to represent a CV connection in Sushi in a cleaner way
+
     Attributes:
-        parameter (int)
-        cv_port_id (int)
+        parameter (int): The id of the connected parameter
+        cv_port_id (int): The id of the connected CV port
     """
     def __init__(self, grpc_CvConnection=None):
         try:
@@ -532,11 +557,12 @@ class CvConnection(object):
 class GateConnection(object):
     """
     Class to represent a Gate connection in Sushi in a cleaner way
+
     Attributes:
-        processor (int)
-        gate_port_id (int)
-        channel (int)
-        note_no (int)
+        processor (int): The id of the connected processor
+        gate_port_id (int): The id of the connected Gate port
+        channel (int): The connected midi channel number
+        note_no (int): The midi note number to trigger
     """
     def __init__(self, grpc_CvConnection=None):
         try:
