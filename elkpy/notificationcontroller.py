@@ -202,14 +202,21 @@ class NotificationController(object):
         """
         asyncio.run_coroutine_threadsafe(self.process_processor_change_notifications(cb), self.loop)
 
-    def subscribe_to_parameter_updates(self, cb, param_list=None):
+    def subscribe_to_parameter_updates(self, cb, param_blocklist=None):
         """
             Subscribes to Parameter update notification stream from Sushi
-            User needs to implement their own logic to process these notification in the placeholder methods below
+            User needs to pass a callable as cb to process the stream of notifications.
         Args:
-            param_list: a list of parameter IDs for which to get update notifications.
-                        A parameter ID is itself a list of [processor_id: int, parameter_id: int]
-                        If no param_list is passed, all parameter notifications will be subscribed to.
             cb: a callable that will be called for each notification received from the stream.
+            param_blocklist: a list of parameter identifiers for which to block update notifications.
+                        A parameter identifier is itself a list of [processor_id: int, parameter_id: int]
+                        If no param_blocklist is passed, all parameter notifications will be subscribed to.
+
+        Notes to write useful callbacks:
+            Notification objects have 2 attributes: parameter and value;
+            Parameter itself has 2 attributes: processor_id and _parameter_id;
+            ex: notification.parameter.parameter_id (gets the parameter ID)
+            ex: notification.parameter.processor_id (gets the processor ID)
+            ex: notification.value (gets the value)
         """
-        asyncio.run_coroutine_threadsafe(self.process_parameter_update_notifications(cb, param_list), self.loop)
+        asyncio.run_coroutine_threadsafe(self.process_parameter_update_notifications(cb, param_blocklist), self.loop)
