@@ -76,8 +76,7 @@ class NotificationController(object):
                 async for notification in stream:
                     # User logic here
                     if call_back and callable(call_back):
-                        call_back()
-                    print(notification)
+                        call_back(notification)
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
         except AttributeError:
@@ -92,7 +91,7 @@ class NotificationController(object):
                 async for notification in stream:
                     # User logic here
                     if call_back and callable(call_back):
-                        call_back()
+                        call_back(notification)
                     else:
                         raise TypeError("No valid call-back function has been provided for Timing Update "
                                         "notification processing ")
@@ -110,7 +109,7 @@ class NotificationController(object):
                 async for notification in stream:
                     # User logic here
                     if call_back and callable(call_back):
-                        call_back()
+                        call_back(notification)
                     else:
                         raise TypeError("No valid call-back function has been provided for Track Change "
                                         "notification processing ")
@@ -128,7 +127,7 @@ class NotificationController(object):
                 async for notification in stream:
                     # User logic here
                     if call_back and callable(call_back):
-                        call_back()
+                        call_back(notification)
                     else:
                         raise TypeError("No valid call-back function has been provided for Processor Change "
                                         "notification processing ")
@@ -138,15 +137,23 @@ class NotificationController(object):
             raise TypeError(f"Parameter address = {self.address}. "
                             f"Should be a string containing the IP address and port to Sushi")
 
-    async def process_parameter_update_notifications(self, param_list: List, call_back=None):
+    async def process_parameter_update_notifications(self, call_back=None, param_list=None):
+        if not param_list:
+            block_list = self._sushi_proto.GenericVoidValue()
+        else:
+            p_list = []
+            for p in param_list:
+                param = self._sushi_proto.ParameterIdentifier(processor_id=p[0], parameter_id=p[1])
+                p_list.append(param)
+            block_list = self._sushi_proto.ParameterNotificationBlocklist(parameters=p_list)
         try:
             async with grpc.aio.insecure_channel(self.address) as channel:
                 stub = self._sushi_grpc.NotificationControllerStub(channel)
-                stream = stub.SubscribeToParameterUpdates(self._sushi_proto.ParameterNotificationBlockList(param_list))
+                stream = stub.SubscribeToParameterUpdates(block_list)
                 async for notification in stream:
                     # User logic here
                     if call_back and callable(call_back):
-                        call_back()
+                        call_back(notification)
                     else:
                         raise TypeError("No valid call-back function has been provided for Parameter Update "
                                         "notification processing ")
@@ -195,12 +202,14 @@ class NotificationController(object):
         """
         asyncio.run_coroutine_threadsafe(self.process_processor_change_notifications(cb), self.loop)
 
-    def subscribe_to_parameter_updates(self, param_list: List[int], cb):
+    def subscribe_to_parameter_updates(self, cb, param_list=None):
         """
             Subscribes to Parameter update notification stream from Sushi
             User needs to implement their own logic to process these notification in the placeholder methods below
         Args:
             param_list: a list of parameter IDs for which to get update notifications.
+                        A parameter ID is itself a list of [processor_id: int, parameter_id: int]
+                        If no param_list is passed, all parameter notifications will be subscribed to.
             cb: a callable that will be called for each notification received from the stream.
         """
-        asyncio.run_coroutine_threadsafe(self.process_parameter_update_notifications(param_list, cb), self.loop)
+        asyncio.run_coroutine_threadsafe(self.process_parameter_update_notifications(cb, param_list), self.loop)
