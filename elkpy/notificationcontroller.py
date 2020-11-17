@@ -214,9 +214,9 @@ class NotificationController(object):
 
         Parameters:
             cb: a callable that will be called for each notification received from the stream.
-            param_blocklist: a list of parameter identifiers for which to block update notifications.
-                        A parameter identifier is itself a list of [processor_id: int, parameter_id: int]
-                        If no param_blocklist is passed, all parameter notifications will be subscribed to.
+            param_blocklist: a list of parameter identifiers for which to block update notifications. \
+                        A parameter identifier is itself a list of [processor_id: int, parameter_id: int] \
+                        If no param_blocklist is passed, all parameter notifications will be subscribed to. \
 
         Notes to write useful callbacks:
             Notification objects have 2 attributes: parameter and value;

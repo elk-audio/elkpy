@@ -30,7 +30,7 @@ from typing import List
 
 class CvGateController(object):
     """
-    Class to manage CV/Gate connections in Sushi via gRPC. It creates, deltes and gets info about
+    Class to manage CV/Gate connections in Sushi via gRPC. It creates, deletes and gets info about
     Cv/Gate connections on sushi tracks.
 
     Attributes:

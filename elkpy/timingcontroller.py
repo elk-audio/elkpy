@@ -28,23 +28,23 @@ from typing import List
 ####################################
 
 class TimingController(object):
-    '''
+    """
     A class to control the timing in sushi via gRPC. It can get and reset the different timing statistics
     provided by sushi.
 
     Attributes:
         _stub (TimingControllerStub): Connection stubs to the gRPC timing interface implemented in sushi.
-    '''
+    """
     def __init__(self,
                  address = 'localhost:51051',
                  sushi_proto_def = '/usr/share/sushi/sushi_rpc.proto'):
-        '''
+        """
         The constructor for the TimingController class setting up the gRPC connection with sushi.
 
         Parameters:
             address (str): 'ip-addres:port' The ip-addres and port at which to connect to sushi.
             sushi_proto_def (str): path to .proto file with SUSHI's gRPC services definition
-        '''
+        """
         try:
             channel = grpc.insecure_channel(address)
         except AttributeError as e:
@@ -54,12 +54,12 @@ class TimingController(object):
         self._stub = self._sushi_grpc.TimingControllerStub(channel)
 
     def get_timings_enabled(self) -> bool:
-        '''
+        """
         Get the state of timing statstics.
 
         Returns:
             bool: True if statistics is enabled, False if not.
-        '''
+        """
         try:
             response = self._stub.GetTimingsEnabled(self._sushi_proto.GenericVoidValue())
             return response.value
@@ -68,12 +68,12 @@ class TimingController(object):
             sushierrors.grpc_error_handling(e)
 
     def set_timings_enabled(self, enabled: bool) -> None:
-        '''
+        """
         Set the state of timing statstics.
 
         Parameters:
             bool: True if statistics is enabled, False if not.
-        '''
+        """
         try:
             self._stub.SetTimingsEnabled(self._sushi_proto.GenericBoolValue(value = enabled))
 
@@ -81,14 +81,14 @@ class TimingController(object):
             sushierrors.grpc_error_handling(e)
 
     def get_engine_timings(self) -> (float, float, float):
-        '''
+        """
         Get the average, min and max timings of the engine.
 
         Returns:
             float: The average engine processing time in ms.
             float: The minimum engine processing time in ms.
             float: The maximum engine processing time in ms.
-        '''
+        """
         try:
             response = self._stub.GetEngineTimings(self._sushi_proto.GenericVoidValue())
             return response.average, response.min, response.max
@@ -97,7 +97,7 @@ class TimingController(object):
             sushierrors.grpc_error_handling(e)
 
     def get_track_timings(self, track_identifier: int) -> (float, float, float):
-        '''
+        """
         Get the average, min and max timings of the specified track.
 
         Parameters:
@@ -107,7 +107,7 @@ class TimingController(object):
             float: The average track processing time in ms.
             float: The minimum track processing time in ms.
             float: The maximum track processing time in ms.
-        '''
+        """
         try:
             response = self._stub.GetTrackTimings(self._sushi_proto.TrackIdentifier(
                 id = track_identifier
@@ -118,7 +118,7 @@ class TimingController(object):
             sushierrors.grpc_error_handling(e, "With track id: {}".format(track_identifier))
 
     def get_processor_timings(self, processor_identifier: int) -> (float, float, float):
-        '''
+        """
         Get the average, min and max timings of the specified processor.
 
         Parameters:
@@ -128,7 +128,7 @@ class TimingController(object):
             float: The average processor processing time in ms.
             float: The minimum processor processing time in ms.
             float: The maximum processor processing time in ms.
-        '''
+        """
         try:
             response = self._stub.GetProcessorTimings(self._sushi_proto.ProcessorIdentifier(
                 id = processor_identifier
@@ -139,9 +139,9 @@ class TimingController(object):
             sushierrors.grpc_error_handling(e, "With processor id: {}".format(processor_identifier))
 
     def reset_all_timings(self) -> None:
-        '''
+        """
         Reset all the timings.
-        '''
+        """
         try:
             self._stub.ResetAllTimings(self._sushi_proto.GenericVoidValue())
 
@@ -149,12 +149,12 @@ class TimingController(object):
             sushierrors.grpc_error_handling(e)
 
     def reset_track_timings(self, track_identifier: int) -> None:
-        '''
+        """
         Reset the timings of the specified track.
 
         Parameters:
             track_identifier (int): The id of the track to reset the timings of.
-        '''
+        """
         try:
             self._stub.ResetTrackTimings(self._sushi_proto.TrackIdentifier(
                 id = track_identifier
@@ -164,12 +164,12 @@ class TimingController(object):
             sushierrors.grpc_error_handling(e, "With track id: {}".format(track_identifier))
 
     def reset_processor_timings(self, processor_identifier: int) -> None:
-        '''
+        """
         Reset the timings of the specified processor.
 
         Parameters:
             processor_identifier (int): The id of the processor to reset the timings of.
-        '''
+        """
         try:
             self._stub.ResetProcessorTimings(self._sushi_proto.ProcessorIdentifier(
                 id = processor_identifier

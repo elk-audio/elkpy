@@ -44,46 +44,46 @@ from typing import List, Callable
 # Error handling functions #
 ############################
 class SushiUnkownError(Exception):
-    '''
+    """
     Error thrown when the source of the error can't be determined
-    '''
+    """
     pass
 
 class SushiUnsupportedOperationError(Exception):
-    '''
+    """
     Error thrown when the operation attempted is not currently supported in sushi
-    '''
+    """
     pass
 
 class SushiNotFoundError(Exception):
-    '''
+    """
     Error thrown if the requested entity is not found in sushi
-    '''
+    """
     pass
 
 class SushiOutOfRangeError(Exception):
-    '''
+    """
     Error thrown if one or more of the passed arguments are out of their allowed range
-    '''
+    """
     pass
 
 class SushiInvalidArgumentError(Exception):
-    '''
+    """
     Error thrown if one or more of the passed arguments are invalid
-    '''
+    """
     pass
 
 class SushiInternalError(Exception):
-    '''
+    """
     Error thrown if sushi encountered an internal error
-    '''
+    """
     pass
 
 def grpc_error_handling(e, context_info = ''):
-    '''
+    """
     Maps a gRPC exception to the corresponding sushi error. If the exception doesn't have a mapping
     the context info will be printed and the same exception will be re-raised
-    '''
+    """
     if (e.code().name == 'UNKNOWN'):
         raise SushiUnkownError(e.details() , context_info) from e
     elif (e.code().name == 'FAILED_PRECONDITION'):
@@ -106,7 +106,7 @@ def grpc_error_handling(e, context_info = ''):
 ###############################
 
 class SushiController(object):
-    '''
+    """
     A class to control sushi via gRPC.
     This class creates one instance of each different controller type and makes
     these sub-controllers available as member variables. See the documentation
@@ -114,17 +114,17 @@ class SushiController(object):
 
     Attributes:
         _stub (SushiControllerStub): Connection stubs to the gRPC interface implemented in sushi.
-    '''
+    """
     def __init__(self,
                  address = 'localhost:51051',
                  sushi_proto_def = '/usr/share/sushi/sushi_rpc.proto'):
-        '''
+        """
         The constructor for the SushiController class setting up the gRPC connection with sushi.
 
         Parameters:
             address (str): 'ip-addres:port' The ip-addres and port at which to connect to sushi.
             sushi_proto_def (str): path to .proto file with SUSHI's gRPC services definition
-        '''
+        """
         self.audio_graph = audiographcontroller.AudioGraphController(address, sushi_proto_def)
         self.keyboard = keyboardcontroller.KeyboardController(address, sushi_proto_def)
         self.parameters = parametercontroller.ParameterController(address, sushi_proto_def)

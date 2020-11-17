@@ -24,33 +24,33 @@ from . import grpc_gen
 ################
 
 class PlayingMode(IntEnum):
-    '''
+    """
     Enum class to hold the values matching the different playing modes.
 
     Attributes:
         STOPPED,
         PLAYING,
         RECORDING
-    '''
+    """
     STOPPED = 1
     PLAYING = 2
     RECORDING = 3
 
 class SyncMode(IntEnum):
-    '''
+    """
     Enum class to hold the values matching the different sync modes.
 
     Attributes:
         INTERNAL,
         MIDI,
         LINK
-    '''
+    """
     INTERNAL = 1
     MIDI = 2
     LINK = 3
 
 class ParameterType(IntEnum):
-    '''
+    """
     Enum class to hold the values matching the different parameter types.
 
     Attributes:
@@ -59,7 +59,7 @@ class ParameterType(IntEnum):
         FLOAT,
         STRING_PROPERTY,
         DATA_PROPERTY
-    '''
+    """
     BOOL = 1
     INT = 2
     FLOAT = 3
@@ -67,7 +67,7 @@ class ParameterType(IntEnum):
     DATA_PROPERTY = 5
 
 class PluginType(IntEnum):
-    '''
+    """
     Enum class to hold the values matching the different plugin types.
 
     Attributes:
@@ -75,7 +75,7 @@ class PluginType(IntEnum):
         VST2X,
         VST3X,
         LV2
-    '''
+    """
     INTERNAL = 1
     VST2X = 2
     VST3X = 3
@@ -86,7 +86,7 @@ class PluginType(IntEnum):
 ################
 
 class ParameterInfo(object):
-    '''
+    """
     Class to represent the parameter info received from sushi in a clear way.
 
     Attributes:
@@ -98,15 +98,15 @@ class ParameterInfo(object):
         automatable (bool): If the parameter is automatable or not.
         min_domain_value (float): The minimum value of the parameter.
         max_domain_value (float): The maximum value of the parameter.
-    '''
+    """
 
     def __init__(self, grpc_ParameterInfo = None):
-        '''
+        """
         The constructor of the ParameterInfo class.
 
         Parameters:
             grpc_ParameterInfo (sushi_rpc_pb2.ParameterInfo): the gRPC parameter info object to get the data from.
-        '''
+        """
         try:
             self.id = grpc_ParameterInfo.id
         except:
@@ -176,7 +176,7 @@ class ParameterInfo(object):
             and self.max_domain_value == other.max_domain_value
 
 class ProcessorInfo(object):
-    '''
+    """
     Class to represent the processor info received from sushi in a clear way.
 
     Attributes:
@@ -185,7 +185,7 @@ class ProcessorInfo(object):
         name (str): The name of the processor.
         parameter_count (int): The number of parameters available to the processor.
         program_count (int): The number of programs available to the processor.
-    '''
+    """
     def __init__(self, grpc_ProcessorInfo = None):
         try:
             self.id = grpc_ProcessorInfo.id
@@ -234,7 +234,7 @@ class ProcessorInfo(object):
 
 
 class TrackInfo(object):
-    '''
+    """
     Class to represent the track info received from sushi in a clear way.
 
     Attributes:
@@ -245,7 +245,7 @@ class TrackInfo(object):
         input_busses (int): The number input busses available to the track.
         output_channels (int): The number of output channels available to the track.
         output_busses (int): The number of output busses available to the track.
-    '''
+    """
     def __init__(self, grpc_TrackInfo = None):
         try:
             self.id = grpc_TrackInfo.id
@@ -316,13 +316,13 @@ class TrackInfo(object):
             and self.processors == other.processors
 
 class ProgramInfo(object):
-    '''
+    """
     Class to represent the program info received from sushi in a clear way.
 
     Attributes:
         id (int): The id of the program.
         name (str): The name of the program.
-    '''
+    """
     def __init__(self, grpc_ProgramInfo = None):
         try:
             self.id = grpc_ProgramInfo.id.program
@@ -350,14 +350,14 @@ class ProgramInfo(object):
 
 
 class AudioConnection(object):
-    '''
+    """
     Class to represent an audio connection info received from Sushi in a cleaner way.
 
     Attributes:
         track (TrackIdentifier): an int
         track_channel (int):
         engine_channel (int):
-    '''
+    """
     def __init__(self, grpc_AudioConnection = None):
         try:
             self.track = grpc_AudioConnection.track.id
