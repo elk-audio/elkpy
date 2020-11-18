@@ -40,6 +40,10 @@ class NotificationController(object):
     Attributes:
         address: gRPC server IP (str: ip:port)
         loop: an asynchronous event loop
+
+    Notes:
+        close() should ALWAYS be called as part of an application housekeeping/cleanup-before-shutdown routine as it
+        ensure proper releasing of resources and clean joining of concurrent threads.
     """
     def __init__(self,
                  address='localhost:51051',
@@ -55,6 +59,7 @@ class NotificationController(object):
         self.loop = asyncio.get_event_loop()
         self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
         self.notification_thread = Thread(target=self._run_notification_loop, args=(self.loop,))
+        self.notification_thread.setDaemon(True)
         self.notification_thread.start()
 
     def _run_notification_loop(self, loop):
