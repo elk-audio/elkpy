@@ -63,6 +63,10 @@ class NotificationController(object):
         asyncio.set_event_loop(loop)
         loop.run_forever()
 
+    def close(self):
+        self.loop.call_soon_threadsafe(self.loop.stop)
+        self.notification_thread.join()
+
     #################################################
     # Notification stream processing                #
     # Should not be called directly by the user.    #
