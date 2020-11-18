@@ -31,14 +31,18 @@ from typing import List
 class MidiController(object):
     """
     A class to manage MIDI connections in Sushi via gRPC.
+    It can create and remove keyboard, CC and PC connections from an external midi device to tracks,
+    processors, and parameters in sushi.
     """
     def __init__(self,
                  address: str='localhost:51051',
                  sushi_proto_def: str='/usr/share/sushi/sushi_rpc.proto') -> None:
         """
-        Args:
-            address: IP address to Sushi in the uri form : 'ip-addr:port'
-            sushi_proto_def: path to the .proto file with SUSHI gRPC services definitions
+        The constructor for the MidiController class setting up the gRPC connection with sushi.
+
+        Parameters:
+            address (str): IP address to Sushi in the uri form : 'ip-addr:port'
+            sushi_proto_def (str): path to the .proto file with SUSHI gRPC services definitions
         """
         try:
             channel = grpc.insecure_channel(address)
@@ -52,8 +56,9 @@ class MidiController(object):
     def get_input_ports(self) -> int:
         """
         Gets MIDI input ports.
+
         Returns:
-            ports (int)
+            int: IDs of the MIDI input ports
         """
         try:
             response = self._stub.GetInputPorts(self._sushi_proto.GenericVoidValue())
@@ -64,8 +69,9 @@ class MidiController(object):
     def get_output_ports(self) -> int:
         """
         Gets MIDI output ports.
+
         Returns:
-            ports (int)
+            int: IDs of the MIDI output ports
         """
         try:
             response = self._stub.GetOutputPorts(self._sushi_proto.GenericVoidValue())
@@ -76,9 +82,9 @@ class MidiController(object):
     def get_all_kbd_input_connections(self) -> List[info_types.MidiKbdConnection]:
         """
         Gets a list of all MIDI Keyboard input Connections in Sushi
-        Returns:
-            List of MidiKbdConnection objects
 
+        Returns:
+            List[info_types.MidiKbdConnection]: List of MidiKbdConnection objects
         """
         try:
             response = self._stub.GetAllKbdInputConnections(self._sushi_proto.GenericVoidValue())
@@ -89,9 +95,9 @@ class MidiController(object):
     def get_all_kbd_output_connections(self) -> List[info_types.MidiKbdConnection]:
         """
         Gets a list of all MIDI Keyboard output Connections in Sushi
-        Returns:
-            List of MidiKbdConnection objects
 
+        Returns:
+            List[info_types.MidiKbdConnection]: List of MidiKbdConnection objects
         """
         try:
             response = self._stub.GetAllKbdOutputConnections(self._sushi_proto.GenericVoidValue())
@@ -101,11 +107,11 @@ class MidiController(object):
 
     def get_all_cc_input_connections(self) -> List[info_types.MidiCCConnection]:
         """
-         Gets a list of all MIDI CC input connections in Sushi
-         Returns:
-             List of MidiCCConnection objects
+        Gets a list of all MIDI CC input connections in Sushi
 
-         """
+        Returns:
+            List[info_types.MidiCCConnection]: List of MidiCCConnection objects
+        """
         try:
             response = self._stub.GetAllCCInputConnections(self._sushi_proto.GenericVoidValue())
             return [c for c in response.connections]
@@ -114,11 +120,11 @@ class MidiController(object):
 
     def get_all_pc_input_connections(self) -> List[info_types.MidiPCConnection]:
         """
-         Gets a list of all MIDI PC input connections in Sushi
-         Returns:
-             List of MidiPCConnection objects
+        Gets a list of all MIDI PC input connections in Sushi
 
-         """
+        Returns:
+            List[info_types.MidiPCConnection]: List of MidiPCConnection objects
+        """
         try:
             response = self._stub.GetAllPCInputConnections(self._sushi_proto.GenericVoidValue())
             return [c for c in response.connections]
@@ -127,12 +133,13 @@ class MidiController(object):
 
     def get_cc_input_connections_for_processor(self, processor_id: int) -> List[info_types.MidiCCConnection]:
         """
-        Gets a list of all MIDI CC connection for processor_id.
-        Args:
-            processor_id: int
+        Gets a list of all MIDI CC connection for a processor.
+
+        Parameters:
+            processor_id (int): The id of the processor to get the input connections from
 
         Returns:
-            List of MidiCCConnection objects
+            List[info_types.MidiCCConnection]: List of MidiCCConnection objects
         """
         try:
             response = self._stub.GetCCInputConnectionsForProcessor(self._sushi_proto.ProcessorIdentifier(id=processor_id))
@@ -142,12 +149,13 @@ class MidiController(object):
 
     def get_pc_input_connections_for_processor(self, processor_id: int) -> List[info_types.MidiPCConnection]:
         """
-        Gets a list of all MIDI PC connection for processor_id.
-        Args:
-            processor_id: int
+        Gets a list of all MIDI PC connection for a processor.
+
+        Parameters:
+            processor_id (int): The id of the processor to get the input connections from
 
         Returns:
-            List of MidiPCConnection objects
+            List[info_types.MidiPCConnection]: List of MidiPCConnection objects
         """
         try:
             response = self._stub.GetPCInputConnectionsForProcessor(
@@ -159,11 +167,12 @@ class MidiController(object):
     def connect_kbd_input_to_track(self, track: int, channel: int, port: int, raw_midi: bool) -> None:
         """
         Connects a Midi Keyboard input connection to a track
-        Args:
-            track:
-            channel:
-            port:
-            raw_midi:
+
+        Parameters:
+            track (int): The id of the track to connect to
+            channel (int): The id of the channel to connect to
+            port (int): The id of the port to connect to
+            raw_midi (bool): Enable raw midi
         """
         try:
             self._stub.ConnectKbdInputToTrack(self._sushi_proto.MidiKbdConnection(track=track,
@@ -176,12 +185,13 @@ class MidiController(object):
 
     def connect_kbd_output_from_track(self, track: int, channel: int, port: int, raw_midi: bool) -> None:
         """
-        Connects a Midi Keyboard connection to a track
-        Args:
-            track:
-            channel:
-            port:
-            raw_midi:
+        Connects a Midi Keyboard output connection to a track
+
+        Parameters:
+            track (int): The id of the track to connect to
+            channel (int): The id of the channel to connect to
+            port (int): The id of the port to connect to
+            raw_midi (bool): Enable raw midi
         """
         try:
             self._stub.ConnectKbdInputToTrack(self._sushi_proto.MidiKbdConnection(track=track,
@@ -196,14 +206,15 @@ class MidiController(object):
                                 min_range: float, max_range: float, relative_mode: bool) -> None:
         """
         Connects a Midi CC connection to a parameter
-        Args:
-            parameter:
-            channel:
-            port:
-            cc_number:
-            min_range:
-            max_range:
-            relative_mode: bool
+
+        Parameters:
+            parameter (int): The id of the parameter to connect to
+            channel (int): The midi channel to use for the connection
+            port (int): The id of the midi port to use for the connection
+            cc_number (int): The cc number to use for the connection
+            min_range (float): The minimum parameter value used for the connection
+            max_range (float): The maximum parameter value used for the connection
+            relative_mode (bool): Wether the parameter changes realative to a previous value
         """
         try:
             self._stub.ConnectCCToParameter(self._sushi_proto.MidiCCConnection(parameter=parameter,
@@ -221,10 +232,11 @@ class MidiController(object):
     def connect_pc_to_processor(self, processor: int, channel: int, port: int) -> None:
         """
         Connects a Midi PC connection to a processor
-        Args:
-            processor:
-            channel:
-            port:
+
+        Parameters:
+            processor (int): The id of the processor to connect
+            channel (int): The midi channel to use for the connection
+            port (int): The midi port to use for the connection
         """
         try:
             self._stub.ConnectPCToProcessor(self._sushi_proto.MidiPCConnection(processor=processor,
@@ -237,11 +249,12 @@ class MidiController(object):
     def disconnect_kbd_input(self, track: int, channel: int, port: int, raw_midi: bool) -> None:
         """
         Disconnects a Midi Keyboard input connection from a track
-        Args:
-            track:
-            channel:
-            port:
-            raw_midi:
+
+        Parameters:
+            track (int): The id of the track to disconnect
+            channel (int): The midi channel to disconnect
+            port (int): The midi port to disconnect
+            raw_midi (bool): Disconnect raw midi
         """
         try:
             self._stub.DisconnectKbdInput(self._sushi_proto.MidiKbdConnection(track=track,
@@ -255,11 +268,12 @@ class MidiController(object):
     def disconnect_kbd_output(self, track: int, channel: int, port: int, raw_midi: bool) -> None:
         """
         Disconnects a Midi Keyboard output connection from a track
-        Args:
-            track:
-            channel:
-            port:
-            raw_midi:
+
+        Parameters:
+            track (int): The id of the track to disconnect
+            channel (int): The midi channel to disconnect
+            port (int): The midi port to disconnect
+            raw_midi (bool): Disconnect raw midi
         """
         try:
             self._stub.DisconnectKbdOutput(self._sushi_proto.MidiKbdConnection(track=track,
@@ -274,14 +288,15 @@ class MidiController(object):
                                 min_range: float, max_range: float, relative_mode: bool) -> None:
         """
         Disconnects a Midi CC connection
-        Args:
-            parameter:
-            channel:
-            port:
-            cc_number:
-            min_range:
-            max_range:
-            relative_mode: bool
+
+        Parameters:
+            parameter (int): The id of the parameter to connect to
+            channel (int): The midi channel to use for the connection
+            port (int): The id of the midi port to use for the connection
+            cc_number (int): The cc number to use for the connection
+            min_range (float): The minimum parameter value used for the connection
+            max_range (float): The maximum parameter value used for the connection
+            relative_mode (bool): Wether the parameter changes realative to a previous value
         """
         try:
             self._stub.DisconnectCC(self._sushi_proto.MidiCCConnection(parameter=parameter,
@@ -299,10 +314,11 @@ class MidiController(object):
     def disconnect_pc(self, processor: int, channel: int, port: int) -> None:
         """
         Disconnects a Midi PC connection
-        Args:
-            processor:
-            channel:
-            port:
+
+        Parameters:
+            processor (int): The id of the processor to connect
+            channel (int): The midi channel to use for the connection
+            port (int): The midi port to use for the connection
         """
         try:
             self._stub.DisconnectPC(self._sushi_proto.MidiPCConnection(processor=processor,
@@ -315,8 +331,9 @@ class MidiController(object):
     def disconnect_all_cc_from_processor(self, processor_id: int) -> None:
         """
         Disconnects all Midi CC connections from processor
-        Args:
-            processor_id (int)
+
+        Parameters:
+            processor_id (int): The id of the processor to disconnect
         """
         try:
             self._stub.DisconnectAllCCFromProcessor(self._sushi_proto.ProcessorIdentifier(id=processor_id))
@@ -326,8 +343,9 @@ class MidiController(object):
     def disconnect_all_pc_from_processor(self, processor_id: int) -> None:
         """
         Disconnects all Midi PC connections from processor
-        Args:
-            processor_id (int)
+
+        Parameters:
+            processor_id (int): The id of processor to disconnect
         """
         try:
             self._stub.DisconnectAllPCFromProcessor(self._sushi_proto.ProcessorIdentifier(id=processor_id))

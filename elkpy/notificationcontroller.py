@@ -45,8 +45,9 @@ class NotificationController(object):
                  address='localhost:51051',
                  sushi_proto_def='/usr/share/sushi/sushi_rpc.proto'):
         """
-        Constructor for the Notification Controller
-        Args:
+        The constructor for the NotificationController class setting up the gRPC connection with sushi.
+
+        Parameters:
             address (str): 'ip-address:port' The ip-address and port at which to connect to sushi.
             sushi_proto_def (str): path to .proto file with SUSHI's gRPC services definition.
         """
@@ -173,48 +174,53 @@ class NotificationController(object):
 
     def subscribe_to_transport_changes(self, cb) -> None:
         """
-            Subscribes to Transport changes notification stream from Sushi
-            User needs to implement their own stream consumer logic and pass it as cb.
-        Args:
-             cb: a callable that will be called for each notification received from the stream.
+        Subscribes to Transport changes notification stream from Sushi
+        User needs to implement their own stream consumer logic and pass it as cb.
+
+        Parameters:
+            cb: a callable that will be called for each notification received from the stream.
         """
         asyncio.run_coroutine_threadsafe(self.process_transport_change_notifications(cb), self.loop)
 
     def subscribe_to_timing_updates(self, cb):
         """
-            Subscribes to Timing update notification stream from Sushi
-            User needs to implement their own stream consumer logic and pass it as cb.
-        Args:
-             cb: a callable that will be called for each notification received from the stream.        """
+        Subscribes to Timing update notification stream from Sushi
+        User needs to implement their own stream consumer logic and pass it as cb.
+
+        Parameters:
+            cb: a callable that will be called for each notification received from the stream.        """
         asyncio.run_coroutine_threadsafe(self.process_timing_update_notifications(cb), self.loop)
 
     def subscribe_to_track_changes(self, cb):
         """
-            Subscribes to Track change notification stream from Sushi.
-            User needs to implement their own stream consumer logic and pass it as cb.
-        Args:
-             cb: a callable that will be called for each notification received from the stream.
+        Subscribes to Track change notification stream from Sushi.
+        User needs to implement their own stream consumer logic and pass it as cb.
+
+        Parameters:
+            cb: a callable that will be called for each notification received from the stream.
         """
         asyncio.run_coroutine_threadsafe(self.process_track_change_notifications(cb), self.loop)
 
     def subscribe_to_processor_changes(self, cb):
         """
-            Subscribes to Processor change notification stream from Sushi.
-            User needs to implement their own stream consumer logic and pass it as cb.
-        Args:
-             cb: a callable that will be called for each notification received from the stream.
+        Subscribes to Processor change notification stream from Sushi.
+        User needs to implement their own stream consumer logic and pass it as cb.
+
+        Parameters:
+            cb: a callable that will be called for each notification received from the stream.
         """
         asyncio.run_coroutine_threadsafe(self.process_processor_change_notifications(cb), self.loop)
 
     def subscribe_to_parameter_updates(self, cb, param_blocklist=None):
         """
-            Subscribes to Parameter update notification stream from Sushi
-            User needs to pass a callable as cb to process the stream of notifications.
-        Args:
+        Subscribes to Parameter update notification stream from Sushi
+        User needs to implement their own logic to process these notification in the placeholder methods below
+
+        Parameters:
             cb: a callable that will be called for each notification received from the stream.
-            param_blocklist: a list of parameter identifiers for which to block update notifications.
-                        A parameter identifier is itself a list of [processor_id: int, parameter_id: int]
-                        If no param_blocklist is passed, all parameter notifications will be subscribed to.
+            param_blocklist: a list of parameter identifiers for which to block update notifications. \
+                        A parameter identifier is itself a list of [processor_id: int, parameter_id: int] \
+                        If no param_blocklist is passed, all parameter notifications will be subscribed to. \
 
         Notes to write useful callbacks:
             Notification objects have 2 attributes: parameter and value;

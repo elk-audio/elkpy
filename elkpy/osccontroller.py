@@ -30,15 +30,18 @@ from typing import List
 
 class OscController(object):
     """
-    Class to manage OSC communication features in Sushi.
+    Class to manage OSC communication features in Sushi. It can change the OSC port and enable/disable
+    OSC output for particular parameters
     """
     def __init__(self,
                  address: str = 'localhost:51051',
                  sushi_proto_def: str = '/usr/share/sushi/sushi_rpc.proto') -> None:
         """
-        Args:
-            address: IP address to Sushi in the uri form : 'ip-addr:port'
-            sushi_proto_def: path to the .proto file with SUSHI gRPC services definitions
+        The constructor for the MidiController class setting up the gRPC connection with sushi.
+
+        Parameters:
+            address (str): IP address to Sushi in the uri form : 'ip-addr:port'
+            sushi_proto_def (str): path to the .proto file with SUSHI gRPC services definitions
         """
         try:
             channel = grpc.insecure_channel(address)
@@ -50,6 +53,12 @@ class OscController(object):
         self._stub = self._sushi_grpc.OscControllerStub(channel)
 
     def get_send_port(self) -> int:
+        """
+        The the current port that OSC is transmitting to
+
+        Returns:
+            int: The port number
+        """
         try:
             response = self._stub.GetSendPort(self._sushi_proto.GenericVoidValue())
             return response.value
@@ -57,6 +66,12 @@ class OscController(object):
             sushierrors.grpc_error_handling(e)
 
     def get_receive_port(self) -> int:
+        """
+        The the current port that OSC is receiving on
+
+        Returns:
+            int: The port number
+        """
         try:
             response = self._stub.GetReceivePort(self._sushi_proto.GenericVoidValue())
             return response.value
@@ -64,6 +79,12 @@ class OscController(object):
             sushierrors.grpc_error_handling(e)
 
     def get_enabled_parameter_outputs(self) -> List[str]:
+        """
+        Get which parameters have OSC output enabled
+
+        Returns:
+            List[str]: List of names of the parameters for which OSC is enabled
+        """
         try:
             response = self._stub.GetEnabledParameterOutputs(self._sushi_proto.GenericVoidValue())
             return [path for path in response.path]
@@ -71,12 +92,24 @@ class OscController(object):
             sushierrors.grpc_error_handling(e)
 
     def enable_output_for_parameter(self, parameter_id: int) -> None:
+        """
+        Enable OSC for a parameter
+
+        Parameters:
+            parameter_id (int): The id of the parameter to enable OSC for
+        """
         try:
             self._stub.EnableOutputForParameter(self._sushi_proto.ParameterIdentifier(id=parameter_id))
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
     def disable_output_for_parameter(self, parameter_id: int) -> None:
+        """
+        Disable OSC for a parameter
+
+        Parameters:
+            parameter_id (int): The id of the parameter to disble OSC for
+        """
         try:
             self._stub.DisableOutputForParameter(self._sushi_proto.ParameterIdentifier(id=parameter_id))
         except grpc.RpcError as e:

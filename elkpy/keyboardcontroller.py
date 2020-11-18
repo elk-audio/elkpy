@@ -28,22 +28,23 @@ from typing import List
 ####################################
 
 class KeyboardController(object):
-    '''
-    A class to control the keyboard in sushi via gRPC.
+    """
+    A class to control the keyboard in sushi via gRPC. It can send typical keyboard events like
+    note on, note off, pitch bend, modulation and after touch.
 
     Attributes:
         _stub (KeyboardControllerStub): Connection stubs to the gRPC keyboard interface implemented in sushi.
-    '''
+    """
     def __init__(self,
                  address = 'localhost:51051',
                  sushi_proto_def = '/usr/share/sushi/sushi_rpc.proto'):
-        '''
-        The constructor for the KeyboardController class.
+        """
+        The constructor for the KeyboardController class setting up the gRPC connection with sushi.
 
         Parameters:
             address (str): 'ip-addres:port' The ip-addres and port at which to connect to sushi.
             sushi_proto_def (str): path to .proto file with SUSHI's gRPC services definition
-        '''
+        """
         try:
             channel = grpc.insecure_channel(address)
         except AttributeError as e:
@@ -57,7 +58,7 @@ class KeyboardController(object):
     #######################
 
     def send_note_on(self, track_identifier: int, channel: int, note: int, velocity: float) -> None:
-        '''
+        """
         Sends a note on message to the specified track.
 
         Parameters:
@@ -65,8 +66,7 @@ class KeyboardController(object):
             channel (int): The channel on which the message should be sent.
             note (int): The note to send. Follows the MIDI standard where middle c = 60.
             velocity (float): The velocity of the note. Should be in range (0.0-1.0).
-
-        '''
+        """
         try:
             self._stub.SendNoteOn(self._sushi_proto.NoteOnRequest(
                 track = self._sushi_proto.TrackIdentifier(id = track_identifier),
@@ -79,7 +79,7 @@ class KeyboardController(object):
             sushierrors.grpc_error_handling(e, " With track id: {}, channel: {}, note: {}, velocity: {}".format(track_identifier, channel, note, velocity))
 
     def send_note_off(self, track_identifier: int, channel: int, note: int, velocity: float) -> None:
-        '''
+        """
         Sends a note off message to the specified track.
 
         Parameters:
@@ -87,7 +87,7 @@ class KeyboardController(object):
             channel (int): The channel on which the message should be sent.
             note (int): The note to send. Follows the MIDI standard where middle c = 60.
             velocity (float): The velocity of the note. Should be in range (0.0-1.0).
-        '''
+        """
         try:
             self._stub.SendNoteOff(self._sushi_proto.NoteOffRequest(
                 track = self._sushi_proto.TrackIdentifier(id = track_identifier),
@@ -100,7 +100,7 @@ class KeyboardController(object):
             sushierrors.grpc_error_handling(e, " With track id: {}, channel: {}, note: {}, velocity: {}".format(track_identifier, channel, note, velocity))
 
     def send_note_aftertouch(self, track_identifier: int, channel: int, note: int, value: float) -> None:
-        '''
+        """
         Sends a aftertouch message to the specified track and note.
 
         Parameters:
@@ -108,7 +108,7 @@ class KeyboardController(object):
             channel (int): The channel on which the message should be sent.
             note (int): The note which should receive the message. Follows the MIDI standard where middle c = 60.
             value (float): The aftertouch value of the note. Should be in range (0.0-1.0).
-        '''
+        """
         try:
             self._stub.SendNoteAftertouch(self._sushi_proto.NoteAftertouchRequest(
                 track = self._sushi_proto.TrackIdentifier(id = track_identifier),
@@ -121,14 +121,14 @@ class KeyboardController(object):
             sushierrors.grpc_error_handling(e, " With track id: {}, channel: {}, note: {}, value: {}".format(track_identifier, channel, note, value))
 
     def send_aftertouch(self, track_identifier: int, channel: int, value: float) -> None:
-        '''
+        """
         Sends a aftertouch message to the specified track.
 
         Parameters:
             track_identifier (int): The id of the track that should receive the message.
             channel (int): The channel on which the message should be sent.
             value (float): The aftertouch value. Should be in range (0.0-1.0).
-        '''
+        """
         try:
             self._stub.SendAftertouch(self._sushi_proto.NoteModulationRequest(
                 track = self._sushi_proto.TrackIdentifier(id = track_identifier),
@@ -140,14 +140,14 @@ class KeyboardController(object):
             sushierrors.grpc_error_handling(e, " With track id: {}, channel: {}, value: {}".format(track_identifier, channel, value))
 
     def send_pitch_bend(self, track_identifier: int, channel: int, value: float) -> None:
-        '''
+        """
         Sends a pitch bend message to the specified track.
 
         Parameters:
             track_identifier (int): The id of the track that should receive the message.
             channel (int): The channel on which the message should be sent.
             value (float): The pitch bend value. Should be in range (0.0-1.0).
-        '''
+        """
         try:
             self._stub.SendPitchBend(self._sushi_proto.NoteModulationRequest(
                 track = self._sushi_proto.TrackIdentifier(id = track_identifier),
@@ -159,14 +159,14 @@ class KeyboardController(object):
             sushierrors.grpc_error_handling(e, " With track id: {}, channel: {}, value: {}".format(track_identifier, channel, value))
 
     def send_modulation(self, track_identifier: int, channel: int, value: float) -> None:
-        '''
+        """
         Sends a modulation message to the specified track.
 
         Parameters:
             track_identifier (int): The id of the track that should receive the message.
             channel (int): The channel on which the message should be sent.
             value (float): The modulation value. Should be in range (0.0-1.0).
-        '''
+        """
         try:
             self._stub.SendModulation(self._sushi_proto.NoteModulationRequest(
                 track = self._sushi_proto.TrackIdentifier(id = track_identifier),

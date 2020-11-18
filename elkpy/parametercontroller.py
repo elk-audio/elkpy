@@ -28,22 +28,24 @@ from typing import List
 ####################################
 
 class ParameterController(object):
-    '''
-    A class to control the parameter in sushi via gRPC.
+    """
+    A class to control the parameter in sushi via gRPC. It manages the parameters of sushi. Enabling
+    getting and setting of values as well as getting info about what parameters are availble and their
+    ranges, types, etc.
 
     Attributes:
         _stub (ParameterControllerStub): Connection stubs to the gRPC parameter interface implemented in sushi.
-    '''
+    """
     def __init__(self,
                  address = 'localhost:51051',
                  sushi_proto_def = '/usr/share/sushi/sushi_rpc.proto'):
-        '''
-        The constructor for the ParameterController class.
+        """
+        The constructor for the ParameterController class setting up the gRPC connection with sushi.
 
         Parameters:
             address (str): 'ip-addres:port' The ip-addres and port at which to connect to sushi.
             sushi_proto_def (str): path to .proto file with SUSHI's gRPC services definition
-        '''
+        """
         try:
             channel = grpc.insecure_channel(address)
         except AttributeError as e:
@@ -54,7 +56,7 @@ class ParameterController(object):
 
 
     def get_track_parameters(self, track_identifier: int) -> List[info_types.ParameterInfo]:
-        '''
+        """
         Get a list of parameters available on the specified track.
 
         Parameters:
@@ -62,7 +64,7 @@ class ParameterController(object):
 
         Returns:
             List[info_types.ParameterInfo]: A list of the info of the parameters assigned to the track matching the id.
-        '''
+        """
         try:
             response = self._stub.GetTrackParameters(self._sushi_proto.TrackIdentifier(
                 id = track_identifier
@@ -78,7 +80,7 @@ class ParameterController(object):
             sushierrors.grpc_error_handling(e, "With track id: {}".format(track_identifier))
 
     def get_processor_parameters(self, processor_identifier: int) -> List[info_types.ParameterInfo]:
-        '''
+        """
         Get a list of the parameters available to the specified processor.
 
         Parameters:
@@ -86,7 +88,7 @@ class ParameterController(object):
 
         Returns:
             List[info_types.ParameterInfo]: A list of the parameters available to the processor matching the id.
-        '''
+        """
         try:
             response = self._stub.GetProcessorParameters(self._sushi_proto.ProcessorIdentifier(
                 id = processor_identifier
@@ -102,7 +104,7 @@ class ParameterController(object):
             sushierrors.grpc_error_handling(e, "With processor id: {}".format(processor_identifier))
 
     def get_parameter_id(self, processor_identifier: int, parameter_name: str) -> int:
-        '''
+        """
         Get the id of the parameter of the specified processor corresponding to the specified parameter name.
 
         Parameters:
@@ -111,7 +113,7 @@ class ParameterController(object):
 
         Returns:
             int: The id of the parameter matching the parameter name.
-        '''
+        """
         try:
             response = self._stub.GetParameterId(self._sushi_proto.ParameterIdRequest(
                 processor = self._sushi_proto.ProcessorIdentifier(id = processor_identifier),
@@ -123,7 +125,7 @@ class ParameterController(object):
             sushierrors.grpc_error_handling(e, "With processor id: {}, parameter name: {}".format(processor_identifier, parameter_name))
 
     def get_parameter_info(self, processor_identifier: int, parameter_identifier: int) -> info_types.ParameterInfo:
-        '''
+        """
         Get info about the specified parameter on the specified processor.
 
         Parameters:
@@ -132,7 +134,7 @@ class ParameterController(object):
 
         Returns:
             info_types.ParameterInfo: Info of the parameter matching the id.
-        '''
+        """
         try:
             response = self._stub.GetParameterInfo(self._sushi_proto.ParameterIdentifier(
                 processor_id = processor_identifier,
@@ -144,7 +146,7 @@ class ParameterController(object):
             sushierrors.grpc_error_handling(e, "With processor id: {}, parameter id: {}".format(processor_identifier, parameter_identifier))
 
     def get_parameter_value(self, processor_identifier: int, parameter_identifier: int) -> float:
-        '''
+        """
         Get the value of the parameter matching the specified parameter on the specified processor.
 
         Parameters:
@@ -153,7 +155,7 @@ class ParameterController(object):
 
         Returns:
             float: The value of the parameter matching the id.
-        '''
+        """
         try:
             response = self._stub.GetParameterValue(self._sushi_proto.ParameterIdentifier(
                 processor_id = processor_identifier,
@@ -165,7 +167,7 @@ class ParameterController(object):
             sushierrors.grpc_error_handling(e, "With processor id: {}, parameter id: {}".format(processor_identifier, parameter_identifier))
 
     def get_parameter_value_in_domain(self, processor_identifier: int, parameter_identifier: int) -> float:
-        '''
+        """
         Get the normalised value of the parameter matching the specified parameter on the specified processor.
 
         Parameters:
@@ -174,7 +176,7 @@ class ParameterController(object):
 
         Returns:
             float: The normalised value of the parameter matching the id.
-        '''
+        """
         try:
             response = self._stub.GetParameterValueInDomain(self._sushi_proto.ParameterIdentifier(
                 processor_id = processor_identifier,
@@ -186,7 +188,7 @@ class ParameterController(object):
             sushierrors.grpc_error_handling(e, "With processor id: {}, parameter id: {}".format(processor_identifier,parameter_identifier))
 
     def get_parameter_value_as_string(self, processor_identifier: int, parameter_identifier: int) -> str:
-        '''
+        """
         Get the value of the parameter matching the specified parameter on the specified processor as a string.
 
         Parameters:
@@ -195,7 +197,7 @@ class ParameterController(object):
 
         Returns:
             str: The value as a string of the parameter matching the id.
-        '''
+        """
         try:
             response = self._stub.GetParameterValueAsString(self._sushi_proto.ParameterIdentifier(
                 processor_id = processor_identifier,
@@ -207,13 +209,13 @@ class ParameterController(object):
             sushierrors.grpc_error_handling(e, "With processor id: {}, parameter id: {}".format(processor_identifier, parameter_identifier))
 
     def set_parameter_value(self, processor_identifier: int, parameter_identifier: int, value: float) -> None:
-        '''
+        """
         Set the value of the specified parameter on the specified processor.
 
         Parameters:
             processor_identifier (int): The id of the processor that has the parameter to be changed.
             parameter_identifier (int): The id of the parameter to set the value of.
-        '''
+        """
         try:
             self._stub.SetParameterValue(self._sushi_proto.ParameterValue(
                 parameter = self._sushi_proto.ParameterIdentifier(
