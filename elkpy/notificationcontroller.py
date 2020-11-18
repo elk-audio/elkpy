@@ -54,8 +54,8 @@ class NotificationController(object):
         self.address = address
         self.loop = asyncio.get_event_loop()
         self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
-        notification_thread = Thread(target=self._run_notification_loop, args=(self.loop,))
-        notification_thread.start()
+        self.notification_thread = Thread(target=self._run_notification_loop, args=(self.loop,))
+        self.notification_thread.start()
 
     def _run_notification_loop(self, loop):
         """ Attaches the asyncio event loop to the thread and start looping over it.
@@ -63,6 +63,10 @@ class NotificationController(object):
             """
         asyncio.set_event_loop(loop)
         loop.run_forever()
+
+    def close(self):
+        self.loop.call_soon_threadsafe(self.loop.stop)
+        self.notification_thread.join()
 
     #################################################
     # Notification stream processing                #

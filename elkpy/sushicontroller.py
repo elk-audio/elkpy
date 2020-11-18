@@ -114,6 +114,10 @@ class SushiController(object):
 
     Attributes:
         _stub (SushiControllerStub): Connection stubs to the gRPC interface implemented in sushi.
+
+    Notes:
+        close() should ALWAYS be called as part of an application housekeeping/cleanup-before-shutdown routine as it
+        ensure proper releasing of resources and clean joining of concurrent threads.
     """
     def __init__(self,
                  address = 'localhost:51051',
@@ -137,3 +141,12 @@ class SushiController(object):
         self.osc_controller = osccontroller.OscController(address, sushi_proto_def)
         self.system = systemcontroller.SystemController(address, sushi_proto_def)
         self.notifications = notificationcontroller.NotificationController(address, sushi_proto_def)
+
+    def close(self):
+        """
+        This method should be called at app close.
+        It should call any sub-controller close routines whenever they exist.
+        i.e.: NotificationController has an infinite event loop running in its own thread, which has to be stopped and joined
+                to ensure clean closing and proper releasing of any resources.
+        """
+        self.notifications.close()
