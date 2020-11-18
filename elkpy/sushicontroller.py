@@ -89,6 +89,10 @@ class SushiController(object):
 
     Attributes:
         _stub (SushiControllerStub): Connection stubs to the gRPC interface implemented in sushi.
+
+    Notes:
+        close() should ALWAYS be called as part of an application housekeeping/cleanup-before-shutdown routine as it
+        ensure proper releasing of resources and clean joining of concurrent threads.
     '''
     def __init__(self,
                  address = 'localhost:51051',
