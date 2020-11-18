@@ -68,6 +68,9 @@ class NotificationController(object):
         self.loop.call_soon_threadsafe(self.loop.stop)
         self.notification_thread.join()
 
+    def __del__(self):
+        self.close()
+
     #################################################
     # Notification stream processing                #
     # Should not be called directly by the user.    #

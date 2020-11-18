@@ -150,3 +150,6 @@ class SushiController(object):
                 to ensure clean closing and proper releasing of any resources.
         """
         self.notifications.close()
+
+    def __del__(self):
+        self.notifications.close()
