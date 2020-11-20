@@ -39,9 +39,6 @@ SUSHI_PROTO, SUSHI_GRPC = grpc_gen.modules_from_proto(proto_file)
 
 SUSHI_ADDRESS = ('localhost:51051')
 
-# Run sushi with arguments: -j --connect-ports --timing-statistics -c ~/work/sushi/example_configs/config_temper.json
-# The config file has andes followed by temper on a single stereo channel called main
-
 mock_server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 service = audiograph_service_mock.AudioGraphControllerServiceMockup()
 SUSHI_GRPC.add_AudioGraphControllerServicer_to_server(service, mock_server)

@@ -38,9 +38,6 @@ SUSHI_PROTO, SUSHI_GRPC = grpc_gen.modules_from_proto(proto_file)
 
 SUSHI_ADDRESS = ('localhost:51051')
 
-# Run sushi with arguments: -j --connect-ports --timing-statistics -c ~/work/sushi/example_configs/config_temper.json
-# The config file has andes followed by temper on a single stereo channel called main
-
 mock_server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 service = keyboard_service_mock.KeyboardControllerServiceMockup()
 SUSHI_GRPC.add_KeyboardControllerServicer_to_server(service, mock_server)

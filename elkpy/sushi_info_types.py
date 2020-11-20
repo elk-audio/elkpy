@@ -298,7 +298,7 @@ class TrackInfo(object):
         s += ' input_busses: %s \n' %self.input_busses
         s += ' output_channels: %s \n' %self.output_channels
         s += ' output_busses: %s \n' %self.output_busses
-        s += ' processor_count: %s \n' %self.processors
+        s += ' processors: %s \n' %self.processors
         s += '}'
         return s
 
