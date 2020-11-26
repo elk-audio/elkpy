@@ -16,7 +16,7 @@ __copyright__ = """
 """
 __license__ = "GPL-3.0"
 
-import grpc
+import grpc.experimental.aio
 import asyncio
 from threading import Thread
 from . import sushierrors
