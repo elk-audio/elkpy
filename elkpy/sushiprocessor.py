@@ -43,7 +43,7 @@ class SushiProcessor(object):
         self._name = processor_name
         self._controller = controller
         self._track_id = -1
-        self._id = self._controller.processors.get_processor_id(self._name)
+        self._id = self._controller.audio_graph.get_processor_id(self._name)
         self._parameters = {}
         self._programs = {}
 
@@ -52,9 +52,9 @@ class SushiProcessor(object):
         for parameter in controller.parameters.get_processor_parameters(self._id):
             self._parameters[parameter.name] = parameter.id
 
-        if (self._controller.processors.get_processor_info(self._id).program_count > 0):
+        if (self._controller.audio_graph.get_processor_info(self._id).program_count > 0):
             # TODO: Use try block when error handling is approved
-            for program in controller.processors.get_processor_programs(self._id):
+            for program in controller.programs.get_processor_programs(self._id):
                 self._programs[program.name] = program.id
 
     #####################
@@ -112,7 +112,7 @@ class SushiProcessor(object):
         Returns:
             bool: The bypass state of the processor.
         """
-        return self._controller.processors.get_processor_bypass_state(self._id)
+        return self._controller.audio_graph.get_processor_bypass_state(self._id)
 
     def set_bypass_state(self, bypass_state: bool) -> None:
         """
@@ -121,7 +121,7 @@ class SushiProcessor(object):
         Parameters:
             bypass_state (bool): The bypass state to set the processor to.
         """
-        self._controller.processors.set_processor_bypass_state(self._id, bypass_state)
+        self._controller.audio_graph.set_processor_bypass_state(self._id, bypass_state)
 
     ###################
     # Program control #
@@ -135,37 +135,37 @@ class SushiProcessor(object):
             program_name (str): The name of the program to set the processor to.
         """
         try:
-            self._controller.processors.set_processor_program(self._id, self._programs[program_name])
+            self._controller.audio_graph.set_processor_program(self._id, self._programs[program_name])
         except KeyError:
-            self._controller.processors.set_processor_program(self._id, program_name)
+            self._controller.audio_graph.set_processor_program(self._id, program_name)
 
     def set_program_next(self):
         """
         Set the processor to the next program or loopback to the beginning if at the end of the program list
         """
         number_of_programs = len(self._programs)
-        current_program_index = self._controller.processors.get_processor_current_program(self._id)
+        current_program_index = self._controller.audio_graph.get_processor_current_program(self._id)
 
         if current_program_index == number_of_programs-1:
             new_program_index = 0
         else:
             new_program_index = current_program_index + 1
 
-        self._controller.processors.set_processor_program(self._id, new_program_index)
+        self._controller.audio_graph.set_processor_program(self._id, new_program_index)
 
     def set_program_previous(self):
         """
         Set the processor to the previous program or loopback to the end if at the start of the program list
         """
         number_of_programs = len(self._programs)
-        current_program_index = self._controller.processors.get_processor_current_program(self._id)
+        current_program_index = self._controller.audio_graph.get_processor_current_program(self._id)
 
         if current_program_index == 0:
             new_program_index = number_of_programs-1
         else:
             new_program_index = current_program_index - 1
 
-        self._controller.processors.set_processor_program(self._id, new_program_index)
+        self._controller.audio_graph.set_processor_program(self._id, new_program_index)
 
     def get_program(self) -> str:
         """
@@ -173,7 +173,7 @@ class SushiProcessor(object):
 
             Returns (str): The name of the current program.
         """
-        return self._controller.processors.get_processor_current_program_name(self._id)
+        return self._controller.programs.get_processor_current_program_name(self._id)
 
     def get_programs(self) -> List[str]:
         """
