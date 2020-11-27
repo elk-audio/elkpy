@@ -1,11 +1,11 @@
 import setuptools
-
+from elkpy import __version__
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name="elkpy",
-    version="0.0.4",
+    version=__version__,
     author="Ruben Svensson",
     author_email="ruben@elk.audio",
     description="A basic controller for sushi",
@@ -19,7 +19,6 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     install_requires=[
-        'grpcio',
         'protobuf',
     ],
     python_requires='>=3.6',

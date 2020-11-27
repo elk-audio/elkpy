@@ -26,21 +26,27 @@ The default gRPC address is `localhost:51051` if you want to connect to another 
 
 The second argument to the constructor of SushiController is a path to the `sushi_rpc.proto` file with Protobuf protocol definition. If empty, the class will look at `usr/share/sushi/sushi_rpc.proto` which is the deafult installtion path for sushi.
 
-To use the controller simply use the methods of the controller object. For example:
+To use the controller simply use the methods of the controller objects different sections. For example:
 ```python
-# Get a list of the tracks available in sushi
-list_of_tracks = controller.get_tracks()
+# To make sure all the subcotrollers of sushicontroller close properly you can wrap them in a try except block
+try:
+    # Get a list of the tracks available in sushi
+    list_of_tracks = controller.audio_graph.get_tracks()
 
-# Get the processors of the track with the id passed to the method
-track_id = 0
-list_of_processors = controller.get_track_processors(track_id)
+    # Get the parameters of the track with the id passed to the method
+    track_id = 0
+    list_of_processors = controller.parameters.get_track_parameters(track_id)
 
-# Send a note on message to a track in sushi
-track_id = 0
-channel = 0
-note = 65
-velocity = 0.8
-controller.send_note_on(track_id, channel, note, velocity)
+    # Send a note on message to a track in sushi
+    track_id = 0
+    channel = 0
+    note = 65
+    velocity = 0.8
+    controller.keyboard.send_note_on(track_id, channel, note, velocity)
+
+# To ensure proper closing of the controller close() should be called on the SushiController object when you're done with it
+except KeyboardInterrupt:
+    controller.close()
 ```
 
 For a full documentation of the available methods. Use:
