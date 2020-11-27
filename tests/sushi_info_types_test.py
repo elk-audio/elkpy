@@ -4,17 +4,17 @@ __copyright__ = """
     Copyright 2017-2019 Modern Ancient Instruments Networked AB, dba Elk
 
     elkpy is free software: you can redistribute it and/or modify it under the terms of the
-    GNU General Public License as published by the Free Software Foundation, either version 3 
+    GNU General Public License as published by the Free Software Foundation, either version 3
     of the License, or (at your option) any later version.
 
     elkpy is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
-    even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+    even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License along with elkpy.  If
     not, see <http://www.gnu.org/licenses/>.
 """
-__license__ = "GPL-3.0" 
+__license__ = "GPL-3.0"
 
 import os
 import sys
@@ -43,19 +43,19 @@ class TestSushiParameterInfo(unittest.TestCase):
                 name = 'test',
                 unit = 'test',
                 automatable = True,
-                min_range = 0,
-                max_range = 8
+                min_domain_value = 0,
+                max_domain_value = 8
             )
         )
         expected_result = types.ParameterInfo()
         expected_result.id = 1
-        expected_result.type = "BOOL"
+        expected_result.type = types.ParameterType.BOOL
         expected_result.label = 'test'
         expected_result.name = 'test'
         expected_result.unit = 'test'
         expected_result.automatable = True
-        expected_result.min_range = 0.0
-        expected_result.max_range = 8.0
+        expected_result.min_domain_value = 0.0
+        expected_result.max_domain_value = 8.0
 
         self.assertEqual(result, expected_result)
 
@@ -67,19 +67,19 @@ class TestSushiParameterInfo(unittest.TestCase):
                 name = 'test',
                 unit = 'test',
                 automatable = True,
-                min_range = 0,
-                max_range = 8
+                min_domain_value = 0,
+                max_domain_value = 8
             )
         )
         expected_result = types.ParameterInfo()
         expected_result.id = 0
-        expected_result.type = "BOOL"
+        expected_result.type = types.ParameterType.BOOL
         expected_result.label = 'test'
         expected_result.name = 'test'
         expected_result.unit = 'test'
         expected_result.automatable = True
-        expected_result.min_range = 0.0
-        expected_result.max_range = 8.0
+        expected_result.min_domain_value = 0.0
+        expected_result.max_domain_value = 8.0
 
         self.assertEqual(result, expected_result)
 
@@ -91,8 +91,8 @@ class TestSushiParameterInfo(unittest.TestCase):
                 name = 'test',
                 unit = 'test',
                 automatable = True,
-                min_range = 0,
-                max_range = 8
+                min_domain_value = 0,
+                max_domain_value = 8
             )
         )
         expected_result = types.ParameterInfo()
@@ -102,8 +102,8 @@ class TestSushiParameterInfo(unittest.TestCase):
         expected_result.name = 'test'
         expected_result.unit = 'test'
         expected_result.automatable = True
-        expected_result.min_range = 0.0
-        expected_result.max_range = 8.0
+        expected_result.min_domain_value = 0.0
+        expected_result.max_domain_value = 8.0
 
         self.assertEqual(result, expected_result)
 
@@ -115,19 +115,19 @@ class TestSushiParameterInfo(unittest.TestCase):
                 name = 'test',
                 unit = 'test',
                 automatable = True,
-                min_range = 0,
-                max_range = 8
+                min_domain_value = 0,
+                max_domain_value = 8
             )
         )
         expected_result = types.ParameterInfo()
         expected_result.id = 1
-        expected_result.type = "BOOL"
+        expected_result.type = types.ParameterType.BOOL
         expected_result.label = ''
         expected_result.name = 'test'
         expected_result.unit = 'test'
         expected_result.automatable = True
-        expected_result.min_range = 0.0
-        expected_result.max_range = 8.0
+        expected_result.min_domain_value = 0.0
+        expected_result.max_domain_value = 8.0
 
         self.assertEqual(result, expected_result)
 
@@ -139,19 +139,19 @@ class TestSushiParameterInfo(unittest.TestCase):
                 label = 'test',
                 unit = 'test',
                 automatable = True,
-                min_range = 0,
-                max_range = 8
+                min_domain_value = 0,
+                max_domain_value = 8
             )
         )
         expected_result = types.ParameterInfo()
         expected_result.id = 1
-        expected_result.type = "BOOL"
+        expected_result.type = types.ParameterType.BOOL
         expected_result.label = 'test'
         expected_result.name = ''
         expected_result.unit = 'test'
         expected_result.automatable = True
-        expected_result.min_range = 0.0
-        expected_result.max_range = 8.0
+        expected_result.min_domain_value = 0.0
+        expected_result.max_domain_value = 8.0
 
         self.assertEqual(result, expected_result)
 
@@ -163,19 +163,19 @@ class TestSushiParameterInfo(unittest.TestCase):
                 label = 'test',
                 name = 'test',
                 automatable = True,
-                min_range = 0,
-                max_range = 8
+                min_domain_value = 0,
+                max_domain_value = 8
             )
         )
         expected_result = types.ParameterInfo()
         expected_result.id = 1
-        expected_result.type = "BOOL"
+        expected_result.type = types.ParameterType.BOOL
         expected_result.label = 'test'
         expected_result.name = 'test'
         expected_result.unit = ''
         expected_result.automatable = True
-        expected_result.min_range = 0.0
-        expected_result.max_range = 8.0
+        expected_result.min_domain_value = 0.0
+        expected_result.max_domain_value = 8.0
 
         self.assertEqual(result, expected_result)
 
@@ -187,23 +187,23 @@ class TestSushiParameterInfo(unittest.TestCase):
                 label = 'test',
                 name = 'test',
                 unit = 'test',
-                min_range = 0,
-                max_range = 8
+                min_domain_value = 0,
+                max_domain_value = 8
             )
         )
         expected_result = types.ParameterInfo()
         expected_result.id = 1
-        expected_result.type = "BOOL"
+        expected_result.type = types.ParameterType.BOOL
         expected_result.label = 'test'
         expected_result.name = 'test'
         expected_result.unit = 'test'
         expected_result.automatable = False
-        expected_result.min_range = 0.0
-        expected_result.max_range = 8.0
+        expected_result.min_domain_value = 0.0
+        expected_result.max_domain_value = 8.0
 
         self.assertEqual(result, expected_result)
 
-    def test_missing_min_range(self):
+    def test_missing_min_domain_value(self):
         result = types.ParameterInfo(
             SUSHI_PROTO.ParameterInfo(
                 id = 1,
@@ -212,22 +212,22 @@ class TestSushiParameterInfo(unittest.TestCase):
                 name = 'test',
                 unit = 'test',
                 automatable = True,
-                max_range = 8
+                max_domain_value = 8
             )
         )
         expected_result = types.ParameterInfo()
         expected_result.id = 1
-        expected_result.type = "BOOL"
+        expected_result.type = types.ParameterType.BOOL
         expected_result.label = 'test'
         expected_result.name = 'test'
         expected_result.unit = 'test'
         expected_result.automatable = True
-        expected_result.min_range = 0.0
-        expected_result.max_range = 8.0
+        expected_result.min_domain_value = 0.0
+        expected_result.max_domain_value = 8.0
 
         self.assertEqual(result, expected_result)
 
-    def test_missing_max_range(self):
+    def test_missing_max_domain_value(self):
         result = types.ParameterInfo(
             SUSHI_PROTO.ParameterInfo(
                 id = 1,
@@ -236,18 +236,18 @@ class TestSushiParameterInfo(unittest.TestCase):
                 name = 'test',
                 unit = 'test',
                 automatable = True,
-                min_range = 0
+                min_domain_value = 0
             )
         )
         expected_result = types.ParameterInfo()
         expected_result.id = 1
-        expected_result.type = "BOOL"
+        expected_result.type = types.ParameterType.BOOL
         expected_result.label = 'test'
         expected_result.name = 'test'
         expected_result.unit = 'test'
         expected_result.automatable = True
-        expected_result.min_range = 0.0
-        expected_result.max_range = 0.0
+        expected_result.min_domain_value = 0.0
+        expected_result.max_domain_value = 0.0
 
         self.assertEqual(result, expected_result)
 
@@ -373,7 +373,8 @@ class TestSushiTrackInfo(unittest.TestCase):
             input_busses = 1,
             output_channels = 2,
             output_busses = 1,
-            processor_count = 10
+            processors = [SUSHI_PROTO.ProcessorIdentifier(id = 10),
+                          SUSHI_PROTO.ProcessorIdentifier(id = 20)]
         ))
 
         expected_result = types.TrackInfo()
@@ -384,7 +385,7 @@ class TestSushiTrackInfo(unittest.TestCase):
         expected_result.input_busses = 1
         expected_result.output_channels = 2
         expected_result.output_busses = 1
-        expected_result.processor_count = 10
+        expected_result.processors = [10, 20]
 
         self.assertEqual(result, expected_result)
 
@@ -396,7 +397,8 @@ class TestSushiTrackInfo(unittest.TestCase):
             input_busses = 1,
             output_channels = 2,
             output_busses = 1,
-            processor_count = 10
+            processors = [SUSHI_PROTO.ProcessorIdentifier(id = 10),
+                          SUSHI_PROTO.ProcessorIdentifier(id = 20)]
         ))
 
         expected_result = types.TrackInfo()
@@ -407,7 +409,7 @@ class TestSushiTrackInfo(unittest.TestCase):
         expected_result.input_busses = 1
         expected_result.output_channels = 2
         expected_result.output_busses = 1
-        expected_result.processor_count = 10
+        expected_result.processors = [10, 20]
 
         self.assertEqual(result, expected_result)
 
@@ -419,7 +421,8 @@ class TestSushiTrackInfo(unittest.TestCase):
             input_busses = 1,
             output_channels = 2,
             output_busses = 1,
-            processor_count = 10
+            processors = [SUSHI_PROTO.ProcessorIdentifier(id = 10),
+                          SUSHI_PROTO.ProcessorIdentifier(id = 20)]
         ))
 
         expected_result = types.TrackInfo()
@@ -430,7 +433,7 @@ class TestSushiTrackInfo(unittest.TestCase):
         expected_result.input_busses = 1
         expected_result.output_channels = 2
         expected_result.output_busses = 1
-        expected_result.processor_count = 10
+        expected_result.processors = [10, 20]
 
         self.assertEqual(result, expected_result)
 
@@ -442,7 +445,8 @@ class TestSushiTrackInfo(unittest.TestCase):
             input_busses = 1,
             output_channels = 2,
             output_busses = 1,
-            processor_count = 10
+            processors = [SUSHI_PROTO.ProcessorIdentifier(id = 10),
+                          SUSHI_PROTO.ProcessorIdentifier(id = 20)]
         ))
 
         expected_result = types.TrackInfo()
@@ -453,7 +457,7 @@ class TestSushiTrackInfo(unittest.TestCase):
         expected_result.input_busses = 1
         expected_result.output_channels = 2
         expected_result.output_busses = 1
-        expected_result.processor_count = 10
+        expected_result.processors = [10, 20]
 
         self.assertEqual(result, expected_result)
 
@@ -465,7 +469,8 @@ class TestSushiTrackInfo(unittest.TestCase):
             input_busses = 1,
             output_channels = 2,
             output_busses = 1,
-            processor_count = 10
+            processors = [SUSHI_PROTO.ProcessorIdentifier(id = 10),
+                          SUSHI_PROTO.ProcessorIdentifier(id = 20)]
         ))
 
         expected_result = types.TrackInfo()
@@ -476,10 +481,10 @@ class TestSushiTrackInfo(unittest.TestCase):
         expected_result.input_busses = 1
         expected_result.output_channels = 2
         expected_result.output_busses = 1
-        expected_result.processor_count = 10
+        expected_result.processors = [10, 20]
 
         self.assertEqual(result, expected_result)
-        
+
     def test_missing_busses(self):
         result = types.TrackInfo(SUSHI_PROTO.TrackInfo(
             id = 1,
@@ -488,7 +493,8 @@ class TestSushiTrackInfo(unittest.TestCase):
             input_channels = 2,
             output_channels = 2,
             output_busses = 1,
-            processor_count = 10
+            processors = [SUSHI_PROTO.ProcessorIdentifier(id = 10),
+                          SUSHI_PROTO.ProcessorIdentifier(id = 20)]
         ))
 
         expected_result = types.TrackInfo()
@@ -499,10 +505,10 @@ class TestSushiTrackInfo(unittest.TestCase):
         expected_result.input_busses = 0
         expected_result.output_channels = 2
         expected_result.output_busses = 1
-        expected_result.processor_count = 10
+        expected_result.processors = [10, 20]
 
         self.assertEqual(result, expected_result)
-    
+
     def test_missing_output_channels(self):
         result = types.TrackInfo(SUSHI_PROTO.TrackInfo(
             id = 1,
@@ -511,7 +517,8 @@ class TestSushiTrackInfo(unittest.TestCase):
             input_channels = 2,
             input_busses = 1,
             output_busses = 1,
-            processor_count = 10
+            processors = [SUSHI_PROTO.ProcessorIdentifier(id = 10),
+                          SUSHI_PROTO.ProcessorIdentifier(id = 20)]
         ))
 
         expected_result = types.TrackInfo()
@@ -522,7 +529,7 @@ class TestSushiTrackInfo(unittest.TestCase):
         expected_result.input_busses = 1
         expected_result.output_channels = 0
         expected_result.output_busses = 1
-        expected_result.processor_count = 10
+        expected_result.processors = [10, 20]
 
         self.assertEqual(result, expected_result)
 
@@ -534,7 +541,8 @@ class TestSushiTrackInfo(unittest.TestCase):
             input_channels = 2,
             input_busses = 1,
             output_channels = 2,
-            processor_count = 10
+            processors = [SUSHI_PROTO.ProcessorIdentifier(id = 10),
+                          SUSHI_PROTO.ProcessorIdentifier(id = 20)]
         ))
 
         expected_result = types.TrackInfo()
@@ -545,11 +553,11 @@ class TestSushiTrackInfo(unittest.TestCase):
         expected_result.input_busses = 1
         expected_result.output_channels = 2
         expected_result.output_busses = 0
-        expected_result.processor_count = 10
+        expected_result.processors = [10, 20]
 
         self.assertEqual(result, expected_result)
 
-    def test_missing_processor_count(self):
+    def test_missing_processors(self):
         result = types.TrackInfo(SUSHI_PROTO.TrackInfo(
             id = 1,
             label = 'test',
@@ -568,8 +576,7 @@ class TestSushiTrackInfo(unittest.TestCase):
         expected_result.input_busses = 1
         expected_result.output_channels = 2
         expected_result.output_busses = 1
-        expected_result.processor_count = 0
-
+        expected_result.processors = []
         self.assertEqual(result, expected_result)
 
 class TestSushiProgramInfo(unittest.TestCase):
@@ -611,7 +618,6 @@ class TestSushiProgramInfo(unittest.TestCase):
 
         self.assertEqual(result, expected_result)
 
-    
+
 if __name__ == "__main__":
     unittest.main()
-

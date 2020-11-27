@@ -4,13 +4,13 @@ A simple wrapper for controlling sushi over gRPC via a python script.
 
 ### Prerequisites ###
 
-To use this wrapper, [python3.5](https://www.python.org/downloads/) or greater need to be installed, together with the `grpcio-tools` Python package. Both are installed by default in the development releases of Elk for the various supported architectures.
+To use this wrapper, [python3.6](https://www.python.org/downloads/) or greater need to be installed, together with the `grpcio-tools` Python package. Both are installed by default in the development releases of Elk for the various supported architectures.
 
 ### Installation ###
 
-At the moment, just copy the `elkpy` module folder to the directory where you want to run it from.
-
-_In the future a more automated install will be created._
+The latest version of `elkpy` should be installed on your Elk device. If you want to use it from another
+system you can either copy the module folder to the directory from where it should be used or install it locally
+with `pip3 install -e elkpy` or similar.
 
 ### Usage ###
 
@@ -26,21 +26,27 @@ The default gRPC address is `localhost:51051` if you want to connect to another 
 
 The second argument to the constructor of SushiController is a path to the `sushi_rpc.proto` file with Protobuf protocol definition. If empty, the class will look at `usr/share/sushi/sushi_rpc.proto` which is the deafult installtion path for sushi.
 
-To use the controller simply use the methods of the controller object. For example:
+To use the controller simply use the methods of the controller objects different sections. For example:
 ```python
-# Get a list of the tracks available in sushi
-list_of_tracks = controller.get_tracks()
+# To make sure all the subcotrollers of sushicontroller close properly you can wrap them in a try except block
+try:
+    # Get a list of the tracks available in sushi
+    list_of_tracks = controller.audio_graph.get_tracks()
 
-# Get the processors of the track with the id passed to the method
-track_id = 0
-list_of_processors = controller.get_track_processors(track_id)
+    # Get the parameters of the track with the id passed to the method
+    track_id = 0
+    list_of_processors = controller.parameters.get_track_parameters(track_id)
 
-# Send a note on message to a track in sushi
-track_id = 0
-channel = 0
-note = 65
-velocity = 0.8
-controller.send_note_on(track_id, channel, note, velocity)
+    # Send a note on message to a track in sushi
+    track_id = 0
+    channel = 0
+    note = 65
+    velocity = 0.8
+    controller.keyboard.send_note_on(track_id, channel, note, velocity)
+
+# To ensure proper closing of the controller close() should be called on the SushiController object when you're done with it
+except KeyboardInterrupt:
+    controller.close()
 ```
 
 For a full documentation of the available methods. Use:
