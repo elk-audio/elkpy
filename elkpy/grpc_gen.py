@@ -16,6 +16,7 @@ __copyright__ = """
 """
 __license__ = "GPL-3.0"
 
+import __main__
 import os
 import importlib
 import grpc_tools.protoc as gprotoc
@@ -32,10 +33,11 @@ def modules_from_proto(proto_filename):
     """
     full_path = os.path.abspath(proto_filename)
     [inc_path, rel_proto_filename] = os.path.split(full_path)
+    out_dir = os.path.dirname(os.path.abspath(__main__.__file__))
     protoc_args = [ 'dummy',
                     '-I%s' % inc_path,
-                    '--python_out=.',
-                    '--grpc_python_out=.',
+                    f'--python_out={out_dir}',
+                    f'--grpc_python_out={out_dir}',
                     rel_proto_filename ]
     gprotoc.main(protoc_args)
     proto_base_name = os.path.splitext(rel_proto_filename)[0]
