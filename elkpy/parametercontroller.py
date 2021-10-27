@@ -227,3 +227,135 @@ class ParameterController(object):
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With processor id: {}, parameter id: {}, value: {}".format(processor_identifier, parameter_identifier, value))
+
+    def get_track_string_properties(self, track_identifier: int) -> List[info_types.StringPropertyInfo]:
+        """
+        Get a list of string properties available on the specified track.
+
+        Parameters:
+            track_identifier (int): The id of the track to get the property list from.
+
+        Returns:
+            List[info_types.StringPropertyInfo]: A list of the info of the properties assigned to the track matching the id.
+        """
+        try:
+            response = self._stub.GetTrackStringProperties(self._sushi_proto.TrackIdentifier(
+                id = track_identifier
+            ))
+
+            property_info_list = []
+            for property_info in response.parameters:
+                property_info_list.append(info_types.StringPropertyInfo(property_info))
+
+            return property_info_list
+
+        except grpc.RpcError as e:
+            sushierrors.grpc_error_handling(e, "With track id: {}".format(track_identifier))
+
+    def get_processor_string_properties(self, processor_identifier: int) -> List[info_types.StringPropertyInfo]:
+        """
+        Get a list of the string properties available to the specified processor.
+
+        Parameters:
+            processor_identifier (int): The id of the processor to get the properties from.
+
+        Returns:
+            List[info_types.StringPropertyInfo]: A list of the properties available to the processor matching the id.
+        """
+        try:
+            response = self._stub.GetProcessorStringProperties(self._sushi_proto.ProcessorIdentifier(
+                id = processor_identifier
+            ))
+
+            property_info_list = []
+            for property_info in response.properties:
+                property_info_list.append(info_types.StringPropertyInfo(property_info))
+
+            return property_info_list
+
+        except grpc.RpcError as e:
+            sushierrors.grpc_error_handling(e, "With processor id: {}".format(processor_identifier))
+
+    def get_string_property_id(self, processor_identifier: int, property_name: str) -> int:
+        """
+        Get the id of the string property of the specified processor corresponding to the specified property name.
+
+        Parameters:
+            processor_identifier (int): The id of the processor to get the parameter id from.
+            property_name (str): The name of the string property to get the id from.
+
+        Returns:
+            int: The id of the string property matching the property name.
+        """
+        try:
+            response = self._stub.GetStringPropertyId(self._sushi_proto.StringPropertyIdRequest(
+                processor = self._sushi_proto.ProcessorIdentifier(id = processor_identifier),
+                string_property_name = property_name
+            ))
+            return response.property_id
+
+        except grpc.RpcError as e:
+            sushierrors.grpc_error_handling(e, "With processor id: {}, string property name: {}".format(processor_identifier, property_name))
+
+    def get_string_property_info(self, processor_identifier: int, property_identifier: int) -> info_types.ParameterInfo:
+        """
+        Get info about the specified string property on the specified processor.
+
+        Parameters:
+            processor_identifier (int): The id of the processor to get the parameter info from.
+            property_identifier (int): The id of the string property to get the info from.
+
+        Returns:
+            info_types.StringPropertyInfo: Info of the string property matching the id.
+        """
+        try:
+            response = self._stub.GetStringPropertyInfo(self._sushi_proto.StringPropertyIdentifier(
+                processor_id = processor_identifier,
+                property_id = property_identifier
+            ))
+            return info_types.StringPropertyInfo(response)
+
+        except grpc.RpcError as e:
+            sushierrors.grpc_error_handling(e, "With processor id: {}, string property id: {}".format(processor_identifier, property_identifier))
+
+    def get_string_property_value(self, processor_identifier: int, property_identifier: int) -> str:
+        """
+        Get the value of the string property matching the specified property on the specified processor as a string.
+
+        Parameters:
+            processor_identifier (int): The id of the processor to get the parameter value string from.
+            property_identifier (int): The id of the string property to get value string from.
+
+        Returns:
+            str: The value as a string of the string property matching the id.
+        """
+        try:
+            response = self._stub.GetStringPropertyValue(self._sushi_proto.StringPropertyIdentifier(
+                processor_id = processor_identifier,
+                property_id = property_identifier
+            ))
+            return response.value
+
+        except grpc.RpcError as e:
+            sushierrors.grpc_error_handling(e, "With processor id: {}, string property id: {}".format(processor_identifier, property_identifier))
+
+    def set_string_property_value(self, processor_identifier: int, property_identifier: int, value: float) -> None:
+        """
+        Set the value of the specified parameter on the specified processor.
+
+        Parameters:
+            processor_identifier (int): The id of the processor that has the parameter to be changed.
+            property_identifier (int): The id of the parameter to set the value of.
+            value (string) : The new value to assign to the property
+        """
+        try:
+            self._stub.SetStringPropertyValue(self._sushi_proto.StringPropertyValue(
+                property = self._sushi_proto.StringPropertyIdentifier(
+                    processor_id = processor_identifier,
+                    property_id = property_identifier
+                    ),
+                value = value
+            ))
+
+        except grpc.RpcError as e:
+            sushierrors.grpc_error_handling(e, "With processor id: {}, string property id: {}, value: {}".format(processor_identifier, property_identifier, value))
