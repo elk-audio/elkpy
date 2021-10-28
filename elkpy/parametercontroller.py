@@ -290,7 +290,7 @@ class ParameterController(object):
         try:
             response = self._stub.GetPropertyId(self._sushi_proto.PropertyIdRequest(
                 processor = self._sushi_proto.ProcessorIdentifier(id = processor_identifier),
-                string_property_name = property_name
+                property_name = property_name
             ))
             return response.property_id
 
