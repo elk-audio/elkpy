@@ -37,7 +37,7 @@ if proto_file is None:
 
 SUSHI_PROTO, SUSHI_GRPC = grpc_gen.modules_from_proto(proto_file)
 
-SUSHI_ADDRESS = ('localhost:51051')
+SUSHI_ADDRESS = ('localhost:51053')
 
 mock_server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 service = parameter_service_mock.ParameterControllerServiceMockup()
@@ -145,3 +145,33 @@ class TestParameterController(unittest.TestCase):
         )
         self.assertTrue(service.was_called())
         self.assertEqual(service.get_recent_request(), parameter_service_mock.expected_parameter_value_request)
+
+    def test_get_track_properties(self):
+        result = self._pc.get_track_properties(parameter_service_mock.expected_track_identifier)
+        self.assertEqual(result, parameter_service_mock.expected_property_list)
+
+
+    def test_get_processor_properties(self):
+        result = self._pc.get_processor_properties(parameter_service_mock.expected_processor_identifier)
+        self.assertEqual(result, parameter_service_mock.expected_property_list)
+
+    def test_get_property_id(self):
+        result = self._pc.get_property_id(parameter_service_mock.expected_processor_identifier,
+                                          parameter_service_mock.expected_property.name)
+        self.assertEqual(result, parameter_service_mock.expected_property.id)
+
+    def test_get_property_info(self):
+        result = self._pc.get_property_info(parameter_service_mock.expected_processor_identifier,
+                                            parameter_service_mock.expected_property.id)
+        self.assertEqual(result, parameter_service_mock.expected_property)
+
+    def test_get_property_value(self):
+        result = self._pc.get_property_value(parameter_service_mock.expected_processor_identifier,
+                                             parameter_service_mock.expected_property.id)
+        self.assertEqual(result, parameter_service_mock.expected_property_1_value)
+
+    def test_set_property_value(self):
+        self._pc.set_property_value(parameter_service_mock.expected_processor_identifier,
+                                    parameter_service_mock.expected_property.id,
+                                    parameter_service_mock.expected_property_1_value)
+        self.assertTrue(service.was_called())

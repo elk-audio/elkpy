@@ -244,7 +244,7 @@ class ParameterController(object):
             ))
 
             property_info_list = []
-            for property_info in response.parameters:
+            for property_info in response.properties:
                 property_info_list.append(info_types.PropertyInfo(property_info))
 
             return property_info_list

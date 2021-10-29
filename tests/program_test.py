@@ -37,12 +37,12 @@ if proto_file is None:
 
 SUSHI_PROTO, SUSHI_GRPC = grpc_gen.modules_from_proto(proto_file)
 
-SUSHI_ADDRESS = ('localhost:51051')
+SUSHI_ADDRESS = ('localhost:51054')
 
 mock_server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 service = program_service_mock.ProgramControllerServiceMockup()
 SUSHI_GRPC.add_ProgramControllerServicer_to_server(service, mock_server)
-mock_server.add_insecure_port('localhost:51051')
+mock_server.add_insecure_port(SUSHI_ADDRESS)
 mock_server.start()
 
 class TestProgramController(unittest.TestCase):
