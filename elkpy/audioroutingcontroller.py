@@ -210,6 +210,6 @@ class AudioRoutingController(object):
             track_id (int): a track ID for which all inputs will be disconnected
           """
         try:
-            self._stub.DisconnectAllOutputFromTrack(self._sushi_proto.TrackIdentifier(id=track_id))
+            self._stub.DisconnectAllOutputsFromTrack(self._sushi_proto.TrackIdentifier(id=track_id))
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, f"With track id: {track_id}")
