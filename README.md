@@ -61,5 +61,5 @@ Before running unit tests with the unittest command-line interface, you need to 
 Example:
 ```
 $ export SUSHI_GRPC_ELKPY_PROTO=./sushi_rpc.proto
-$ python3 -m unittest tests/sushi_controller_test.py
+$ python3 -m unittest discover -s tests -p '*_test.py'
 ```

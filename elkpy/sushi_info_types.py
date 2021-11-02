@@ -175,6 +175,54 @@ class ParameterInfo(object):
             and self.min_domain_value == other.min_domain_value \
             and self.max_domain_value == other.max_domain_value
 
+class PropertyInfo(object):
+    """
+    Class to represent the property info received from sushi in a clear way.
+
+    Attributes:
+        id (int): The id of the property.
+        label (str): The label of the property.
+        name (str): The name of the property.
+    """
+
+    def __init__(self, grpc_PropertyInfo = None):
+        """
+        The constructor of the PropertyInfo class.
+
+        Parameters:
+            grpc_PropertyInfo (sushi_rpc_pb2.PropertyInfo): the gRPC parameter info object to get the data from.
+        """
+        try:
+            self.id = grpc_PropertyInfo.id
+        except:
+            self.id = 0
+
+        try:
+            self.label = grpc_PropertyInfo.label
+        except:
+            self.label = ''
+
+        try:
+            self.name = grpc_PropertyInfo.name
+        except:
+            self.name = ''
+
+    def __str__(self):
+        s = '{\n'
+        s += ' id: %s \n' %self.id
+        s += ' label: %s \n' %self.label
+        s += ' name: %s \n' %self.name
+        s += '}'
+        return s
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
+    def __eq__(self, other):
+        return self.id == other.id \
+            and self.label == other.label \
+            and self.name == other.name
+
 class ProcessorInfo(object):
     """
     Class to represent the processor info received from sushi in a clear way.

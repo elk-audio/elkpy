@@ -80,6 +80,23 @@ expected_parameter_value_request = proto.ParameterValue(
     value = 0.666
 )
 
+expected_property = info.PropertyInfo()
+expected_property.id = 1
+expected_property.label = "Prop 1"
+expected_property.name = "prop_1"
+
+expected_property_1_value = "prop_1_value"
+
+expected_property_list = [expected_property, expected_property]
+
+grpc_property = proto.PropertyInfo(
+    id = expected_property.id,
+    label = expected_property.label,
+    name = expected_property.name
+)
+
+grpc_property_list = proto.PropertyInfoList(properties = [grpc_property, grpc_property])
+
 class ParameterControllerServiceMockup(sushi_rpc_pb2_grpc.ParameterControllerServicer):
 
     def __init__(self):
@@ -160,6 +177,37 @@ class ParameterControllerServiceMockup(sushi_rpc_pb2_grpc.ParameterControllerSer
         self.called = True
         self.recent_request = request
         return proto.GenericVoidValue()
+
+    def GetTrackProperties(self, request, context):
+        if request.id == expected_track_identifier:
+            return grpc_property_list
+
+    def GetProcessorProperties(self, request, context):
+        if request.id == expected_processor_identifier:
+            return grpc_property_list
+
+    def GetPropertyId(self, request, context):
+        if request.property_name == expected_property.name and \
+           request.processor.id == expected_processor_identifier:
+            return proto.PropertyIdentifier(processor_id = expected_processor_identifier,
+                                            property_id = expected_property.id)
+
+    def GetPropertyInfo(self, request, context):
+        if request.property_id == expected_property.id and \
+           request.processor_id == expected_processor_identifier:
+           return grpc_property
+
+    def GetPropertyValue(self, request, context):
+        if request.property_id == expected_property.id and \
+           request.processor_id == expected_processor_identifier:
+           return proto.GenericStringValue(value = expected_property_1_value)
+
+    def SetPropertyValue(self, request, context):
+        if request.property.property_id == expected_property.id and \
+           request.property.processor_id == expected_processor_identifier and \
+           request.value == expected_property_1_value:
+            self.called = True
+            return proto.GenericVoidValue()
 
     def was_called(self):
         temp = self.called
