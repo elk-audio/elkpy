@@ -36,7 +36,7 @@ if proto_file is None:
 
 SUSHI_PROTO, SUSHI_GRPC = grpc_gen.modules_from_proto(proto_file)
 
-SUSHI_ADDRESS = ('localhost:51052')
+SUSHI_ADDRESS = ('localhost:51054')
 
 mock_server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 service = keyboard_service_mock.KeyboardControllerServiceMockup()

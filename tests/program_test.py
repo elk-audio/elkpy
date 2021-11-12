@@ -37,7 +37,7 @@ if proto_file is None:
 
 SUSHI_PROTO, SUSHI_GRPC = grpc_gen.modules_from_proto(proto_file)
 
-SUSHI_ADDRESS = ('localhost:51054')
+SUSHI_ADDRESS = ('localhost:51059')
 
 mock_server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 service = program_service_mock.ProgramControllerServiceMockup()

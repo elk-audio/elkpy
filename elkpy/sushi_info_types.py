@@ -583,9 +583,13 @@ class CvConnection(object):
     """
     def __init__(self, grpc_CvConnection=None):
         try:
-            self.parameter = grpc_CvConnection.parameter.id
+            self.processor_id = grpc_CvConnection.parameter.processor_id
         except:
-            self.parameter = 0
+            self.processor_id = 0
+        try:
+            self.parameter_id = grpc_CvConnection.parameter.parameter_id
+        except:
+            self.parameter_id = 0
         try:
             self.cv_port_id = grpc_CvConnection.cv_port_id
         except:
@@ -599,7 +603,7 @@ class CvConnection(object):
         return self.__str__()
 
     def __eq__(self, other):
-        return self.parameter == other.parameter and self.cv_port_id == other.cv_port_id
+        return self.processor_id == other.processor_id and self.parameter_id == other.parameter_id and self.cv_port_id == other.cv_port_id
 
 
 class GateConnection(object):
@@ -614,9 +618,9 @@ class GateConnection(object):
     """
     def __init__(self, grpc_CvConnection=None):
         try:
-            self.processor = grpc_CvConnection.processor.id
+            self.processor_id = grpc_CvConnection.processor.id
         except:
-            self.processor = 0
+            self.processor_id = 0
         try:
             self.gate_port_id = grpc_CvConnection.gate_port_id
         except:
@@ -631,7 +635,7 @@ class GateConnection(object):
             self.note_no = 0
 
     def __str__(self):
-        return f"{{\n processor: {self.processor}\n" \
+        return f"{{\n processor: {self.processor_id}\n" \
                f" gate_port_id: {self.gate_port_id}\n" \
                f" channel: {self.channel}\n" \
                f" note_no: {self.note_no}\n}}"
@@ -640,5 +644,5 @@ class GateConnection(object):
         return self.__str__()
 
     def __eq__(self, other):
-        return self.processor == other.processor and self.gate_port_id == other.gate_port_id \
+        return self.processor_id == other.processor_id and self.gate_port_id == other.gate_port_id \
                and self.channel == other.channel and self.note_no == other.note_no

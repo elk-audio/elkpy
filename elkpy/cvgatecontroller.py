@@ -89,7 +89,7 @@ class CvGateController(object):
         """
         try:
             response = self._stub.GetAllCvInputConnections(self._sushi_proto.GenericVoidValue())
-            return [c for c in response.connections]
+            return [info_types.CvConnection(c) for c in response.connections]
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
@@ -102,7 +102,7 @@ class CvGateController(object):
         """
         try:
             response = self._stub.GetAllCvOutputConnections(self._sushi_proto.GenericVoidValue())
-            return [c for c in response.connections]
+            return [info_types.CvConnection(c) for c in response.connections]
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
@@ -115,7 +115,7 @@ class CvGateController(object):
         """
         try:
             response = self._stub.GetAllGateInputConnections(self._sushi_proto.GenericVoidValue())
-            return [c for c in response.connections]
+            return [info_types.GateConnection(c) for c in response.connections]
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
@@ -128,7 +128,7 @@ class CvGateController(object):
         """
         try:
             response = self._stub.GetAllGateOutputConnections(self._sushi_proto.GenericVoidValue())
-            return [c for c in response.connections]
+            return [info_types.GateConnection(c) for c in response.connections]
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
@@ -141,7 +141,7 @@ class CvGateController(object):
         """
         try:
             response = self._stub.GetCvInputConnectionsForProcessor(self._sushi_proto.ProcessorIdentifier(id=processor_id))
-            return [c for c in response.connections]
+            return [info_types.CvConnection(c) for c in response.connections]
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
@@ -154,7 +154,7 @@ class CvGateController(object):
         """
         try:
             response = self._stub.GetCvOutputConnectionsForProcessor(self._sushi_proto.ProcessorIdentifier(id=processor_id))
-            return [c for c in response.connections]
+            return [info_types.CvConnection(c) for c in response.connections]
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
@@ -167,7 +167,7 @@ class CvGateController(object):
         """
         try:
             response = self._stub.GetGateInputConnectionsForProcessor(self._sushi_proto.ProcessorIdentifier(id=processor_id))
-            return [c for c in response.connections]
+            return [info_types.GateConnection(c) for c in response.connections]
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
@@ -180,34 +180,36 @@ class CvGateController(object):
         """
         try:
             response = self._stub.GetGateOutputConnectionsForProcessor(self._sushi_proto.ProcessorIdentifier(id=processor_id))
-            return [c for c in response.connections]
+            return [info_types.GateConnection(c) for c in response.connections]
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def connect_cv_input_to_parameter(self, parameter: int, cv_port_id: int) -> None:
+    def connect_cv_input_to_parameter(self, processor_id: int, parameter_id: int, cv_port_id: int) -> None:
         """
         Connects a CV input to a parameter
 
         Parameters:
-            parameter (int): The id of parmater to connect to
+            processor_id (int): The id of the processor to parameter belongs to
+            parameter_id (int): The id of parameter to connect to
             cv_port_id (int): The id of the CV port to connect to
         """
         try:
-            self._stub.ConnectCvInputToParameter(self._sushi_proto.CvConnection(parameter=self._sushi_proto.ParameterIdentifier(id=parameter),
+            self._stub.ConnectCvInputToParameter(self._sushi_proto.CvConnection(parameter=self._sushi_proto.ParameterIdentifier(processor_id=processor_id, parameter_id=parameter_id),
                                                                                 cv_port_id=cv_port_id))
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def connect_cv_output_from_parameter(self, parameter: int, cv_port_id: int) -> None:
+    def connect_cv_output_from_parameter(self, processor_id: int, parameter_id: int, cv_port_id: int) -> None:
         """
         Connects a CV output to a parameter
 
         Parameters:
-            parameter (int): The id of parmater to connect to
+            processor_id (int): The id of the processor to parameter belongs to
+            parameter_id (int): The id of parameter to connect to
             cv_port_id (int): The id of the CV port to connect to
         """
         try:
-            self._stub.ConnectCvOutputFromParameter(self._sushi_proto.CvConnection(parameter=self._sushi_proto.ParameterIdentifier(id=parameter),
+            self._stub.ConnectCvOutputFromParameter(self._sushi_proto.CvConnection(parameter=self._sushi_proto.ParameterIdentifier(processor_id=processor_id, parameter_id=parameter_id),
                                                                                    cv_port_id=cv_port_id))
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
@@ -230,7 +232,7 @@ class CvGateController(object):
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def connect_gate_output_from_processor(self, processor: int, gate_port_id: int, channel: int, note_on: int) -> None:
+    def connect_gate_output_from_processor(self, processor: int, gate_port_id: int, channel: int, note_no: int) -> None:
         """
         Connects a Gate output from a processor
 
@@ -244,34 +246,36 @@ class CvGateController(object):
             self._stub.ConnectGateOutputFromProcessor(self._sushi_proto.GateConnection(processor=self._sushi_proto.ProcessorIdentifier(id=processor),
                                                                                        gate_port_id=gate_port_id,
                                                                                        channel=channel,
-                                                                                       note_on=note_on))
+                                                                                       note_no=note_no))
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def disconnect_cv_input(self, parameter: int, cv_port_id: int) -> None:
+    def disconnect_cv_input(self, processor_id: int, parameter_id: int, cv_port_id: int) -> None:
         """
         Disconnects a CV input from a parameter
 
         Parameters:
-            parameter (int): The id of the parameter to disconnect
+            procsessor_id (int): The id of the processor the parameter belongs to
+            parameter_id (int): The id of the parameter to disconnect
             cv_port_id (int): The id of the CV port to disconnect
         """
         try:
-            self._stub.DisconnectCvInput(self._sushi_proto.CvConnection(parameter=self._sushi_proto.ParameterIdentifier(id=parameter),
+            self._stub.DisconnectCvInput(self._sushi_proto.CvConnection(parameter=self._sushi_proto.ParameterIdentifier(processor_id=processor_id, parameter_id=parameter_id),
                                                                         cv_port_id=cv_port_id))
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def disconnect_cv_output(self, parameter: int, cv_port_id: int) -> None:
+    def disconnect_cv_output(self, processor_id: int, parameter_id: int, cv_port_id: int) -> None:
         """
         Disconnects a CV output from a parameter
 
         Parameters:
-            parameter (int): The id of the parameter to disconnect
+            procsessor_id (int): The id of the processor the parameter belongs to
+            parameter_id (int): The id of the parameter to disconnect
             cv_port_id (int): The id of the CV port to disconnect
         """
         try:
-            self._stub.DisconnectCvOutput(self._sushi_proto.CvConnection(parameter=self._sushi_proto.ParameterIdentifier(id=parameter),
+            self._stub.DisconnectCvOutput(self._sushi_proto.CvConnection(parameter=self._sushi_proto.ParameterIdentifier(processor_id=processor_id, parameter_id=parameter_id),
                                                                          cv_port_id=cv_port_id))
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
