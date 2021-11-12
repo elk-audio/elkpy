@@ -491,9 +491,13 @@ class MidiCCConnection(object):
     """
     def __init__(self, grpc_MidiCCConnection=None):
         try:
-            self.parameter = grpc_MidiCCConnection.parameter.parameter_id
+            self.processor_id = grpc_MidiCCConnection.parameter.processor_id
         except:
-            self.parameter = 0
+            self.processor_id = 0
+        try:
+            self.parameter_id = grpc_MidiCCConnection.parameter.parameter_id
+        except:
+            self.parameter_id = 0
         try:
             self.channel = grpc_MidiCCConnection.channel.channel
         except:
@@ -532,7 +536,7 @@ class MidiCCConnection(object):
         return self.__str__()
 
     def __eq__(self, other):
-        return self.parameter == other.parameter and self.channel == other.channel and self.port == other.port \
+        return self.processor_id == other.processor_id and self.parameter_id == other.parameter_id and self.channel == other.channel and self.port == other.port \
                and self.cc_number == other.cc_number and self.min_range == other.min_range \
                and self.max_range == other.max_range and self.relative_mode == other.relative_mode
 

@@ -88,7 +88,7 @@ class MidiController(object):
         """
         try:
             response = self._stub.GetAllKbdInputConnections(self._sushi_proto.GenericVoidValue())
-            return [c for c in response.connections]
+            return [info_types.MidiKbdConnection(c) for c in response.connections]
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
@@ -101,7 +101,7 @@ class MidiController(object):
         """
         try:
             response = self._stub.GetAllKbdOutputConnections(self._sushi_proto.GenericVoidValue())
-            return [c for c in response.connections]
+            return [info_types.MidiKbdConnection(c) for c in response.connections]
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
@@ -114,7 +114,7 @@ class MidiController(object):
         """
         try:
             response = self._stub.GetAllCCInputConnections(self._sushi_proto.GenericVoidValue())
-            return [c for c in response.connections]
+            return [info_types.MidiCCConnection(c) for c in response.connections]
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
@@ -127,7 +127,7 @@ class MidiController(object):
         """
         try:
             response = self._stub.GetAllPCInputConnections(self._sushi_proto.GenericVoidValue())
-            return [c for c in response.connections]
+            return [info_types.MidiPCConnection(c) for c in response.connections]
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
@@ -143,7 +143,7 @@ class MidiController(object):
         """
         try:
             response = self._stub.GetCCInputConnectionsForProcessor(self._sushi_proto.ProcessorIdentifier(id=processor_id))
-            return [c for c in response.connections]
+            return [info_types.MidiCCConnection(c) for c in response.connections]
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, f"With processor_id: {processor_id}")
 
@@ -160,7 +160,7 @@ class MidiController(object):
         try:
             response = self._stub.GetPCInputConnectionsForProcessor(
                 self._sushi_proto.ProcessorIdentifier(id=processor_id))
-            return [c for c in response.connections]
+            return [info_types.MidiPCConnection(c) for c in response.connections]
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, f"With processor_id: {processor_id}")
 
@@ -175,8 +175,8 @@ class MidiController(object):
             raw_midi (bool): Enable raw midi
         """
         try:
-            self._stub.ConnectKbdInputToTrack(self._sushi_proto.MidiKbdConnection(track=track,
-                                                                                  channel=channel,
+            self._stub.ConnectKbdInputToTrack(self._sushi_proto.MidiKbdConnection(track=self._sushi_proto.TrackIdentifier(id=track),
+                                                                                  channel=self._sushi_proto.MidiChannel(channel=channel),
                                                                                   port=port,
                                                                                   raw_midi=raw_midi))
         except grpc.RpcError as e:
@@ -194,21 +194,22 @@ class MidiController(object):
             raw_midi (bool): Enable raw midi
         """
         try:
-            self._stub.ConnectKbdInputToTrack(self._sushi_proto.MidiKbdConnection(track=track,
-                                                                                  channel=channel,
+            self._stub.ConnectKbdInputToTrack(self._sushi_proto.MidiKbdConnection(track=self._sushi_proto.TrackIdentifier(id=track),
+                                                                                  channel=self._sushi_proto.MidiChannel(channel=channel),
                                                                                   port=port,
                                                                                   raw_midi=raw_midi))
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, f"With MidiKbdConnection: track: {track}, channel: {channel}, "
                                                f"port: {port}, raw_midi: {raw_midi}")
 
-    def connect_cc_to_parameter(self, parameter: int, channel: int, port: int, cc_number: int,
+    def connect_cc_to_parameter(self, processor_id: int, parameter_id: int, channel: int, port: int, cc_number: int,
                                 min_range: float, max_range: float, relative_mode: bool) -> None:
         """
         Connects a Midi CC connection to a parameter
 
         Parameters:
-            parameter (int): The id of the parameter to connect to
+            processor_id (int): The id of processor that the parameter belongs to
+            parameter_id (int): The id of the parameter to connect to
             channel (int): The midi channel to use for the connection
             port (int): The id of the midi port to use for the connection
             cc_number (int): The cc number to use for the connection
@@ -217,8 +218,8 @@ class MidiController(object):
             relative_mode (bool): Wether the parameter changes realative to a previous value
         """
         try:
-            self._stub.ConnectCCToParameter(self._sushi_proto.MidiCCConnection(parameter=parameter,
-                                                                               channel=channel,
+            self._stub.ConnectCCToParameter(self._sushi_proto.MidiCCConnection(parameter=self._sushi_proto.ParameterIdentifier(processor_id=processor_id, parameter_id=parameter_id),
+                                                                               channel=self._sushi_proto.MidiChannel(channel=channel),
                                                                                port=port,
                                                                                cc_number=cc_number,
                                                                                min_range=min_range,
@@ -239,8 +240,8 @@ class MidiController(object):
             port (int): The midi port to use for the connection
         """
         try:
-            self._stub.ConnectPCToProcessor(self._sushi_proto.MidiPCConnection(processor=processor,
-                                                                               channel=channel,
+            self._stub.ConnectPCToProcessor(self._sushi_proto.MidiPCConnection(processor=self._sushi_proto.ProcessorIdentifier(id=processor),
+                                                                               channel=self._sushi_proto.MidiChannel(channel=channel),
                                                                                port=port))
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, f"With MidiPCConnection: processor: {processor}, channel: {channel}, "
@@ -257,8 +258,8 @@ class MidiController(object):
             raw_midi (bool): Disconnect raw midi
         """
         try:
-            self._stub.DisconnectKbdInput(self._sushi_proto.MidiKbdConnection(track=track,
-                                                                              channel=channel,
+            self._stub.DisconnectKbdInput(self._sushi_proto.MidiKbdConnection(track=self._sushi_proto.TrackIdentifier(id=track),
+                                                                              channel=self._sushi_proto.MidiChannel(channel=channel),
                                                                               port=port,
                                                                               raw_midi=raw_midi))
         except grpc.RpcError as e:
@@ -276,20 +277,21 @@ class MidiController(object):
             raw_midi (bool): Disconnect raw midi
         """
         try:
-            self._stub.DisconnectKbdOutput(self._sushi_proto.MidiKbdConnection(track=track,
-                                                                               channel=channel,
+            self._stub.DisconnectKbdOutput(self._sushi_proto.MidiKbdConnection(track=self._sushi_proto.TrackIdentifier(id=track),
+                                                                               channel=self._sushi_proto.MidiChannel(channel=channel),
                                                                                port=port,
                                                                                raw_midi=raw_midi))
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, f"With MidiKbdConnection: track: {track}, channel: {channel}, "
                                                f"port: {port}, raw_midi: {raw_midi}.")
 
-    def disconnect_cc(self, parameter: int, channel: int, port: int, cc_number: int,
+    def disconnect_cc(self, processor_id: int, parameter_id: int, channel: int, port: int, cc_number: int,
                                 min_range: float, max_range: float, relative_mode: bool) -> None:
         """
         Disconnects a Midi CC connection
 
         Parameters:
+            processor_id (int): The id of the processor the parameter belongs to
             parameter (int): The id of the parameter to connect to
             channel (int): The midi channel to use for the connection
             port (int): The id of the midi port to use for the connection
@@ -299,8 +301,8 @@ class MidiController(object):
             relative_mode (bool): Wether the parameter changes realative to a previous value
         """
         try:
-            self._stub.DisconnectCC(self._sushi_proto.MidiCCConnection(parameter=parameter,
-                                                                       channel=channel,
+            self._stub.DisconnectCC(self._sushi_proto.MidiCCConnection(parameter=self._sushi_proto.ParameterIdentifier(processor_id=processor_id, parameter_id=parameter_id),
+                                                                       channel=self._sushi_proto.MidiChannel(channel=channel),
                                                                        port=port,
                                                                        cc_number=cc_number,
                                                                        min_range=min_range,
@@ -321,8 +323,8 @@ class MidiController(object):
             port (int): The midi port to use for the connection
         """
         try:
-            self._stub.DisconnectPC(self._sushi_proto.MidiPCConnection(processor=processor,
-                                                                       channel=channel,
+            self._stub.DisconnectPC(self._sushi_proto.MidiPCConnection(processor=self._sushi_proto.ProcessorIdentifier(id=processor),
+                                                                       channel=self._sushi_proto.MidiChannel(channel=channel),
                                                                        port=port))
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, f"With MidiPCConnection: processor: {processor}, channel: {channel}, "
