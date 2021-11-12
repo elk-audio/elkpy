@@ -64,7 +64,7 @@ class AudioRoutingController(object):
         """
         try:
             response = self._stub.GetAllInputConnections(self._sushi_proto.GenericVoidValue())
-            return [connection for connection in response.connections]
+            return [info_types.AudioConnection(connection) for connection in response.connections]
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
@@ -77,7 +77,7 @@ class AudioRoutingController(object):
         """
         try:
             response = self._stub.GetAllOutputConnections(self._sushi_proto.GenericVoidValue())
-            return [connection for connection in response.connections]
+            return [info_types.AudioConnection(connection) for connection in response.connections]
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
@@ -93,7 +93,7 @@ class AudioRoutingController(object):
         """
         try:
             response = self._stub.GetInputConnectionsForTrack(self._sushi_proto.TrackIdentifier(id=track_id))
-            return [connection for connection in response.connections]
+            return [info_types.AudioConnection(connection) for connection in response.connections]
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
@@ -110,7 +110,7 @@ class AudioRoutingController(object):
         """
         try:
             response = self._stub.GetOutputConnectionsForTrack(self._sushi_proto.TrackIdentifier(id=track_id))
-            return [connection for connection in response.connections]
+            return [info_types.AudioConnection(connection) for connection in response.connections]
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
         pass
@@ -130,7 +130,7 @@ class AudioRoutingController(object):
                                                                                     engine_channel=engine_channel
                                                                                     ))
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, f"With track id: {track}, track_channel: {track.channel} "
+            sushierrors.grpc_error_handling(e, f"With track id: {track}, track_channel: {track_channel} "
                                                f"and engine_channel: {engine_channel}")
 
     def connect_output_channel_from_track(self, track: int, track_channel: int, engine_channel: int) -> None:
@@ -149,7 +149,7 @@ class AudioRoutingController(object):
                                                   engine_channel=engine_channel
                                                   ))
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, f"With track id: {track}, track_channel: {track.channel} "
+            sushierrors.grpc_error_handling(e, f"With track id: {track}, track_channel: {track_channel} "
                                                f"and engine_channel: {engine_channel}")
 
     def disconnect_input(self, track: int, track_channel: int, engine_channel: int) -> None:
@@ -168,7 +168,7 @@ class AudioRoutingController(object):
                                                   engine_channel=engine_channel
                                                   ))
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, f"With track id: {track}, track_channel: {track.channel} "
+            sushierrors.grpc_error_handling(e, f"With track id: {track}, track_channel: {track_channel} "
                                                f"and engine_channel: {engine_channel}")
 
     def disconnect_output(self, track: int, track_channel: int, engine_channel: int) -> None:
@@ -187,7 +187,7 @@ class AudioRoutingController(object):
                                                   engine_channel=engine_channel
                                                   ))
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, f"With track id: {track}, track_channel: {track.channel} "
+            sushierrors.grpc_error_handling(e, f"With track id: {track}, track_channel: {track_channel} "
                                                f"and engine_channel: {engine_channel}")
 
     def disconnect_all_inputs_from_track(self, track_id: int) -> None:
