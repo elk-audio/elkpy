@@ -91,26 +91,46 @@ class OscController(object):
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def enable_output_for_parameter(self, parameter_id: int) -> None:
+    def enable_output_for_parameter(self, processor_id: int, parameter_id: int) -> None:
         """
         Enable OSC for a parameter
 
         Parameters:
+            processor_id (int): The id of the processor the parameter belongs to
             parameter_id (int): The id of the parameter to enable OSC for
         """
         try:
-            self._stub.EnableOutputForParameter(self._sushi_proto.ParameterIdentifier(id=parameter_id))
+            self._stub.EnableOutputForParameter(self._sushi_proto.ParameterIdentifier(processor_id=processor_id, parameter_id=parameter_id))
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def disable_output_for_parameter(self, parameter_id: int) -> None:
+    def disable_output_for_parameter(self, processor_id: int, parameter_id: int) -> None:
         """
         Disable OSC for a parameter
 
         Parameters:
+            processor_id (int): The id of the processor the parameter belongs to
             parameter_id (int): The id of the parameter to disble OSC for
         """
         try:
-            self._stub.DisableOutputForParameter(self._sushi_proto.ParameterIdentifier(id=parameter_id))
+            self._stub.DisableOutputForParameter(self._sushi_proto.ParameterIdentifier(processor_id=processor_id, parameter_id=parameter_id))
+        except grpc.RpcError as e:
+            sushierrors.grpc_error_handling(e)
+
+    def enable_all_output(self):
+        """
+        Enable OSC output for all parameters
+        """
+        try:
+            self._stub.EnableAllOutput(self._sushi_proto.GenericVoidValue())
+        except grpc.RpcError as e:
+            sushierrors.grpc_error_handling(e)
+
+    def disable_all_output(self):
+        """
+        Disable OSC output for all parameters
+        """
+        try:
+            self._stub.DisableAllOutput(self._sushi_proto.GenericVoidValue())
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
