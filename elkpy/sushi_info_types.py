@@ -85,6 +85,63 @@ class PluginType(IntEnum):
 # Info Classes #
 ################
 
+class SushiBuildInfo(object):
+    """
+    Class to represent build info from sushi in a clear way
+
+    Attributes:
+        version (str): The sushi version
+        build_options (List[str]) : A list of build options
+        audio_buffer_size (int) : The buffer size used when building sushi
+        commit_hash (str) : Commit hash of the build
+        build_date (str) : The date sushi was built
+    """
+    def __init__(self, grpc_SushiBuildInfo = None):
+        try:
+            self.version = grpc_SushiBuildInfo.version
+        except:
+            self._version = ""
+
+        try:
+            self.build_options = grpc_SushiBuildInfo.build_options
+        except:
+            self.build_options = [""]
+
+        try:
+            self.audio_buffer_size = grpc_SushiBuildInfo.audio_buffer_size
+        except:
+            self.audio_buffer_size = -1
+
+        try:
+            self.commit_hash = grpc_SushiBuildInfo.commit_hash
+        except:
+            self.commit_hash = ""
+
+        try:
+            self.build_date = grpc_SushiBuildInfo.build_date
+        except:
+            self.build_date = "1-1-1970"
+
+    def __str__(self) -> str:
+        s = '{\n'
+        s += ' version: %s \n' %self.version
+        s += ' build options: %s \n' %self.build_options
+        s += ' audio buffer size: %s \n' %self.audio_buffer_size
+        s += ' commit hash: %s \n' %self.commit_hash
+        s += ' build date: %s \n' %self.build_date
+        s += '}'
+        return s
+
+    def __eq__(self, other):
+        return self.version == other.version \
+            and self.build_options == other.build_options \
+            and self.audio_buffer_size == other.audio_buffer_size \
+            and self.commit_hash == other.commit_hash \
+            and self.build_date == other.build_date
+
+
+
+
 class ParameterInfo(object):
     """
     Class to represent the parameter info received from sushi in a clear way.

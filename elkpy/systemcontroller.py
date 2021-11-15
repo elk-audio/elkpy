@@ -58,7 +58,7 @@ class SystemController(object):
     def get_build_info(self) -> list:
         try:
             response = self._stub.GetBuildInfo(self._sushi_proto.GenericVoidValue())
-            return response
+            return info_types.SushiBuildInfo(response)
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
