@@ -194,10 +194,10 @@ class MidiController(object):
             raw_midi (bool): Enable raw midi
         """
         try:
-            self._stub.ConnectKbdInputToTrack(self._sushi_proto.MidiKbdConnection(track=self._sushi_proto.TrackIdentifier(id=track),
-                                                                                  channel=self._sushi_proto.MidiChannel(channel=channel),
-                                                                                  port=port,
-                                                                                  raw_midi=raw_midi))
+            self._stub.ConnectKbdOutputFromTrack(self._sushi_proto.MidiKbdConnection(track=self._sushi_proto.TrackIdentifier(id=track),
+                                                                                     channel=self._sushi_proto.MidiChannel(channel=channel),
+                                                                                     port=port,
+                                                                                     raw_midi=raw_midi))
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, f"With MidiKbdConnection: track: {track}, channel: {channel}, "
                                                f"port: {port}, raw_midi: {raw_midi}")

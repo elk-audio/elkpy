@@ -40,10 +40,10 @@ grpc_input_kbd_connection = proto.MidiKbdConnection(channel=proto.MidiChannel(ch
 grpc_input_kbd_connections = proto.MidiKbdConnectionList(connections=[grpc_input_kbd_connection, grpc_input_kbd_connection])
 
 expected_output_kbd_connection = info.MidiKbdConnection()
-expected_output_kbd_connection.channel = 2
-expected_output_kbd_connection.port = 3
-expected_output_kbd_connection.raw_midi = True
-expected_output_kbd_connection.track = 12
+expected_output_kbd_connection.channel = 4
+expected_output_kbd_connection.port = 7
+expected_output_kbd_connection.raw_midi = False
+expected_output_kbd_connection.track = 21
 
 expected_output_kbd_connections = [expected_output_kbd_connection, expected_output_kbd_connection]
 
@@ -121,18 +121,18 @@ class MidiControllerServiceMockup(sushi_rpc_pb2_grpc.MidiControllerServicer):
             return grpc_input_pc_connections
 
     def ConnectKbdInputToTrack(self, request, context):
-        if request.track == expected_input_kbd_connection.track \
-        and request.channel == expected_input_kbd_connection.channel \
+        if request.track.id == expected_input_kbd_connection.track \
+        and request.channel.channel == expected_input_kbd_connection.channel \
         and request.port == expected_input_kbd_connection.port \
         and request.raw_midi == expected_input_kbd_connection.raw_midi:
             self.called = True
         return proto.GenericVoidValue()
 
     def ConnectKbdOutputFromTrack(self, request, context):
-        if request.track == expected_input_kbd_connection.track \
-        and request.channel == expected_input_kbd_connection.channel \
-        and request.port == expected_input_kbd_connection.port \
-        and request.raw_midi == expected_input_kbd_connection.raw_midi:
+        if request.track.id == expected_output_kbd_connection.track \
+        and request.channel.channel == expected_output_kbd_connection.channel \
+        and request.port == expected_output_kbd_connection.port \
+        and request.raw_midi == expected_output_kbd_connection.raw_midi:
             self.called = True
         return proto.GenericVoidValue()
 
