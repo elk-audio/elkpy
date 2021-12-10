@@ -108,6 +108,12 @@ expected_proc_bypass_request = proto.ProcessorBypassStateSetRequest(
     value = True
 )
 
+expected_processor_state = info.ProcessorState
+expected_processor_state.program_id = 5
+expected_processor_state.bypassed = False
+expected_processor_state.properties = []
+expected_processor_state.parameters = [(0, 0.5), (1, 1.0)]
+
 expected_create_track_request = proto.CreateTrackRequest(
     name = "test_track_3",
     channels = 3
@@ -198,6 +204,23 @@ class AudioGraphControllerServiceMockup(sushi_rpc_pb2_grpc.AudioGraphControllerS
             return proto.GenericBoolValue(value = expected_processor_1_bypass)
         elif request.id == expected_processor_2.id:
             return proto.GenericBoolValue(value = expected_processor_2_bypass)
+        else:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, "{} is not a processor id".format(request.id))
+
+    def GetProcessorState(self, request, context):
+        if request.id == expected_processor_1.id or request.id == expected_processor_2.id:
+            state = proto.ProcessorState()
+
+            state.program_id.value = expected_processor_state.program_id
+            state.program_id.has_value = True
+            state.bypassed.value = expected_processor_state.bypassed
+            state.bypassed.has_value = True
+            for parameter in expected_processor_state.parameters:
+                state_param = state.parameters.add()
+                state_param.parameter.parameter_id = parameter[0]
+                state_param.value = parameter[1]
+
+            return state
         else:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, "{} is not a processor id".format(request.id))
 

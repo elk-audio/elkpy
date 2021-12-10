@@ -453,6 +453,61 @@ class ProgramInfo(object):
         return self.id == other.id \
             and self.name == other.name
 
+class ProcessorState(object):
+    """
+    Class to represent the processor state info received from sushi in a clear way.
+
+    Attributes:
+        program_id (int): The id of the current program.
+        bypassed (bool): Whether the processor is currently bypassed or not.
+        properties ((int, str)): All property values of the processor.
+        parameters ((int, float)): All parameter values of the processor.
+    """
+    def __init__(self, grpc_ProcessorState = None):
+        try:
+            self.program_id = grpc_ProcessorState.program_id.value
+        except:
+            self.program_id = 0
+
+        try:
+            self.bypassed = grpc_ProcessorState.bypassed.value
+        except:
+            self.bypassed = False
+
+        try:
+            self.properties = []
+            for property in grpc_ProcessorState.properties:
+                self.properties.append((property.property.id, property.value))
+
+        except:
+            self.properties = []
+
+        try:
+            self.parameters = []
+            for parameter in grpc_ProcessorState.parameters:
+                self.parameters.append((parameter.parameter.parameter_id, parameter.value))
+
+        except:
+            self.parameters = []
+
+    def __str__(self):
+        s = '{\n'
+        s += ' program_id: %s \n' %self.program_id
+        s += ' bypassed: %s \n' %self.bypassed
+        s += ' properties: %s \n' %self.properties
+        s += ' parameters: %s \n' %self.parameters
+        s += '}'
+        return s
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __eq__(self, other):
+        return self.program_id == other.program_id \
+            and self.bypassed == other.bypassed \
+            and self.properties == other.properties \
+            and self.parameters == other.parameters 
+
 
 class AudioConnection(object):
     """

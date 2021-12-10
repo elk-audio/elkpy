@@ -208,6 +208,25 @@ class AudioGraphController(object):
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With processor id: {}".format(processor_identifier))
 
+    def get_processor_state(self, processor_identifier: int) -> info_types.ProcessorState:
+        """
+        Get the full state of the specified processor.
+
+        Parameters:
+            processor_identifier (int): The id of processor to get the full state from.
+
+        Returns:
+            ProcessorState: An object describing the full the processor matching the id.
+        """
+        try:
+            response = self._stub.GetProcessorState(self._sushi_proto.ProcessorIdentifier(
+                id = processor_identifier
+            ))
+            return info_types.ProcessorState(response)
+
+        except grpc.RpcError as e:
+            sushierrors.grpc_error_handling(e, "With processor id: {}".format(processor_identifier))
+
     def set_processor_bypass_state(self, processor_identifier: int, bypass_state: bool) -> None:
         """
         Set the bypass state of the specified processor.
@@ -224,6 +243,47 @@ class AudioGraphController(object):
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With processor id: {}, bypass state: {}".format(processor_identifier, bypass_state))
+
+
+    def set_processor_state(self, processor_identifier: int, program_id: int = None, bypassed: None = False,
+            property_values: (int, str) = [], parameter_values: (int, float) = []) -> None:
+        """
+        Set the full or partial state of the specified processor.
+
+        Parameters:
+            program_id (int): The id of the program to set.
+            bypassed (bool): Whether the processor should be bypassed or not.
+            properties ((int, str)): A list of tuples (id, value) of string properties to set.
+            parameters ((int, float)): A list of tuples (id, value) of parameter values to set.
+        """
+        try:
+            grpc_state = self._sushi_proto.ProcessorState()
+
+            if program_id:
+                grpc_state.program_id.value = program_id
+                grpc_state.program_id.has_value = True
+
+            if bypassed != None:
+                grpc_state.bypassed.value = bypassed
+                grpc_state.bypassed.has_value = True
+
+            for property in property_values:
+                grpc_property = grpc_state.properties.add()
+                grpc_property.property.property_id = property[0]
+                grpc_property.value = property[1]
+
+            for parameter in parameter_values:
+                grpc_parameter = grpc_state.parameters.add()
+                grpc_parameter.parameter.parameter_id = parameter[0]
+                grpc_parameter.value = parameter[1]
+
+            self._stub.SetProcessorState(self._sushi_proto.ProcessorStateSetRequest(
+                processor = self._sushi_proto.ProcessorIdentifier(id = processor_identifier),
+                state = grpc_state
+            ))
+
+        except grpc.RpcError as e:
+            sushierrors.grpc_error_handling(e, "With processor id: {}".format(processor_identifier))
 
     def create_track(self, name: str, channels: int) -> None:
         """
