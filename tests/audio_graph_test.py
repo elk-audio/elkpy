@@ -109,6 +109,12 @@ class TestAudioGraphController(unittest.TestCase):
         with self.assertRaises(sushierrors.SushiInvalidArgumentError):
             self._agc.get_processor_bypass_state(-1)
 
+    def test_get_processor_state(self):
+        self.assertEqual(self._agc.get_processor_state(audiograph_service_mock.expected_processor_1.id),
+                         audiograph_service_mock.expected_processor_state)
+        self.assertEqual(self._agc.get_processor_state(audiograph_service_mock.expected_processor_2.id),
+                         audiograph_service_mock.expected_processor_state)
+
     def test_create_track(self):
         self._agc.create_track(audiograph_service_mock.expected_create_track_request.name,
                                audiograph_service_mock.expected_create_track_request.channels)
