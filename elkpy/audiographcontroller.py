@@ -285,6 +285,44 @@ class AudioGraphController(object):
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With processor id: {}".format(processor_identifier))
 
+    def set_processor_state(self, processor_identifier: int, state: info_types.ProcessorState) -> None:
+        """
+        Set the full or partial state of the specified processor from an existing state object.
+
+        Parameters:
+            state (info_types.ProcessorState): a state object either populated manually or received from a call to get_processor_state.
+        """
+        try:
+            grpc_state = self._sushi_proto.ProcessorState()
+
+            if state.program_id:
+                grpc_state.program_id.value = program_id
+                grpc_state.program_id.has_value = True
+
+            if state.bypassed != None:
+                grpc_state.bypassed.value = bypassed
+                grpc_state.bypassed.has_value = True
+
+            for property in property_values:
+                grpc_property = grpc_state.properties.add()
+                grpc_property.property.property_id = property[0]
+                grpc_property.value = property[1]
+
+            for parameter in parameter_values:
+                grpc_parameter = grpc_state.parameters.add()
+                grpc_parameter.parameter.parameter_id = parameter[0]
+                grpc_parameter.value = parameter[1]
+
+            if len(state.binary_data) > 0:
+                grpc_state.binary_data = state.binary_data
+
+            self._stub.SetProcessorState(self._sushi_proto.ProcessorStateSetRequest(
+                processor = self._sushi_proto.ProcessorIdentifier(id = processor_identifier),
+                state = grpc_state
+            ))
+
+        except grpc.RpcError as e:
+            sushierrors.grpc_error_handling(e, "With processor id: {}".format(processor_identifier))
     def create_track(self, name: str, channels: int) -> None:
         """
         Create a new track in sushi.
