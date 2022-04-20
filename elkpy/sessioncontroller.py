@@ -23,9 +23,9 @@ from . import grpc_gen
 from . import sushi_info_types as info_types
 from typing import List
 
-####################################
-# Sushi timing controller class #
-####################################
+##################################
+# Sushi session controller class #
+##################################
 
 class SessionController(object):
     """
@@ -69,7 +69,6 @@ class SessionController(object):
     def restore_binary_session(self, binary_session: bytes) -> None:
         """
         Restore the sushi session from a previously save session state. This will clear all track and loaded plugins
-
         """
         try:
             grpc_state = self._sushi_proto.SessionState()
