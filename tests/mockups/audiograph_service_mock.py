@@ -113,6 +113,7 @@ expected_processor_state.program_id = 5
 expected_processor_state.bypassed = False
 expected_processor_state.properties = []
 expected_processor_state.parameters = [(0, 0.5), (1, 1.0)]
+expected_processor_state.binary_data = bytes()
 
 expected_create_track_request = proto.CreateTrackRequest(
     name = "test_track_3",

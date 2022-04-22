@@ -462,6 +462,7 @@ class ProcessorState(object):
         bypassed (bool): Whether the processor is currently bypassed or not.
         properties ((int, str)): All property values of the processor.
         parameters ((int, float)): All parameter values of the processor.
+        binary_data (bytes): Opaque binary data saved by the plugin.
     """
     def __init__(self, grpc_ProcessorState = None):
         try:

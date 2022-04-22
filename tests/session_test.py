@@ -37,10 +37,10 @@ if proto_file is None:
 
 SUSHI_PROTO, SUSHI_GRPC = grpc_gen.modules_from_proto(proto_file)
 
-SUSHI_ADDRESS = ('localhost:51060')
+SUSHI_ADDRESS = ('localhost:51063')
 
 mock_server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-service = system_service_mock.SessionControllerServiceMockup()
+service = session_service_mock.SessionControllerServiceMockup()
 SUSHI_GRPC.add_SessionControllerServicer_to_server(service, mock_server)
 mock_server.add_insecure_port(SUSHI_ADDRESS)
 mock_server.start()
@@ -55,5 +55,5 @@ class TestSessionController(unittest.TestCase):
 
     def test_restore_state(self):
         self.assertEqual(self._sc.restore_binary_session(session_service_mock.expected_binary_session),
-                         0)
+                         None)
 
