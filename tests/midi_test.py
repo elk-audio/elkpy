@@ -81,6 +81,13 @@ class TestMidiController(unittest.TestCase):
         self.assertEqual(self._mc.get_pc_input_connections_for_processor(midi_service_mock.expected_input_pc_connection.processor),
                          midi_service_mock.expected_input_pc_connections)
 
+    def test_get_midi_clock_output(self):
+        self.assertTrue(self._mc.get_midi_clock_output_enabled(midi_service_mock.expected_midi_clock_port))
+
+    def test_set_midi_clock_output(self):
+        self._mc.set_midi_clock_output_enabled(midi_service_mock.expected_midi_clock_port, True)
+        self.assertTrue(service.was_called())
+
     def test_connect_kbd_input_to_track(self):
         self._mc.connect_kbd_input_to_track(midi_service_mock.expected_input_kbd_connection.track,
                                             midi_service_mock.expected_input_kbd_connection.channel,

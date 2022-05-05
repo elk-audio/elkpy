@@ -164,6 +164,36 @@ class MidiController(object):
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, f"With processor_id: {processor_id}")
 
+    def get_midi_clock_output_enabled(self, port: int) -> bool:
+        """
+        Gets whether midi clock output is enabled for a midi port.
+
+        Parameters:
+            port (int): The id of the processor to get the input connections from
+
+        Returns:
+            bool: true if midi clock is enabled for that midi output port
+        """
+        try:
+            response = self._stub.GetMidiClockOutputEnabled(self._sushi_proto.GenericIntValue(value=port))
+            return response.value
+        except grpc.RpcError as e:
+            sushierrors.grpc_error_handling(e, f"With port: {port}")
+
+    def set_midi_clock_output_enabled(self, port: int, enabled: bool) -> None:
+        """
+        Enable or disabled midi clock output for a midi port.
+
+        Parameters:
+            port (int): The id of the output port to toggle
+            enabled (bool): True to turn on clock output, False to turn off
+        """
+        try:
+            response = self._stub.SetMidiClockOutputEnabled(
+                self._sushi_proto.MidiClockSetRequest(port=port, enabled=enabled))
+        except grpc.RpcError as e:
+            sushierrors.grpc_error_handling(e, f"With port: {port}, enabled: {enabled}")
+
     def connect_kbd_input_to_track(self, track: int, channel: int, port: int, raw_midi: bool) -> None:
         """
         Connects a Midi Keyboard input connection to a track
