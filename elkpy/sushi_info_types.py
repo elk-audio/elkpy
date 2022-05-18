@@ -462,17 +462,18 @@ class ProcessorState(object):
         bypassed (bool): Whether the processor is currently bypassed or not.
         properties ((int, str)): All property values of the processor.
         parameters ((int, float)): All parameter values of the processor.
+        binary_data (bytes): Opaque binary data saved by the plugin.
     """
     def __init__(self, grpc_ProcessorState = None):
         try:
             self.program_id = grpc_ProcessorState.program_id.value
         except:
-            self.program_id = 0
+            self.program_id = None
 
         try:
             self.bypassed = grpc_ProcessorState.bypassed.value
         except:
-            self.bypassed = False
+            self.bypassed = None
 
         try:
             self.properties = []
@@ -490,12 +491,19 @@ class ProcessorState(object):
         except:
             self.parameters = []
 
+        try:
+            self.binary_data = grpc_ProcessorState.binary_data
+
+        except:
+            self.binary_data = bytes()
+
     def __str__(self):
         s = '{\n'
         s += ' program_id: %s \n' %self.program_id
         s += ' bypassed: %s \n' %self.bypassed
         s += ' properties: %s \n' %self.properties
         s += ' parameters: %s \n' %self.parameters
+        s += ' binary_data: %s \n' %self.binary_data
         s += '}'
         return s
 
@@ -506,7 +514,8 @@ class ProcessorState(object):
         return self.program_id == other.program_id \
             and self.bypassed == other.bypassed \
             and self.properties == other.properties \
-            and self.parameters == other.parameters 
+            and self.parameters == other.parameters \
+            and self.binary_data  == other.binary_data
 
 
 class AudioConnection(object):

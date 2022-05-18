@@ -23,6 +23,7 @@ from elkpy import sushi_info_types as info
 
 expected_input_ports = 16
 expected_output_ports = 7
+expected_midi_clock_port = 1
 
 expected_input_kbd_connection = info.MidiKbdConnection()
 expected_input_kbd_connection.channel = 2
@@ -119,6 +120,14 @@ class MidiControllerServiceMockup(sushi_rpc_pb2_grpc.MidiControllerServicer):
     def GetPCInputConnectionsForProcessor(self, request, context):
         if request.id == expected_input_pc_connection.processor:
             return grpc_input_pc_connections
+
+    def GetMidiClockOutputEnabled(self, request, context):
+        return proto.GenericBoolValue(value = (request.value == expected_midi_clock_port))
+
+    def SetMidiClockOutputEnabled(self, request, context):
+        if request.port == expected_midi_clock_port:
+            self.called = True
+        return proto.GenericVoidValue()
 
     def ConnectKbdInputToTrack(self, request, context):
         if request.track.id == expected_input_kbd_connection.track \
