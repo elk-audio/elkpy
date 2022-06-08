@@ -52,6 +52,6 @@ def grpc_error_handling(e, context_info = ''):
     elif (e.code().name == 'INTERNAL'):
         raise SushiInternalError(e.details() , context_info) from e
     else:
-        print(context_info)
+        if context_info is not '':
+            print(context_info)
         raise e
-      #  print('Grpc error: ' + str e.code().name) + ', ' + e.details())
