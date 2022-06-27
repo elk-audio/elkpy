@@ -61,30 +61,24 @@ expected_track_1 = info.TrackInfo()
 expected_track_1.id = 1
 expected_track_1.label = "Test track 1"
 expected_track_1.name = "test_plugin_1"
-expected_track_1.input_channels = 1
-expected_track_1.input_busses = 1
-expected_track_1.output_channels = 1
-expected_track_1.output_busses = 1
+expected_track_1.channels = 1
+expected_track_1.buses = 1
 expected_track_1.processors = [1, 2]
 
 expected_track_2 = info.TrackInfo()
 expected_track_2.id = 2
 expected_track_2.label = "Test track 2"
 expected_track_2.name = "test_plugin_2"
-expected_track_2.input_channels = 2
-expected_track_2.input_busses = 2
-expected_track_2.output_channels = 2
-expected_track_2.output_busses = 2
+expected_track_2.channels = 2
+expected_track_2.buses = 2
 expected_track_2.processors = [1, 2]
 
 grpc_track_1 = proto.TrackInfo(
     id = expected_track_1.id,
     label = expected_track_1.label,
     name = expected_track_1.name,
-    input_channels = expected_track_1.input_channels,
-    input_busses = expected_track_1.input_busses,
-    output_channels = expected_track_1.output_channels,
-    output_busses = expected_track_1.output_busses,
+    channels = expected_track_1.channels,
+    buses = expected_track_1.buses,
     processors = [proto.ProcessorIdentifier(id = expected_track_1.processors[0]),
                   proto.ProcessorIdentifier(id = expected_track_1.processors[1])]
 )
@@ -93,10 +87,8 @@ grpc_track_2 = proto.TrackInfo(
     id = expected_track_2.id,
     label = expected_track_2.label,
     name = expected_track_2.name,
-    input_channels = expected_track_2.input_channels,
-    input_busses = expected_track_2.input_busses,
-    output_channels = expected_track_2.output_channels,
-    output_busses = expected_track_2.output_busses,
+    channels = expected_track_2.channels,
+    buses = expected_track_2.buses,
     processors = [proto.ProcessorIdentifier(id = expected_track_2.processors[0]),
                   proto.ProcessorIdentifier(id = expected_track_2.processors[1])]
 )
@@ -122,8 +114,7 @@ expected_create_track_request = proto.CreateTrackRequest(
 
 expected_create_multibus_request = proto.CreateMultibusTrackRequest(
     name = "test_multibus",
-    output_busses = 12,
-    input_busses = 16
+    buses = 12
 )
 
 expected_create_processor_request = proto.CreateProcessorRequest(

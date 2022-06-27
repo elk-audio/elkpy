@@ -340,24 +340,22 @@ class AudioGraphController(object):
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With track name: {}, number of channels: {}".format(name, channels))
 
-    def create_multibus_track(self, name: str, output_busses: int, input_busses: int) -> None:
+    def create_multibus_track(self, name: str, buses: int) -> None:
         """
         Create a new multibus track in sushi.
 
         Parameters:
             name (str): The name of the new track.
-            output_busses (int): The number of output busses to assign the new track.
-            input_busses (int): The number of input busses to assign the new track.
+            buses (int): The number of audio buses in the new track.
         """
         try:
             self._stub.CreateMultibusTrack(self._sushi_proto.CreateMultibusTrackRequest(
                 name = name,
-                output_busses = output_busses,
-                input_busses = input_busses
+                buses = buses
             ))
 
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, "With track name: {}, output busses: {}, input busses: {}".format(name, output_busses, input_busses))
+            sushierrors.grpc_error_handling(e, "With track name: {}, buses: {}".format(name, buses))
 
     def create_processor_on_track(self, name: str, uid: str, path:
                                   str, processor_type: info_types.PluginType, track_id: int,

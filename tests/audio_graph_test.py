@@ -123,8 +123,7 @@ class TestAudioGraphController(unittest.TestCase):
 
     def test_create_multibus_track(self):
         self._agc.create_multibus_track(audiograph_service_mock.expected_create_multibus_request.name,
-                                        audiograph_service_mock.expected_create_multibus_request.output_busses,
-                                        audiograph_service_mock.expected_create_multibus_request.input_busses)
+                                        audiograph_service_mock.expected_create_multibus_request.buses)
         self.assertTrue(service.was_called())
         self.assertEqual(service.get_recent_request(), audiograph_service_mock.expected_create_multibus_request)
 
