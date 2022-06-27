@@ -371,6 +371,7 @@ class TestSushiTrackInfo(unittest.TestCase):
             name = 'test',
             channels = 2,
             buses = 1,
+            type = SUSHI_PROTO.TrackType(type = 2),
             processors = [SUSHI_PROTO.ProcessorIdentifier(id = 10),
                           SUSHI_PROTO.ProcessorIdentifier(id = 20)]
         ))
@@ -381,6 +382,7 @@ class TestSushiTrackInfo(unittest.TestCase):
         expected_result.name = 'test'
         expected_result.channels = 2
         expected_result.buses = 1
+        expected_result.type = types.TrackType.MASTER_PRE
         expected_result.processors = [10, 20]
 
         self.assertEqual(result, expected_result)
@@ -391,6 +393,7 @@ class TestSushiTrackInfo(unittest.TestCase):
             name = 'test',
             channels = 2,
             buses = 1,
+            type = SUSHI_PROTO.TrackType(type = 1),
             processors = [SUSHI_PROTO.ProcessorIdentifier(id = 10),
                           SUSHI_PROTO.ProcessorIdentifier(id = 20)]
         ))
@@ -401,6 +404,7 @@ class TestSushiTrackInfo(unittest.TestCase):
         expected_result.name = 'test'
         expected_result.channels = 2
         expected_result.buses = 1
+        expected_result.type = types.TrackType.REGULAR
         expected_result.processors = [10, 20]
 
         self.assertEqual(result, expected_result)
@@ -411,6 +415,7 @@ class TestSushiTrackInfo(unittest.TestCase):
             name = 'test',
             channels = 2,
             buses = 1,
+            type = SUSHI_PROTO.TrackType(type = 1),
             processors = [SUSHI_PROTO.ProcessorIdentifier(id = 10),
                           SUSHI_PROTO.ProcessorIdentifier(id = 20)]
         ))
@@ -421,6 +426,7 @@ class TestSushiTrackInfo(unittest.TestCase):
         expected_result.name = 'test'
         expected_result.channels = 2
         expected_result.buses = 1
+        expected_result.type = types.TrackType.REGULAR
         expected_result.processors = [10, 20]
 
         self.assertEqual(result, expected_result)
@@ -431,6 +437,7 @@ class TestSushiTrackInfo(unittest.TestCase):
             label = 'test',
             channels = 2,
             buses = 1,
+            type = SUSHI_PROTO.TrackType(type = 1),
             processors = [SUSHI_PROTO.ProcessorIdentifier(id = 10),
                           SUSHI_PROTO.ProcessorIdentifier(id = 20)]
         ))
@@ -441,6 +448,7 @@ class TestSushiTrackInfo(unittest.TestCase):
         expected_result.name = ''
         expected_result.channels = 2
         expected_result.buses = 1
+        expected_result.type = types.TrackType.REGULAR
         expected_result.processors = [10, 20]
 
         self.assertEqual(result, expected_result)
@@ -451,6 +459,7 @@ class TestSushiTrackInfo(unittest.TestCase):
             label = 'test',
             name = 'test',
             buses = 1,
+            type = SUSHI_PROTO.TrackType(type = 1),
             processors = [SUSHI_PROTO.ProcessorIdentifier(id = 10),
                           SUSHI_PROTO.ProcessorIdentifier(id = 20)]
         ))
@@ -461,6 +470,7 @@ class TestSushiTrackInfo(unittest.TestCase):
         expected_result.name = 'test'
         expected_result.channels = 0
         expected_result.buses = 1
+        expected_result.type = types.TrackType.REGULAR
         expected_result.processors = [10, 20]
 
         self.assertEqual(result, expected_result)
@@ -471,6 +481,7 @@ class TestSushiTrackInfo(unittest.TestCase):
             label = 'test',
             name = 'test',
             channels = 2,
+            type = SUSHI_PROTO.TrackType(type = 1),
             processors = [SUSHI_PROTO.ProcessorIdentifier(id = 10),
                           SUSHI_PROTO.ProcessorIdentifier(id = 20)]
         ))
@@ -481,6 +492,7 @@ class TestSushiTrackInfo(unittest.TestCase):
         expected_result.name = 'test'
         expected_result.channels = 2
         expected_result.buses = 0
+        expected_result.type = types.TrackType.REGULAR
         expected_result.processors = [10, 20]
 
         self.assertEqual(result, expected_result)
@@ -492,6 +504,7 @@ class TestSushiTrackInfo(unittest.TestCase):
             name = 'test',
             channels = 2,
             buses = 1,
+            type =  SUSHI_PROTO.TrackType(type = 1),
         ))
 
         expected_result = types.TrackInfo()
@@ -500,6 +513,7 @@ class TestSushiTrackInfo(unittest.TestCase):
         expected_result.name = 'test'
         expected_result.channels = 2
         expected_result.buses = 1
+        expected_result.type = types.TrackType.REGULAR
         expected_result.processors = []
         self.assertEqual(result, expected_result)
 

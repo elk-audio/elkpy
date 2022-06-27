@@ -63,6 +63,7 @@ expected_track_1.label = "Test track 1"
 expected_track_1.name = "test_plugin_1"
 expected_track_1.channels = 1
 expected_track_1.buses = 1
+expected_track_1.type = info.TrackType.REGULAR
 expected_track_1.processors = [1, 2]
 
 expected_track_2 = info.TrackInfo()
@@ -71,6 +72,7 @@ expected_track_2.label = "Test track 2"
 expected_track_2.name = "test_plugin_2"
 expected_track_2.channels = 2
 expected_track_2.buses = 2
+expected_track_2.type = info.TrackType.MASTER_POST
 expected_track_2.processors = [1, 2]
 
 grpc_track_1 = proto.TrackInfo(
@@ -79,6 +81,7 @@ grpc_track_1 = proto.TrackInfo(
     name = expected_track_1.name,
     channels = expected_track_1.channels,
     buses = expected_track_1.buses,
+    type = proto.TrackType(type = expected_track_1.type),
     processors = [proto.ProcessorIdentifier(id = expected_track_1.processors[0]),
                   proto.ProcessorIdentifier(id = expected_track_1.processors[1])]
 )
@@ -89,6 +92,7 @@ grpc_track_2 = proto.TrackInfo(
     name = expected_track_2.name,
     channels = expected_track_2.channels,
     buses = expected_track_2.buses,
+    type = proto.TrackType(type = expected_track_2.type),
     processors = [proto.ProcessorIdentifier(id = expected_track_2.processors[0]),
                   proto.ProcessorIdentifier(id = expected_track_2.processors[1])]
 )
@@ -115,6 +119,10 @@ expected_create_track_request = proto.CreateTrackRequest(
 expected_create_multibus_request = proto.CreateMultibusTrackRequest(
     name = "test_multibus",
     buses = 12
+)
+
+expected_create_mastertrack_request = proto.CreateMasterTrackRequest(
+    name = "test_master"
 )
 
 expected_create_processor_request = proto.CreateProcessorRequest(
@@ -227,6 +235,16 @@ class AudioGraphControllerServiceMockup(sushi_rpc_pb2_grpc.AudioGraphControllerS
         return proto.GenericVoidValue()
 
     def CreateMultibusTrack(self, request, context):
+        self.called = True
+        self.recent_request = request
+        return proto.GenericVoidValue()
+
+    def CreateMasterPreTrack(self, request, context):
+        self.called = True
+        self.recent_request = request
+        return proto.GenericVoidValue()
+
+    def CreateMasterPostTrack(self, request, context):
         self.called = True
         self.recent_request = request
         return proto.GenericVoidValue()

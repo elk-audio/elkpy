@@ -81,6 +81,19 @@ class PluginType(IntEnum):
     VST3X = 3
     LV2 = 4
 
+class TrackType(IntEnum):
+    """
+    Enum class to hold the type of track
+
+    Attributes:
+        REGULAR,
+        MASTER_PRE,
+        MASTER_POST
+    """
+    REGULAR = 1
+    MASTER_PRE = 2
+    MASTER_POST = 3
+
 ################
 # Info Classes #
 ################
@@ -348,6 +361,7 @@ class TrackInfo(object):
         name (str): The name of the track.
         channels (int): The number of input channels available to the track.
         buses (int): The number input buses available to the track.
+        type (TrackType): The type of track
     """
     def __init__(self, grpc_TrackInfo = None):
         try:
@@ -376,6 +390,11 @@ class TrackInfo(object):
             self.buses = 0
 
         try:
+            self.type = TrackType(grpc_TrackInfo.type.type)
+        except:
+            self.type = TrackType.REGULAR
+
+        try:
             self.processors = []
             for processor in grpc_TrackInfo.processors:
                 self.processors.append(processor.id)
@@ -389,6 +408,7 @@ class TrackInfo(object):
         s += ' name: %s \n' %self.name
         s += ' channels: %s \n' %self.channels
         s += ' buses: %s \n' %self.buses
+        s += ' type: %s \n' %self.type
         s += ' processors: %s \n' %self.processors
         s += '}'
         return s
@@ -402,6 +422,7 @@ class TrackInfo(object):
             and self.name == other.name \
             and self.channels == other.channels \
             and self.buses == other.buses \
+            and self.type == other.type \
             and self.processors == other.processors
 
 class ProgramInfo(object):
