@@ -273,4 +273,4 @@ class NotificationController(object):
             ex: notification.parameter.processor_id (gets the processor ID)
             ex: notification.value (gets the value)
         """
-        asyncio.run_coroutine_threadsafe(self.process_property_update_notifications(cb, param_blocklist), self.loop)
+        asyncio.run_coroutine_threadsafe(self.process_property_update_notifications(cb), self.loop)
