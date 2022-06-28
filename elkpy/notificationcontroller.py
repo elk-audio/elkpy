@@ -176,6 +176,25 @@ class NotificationController(object):
             raise TypeError(f"Parameter address = {self.address}. "
                             f"Should be a string containing the IP address and port to Sushi")
 
+    async def process_property_update_notifications(self, call_back=None):
+        try:
+            async with grpc.experimental.aio.insecure_channel(self.address) as channel:
+                stub = self._sushi_grpc.NotificationControllerStub(channel)
+                stream = stub.SubscribeToPropertyChanges(self._sushi_proto.GenericVoidValue())
+                async for notification in stream:
+                    # User logic here
+                    if call_back and callable(call_back):
+                        call_back(notification)
+                    else:
+                        raise TypeError("No valid call-back function has been provided for Property Change "
+                                        "notification processing ")
+        except grpc.RpcError as e:
+            sushierrors.grpc_error_handling(e)
+        except AttributeError:
+            raise TypeError(f"Parameter address = {self.address}. "
+                            f"Should be a string containing the IP address and port to Sushi")
+
+
     ####################################################
     # API : Subscription to Sushi notification streams #
     ####################################################
@@ -238,3 +257,20 @@ class NotificationController(object):
             ex: notification.value (gets the value)
         """
         asyncio.run_coroutine_threadsafe(self.process_parameter_update_notifications(cb, param_blocklist), self.loop)
+
+    def subscribe_to_property_updates(self, cb):
+        """
+        Subscribes to Property update notification stream from Sushi
+        User needs to implement their own logic to process these notification in the placeholder methods below
+
+        Parameters:
+            cb: a callable that will be called for each notification received from the stream.
+
+        Notes to write useful callbacks:
+            Notification objects have 2 attributes: property and value;
+            Property itself has 2 attributes: processor_id and property_id;
+            ex: notification.parameter.property_id (gets the property ID)
+            ex: notification.parameter.processor_id (gets the processor ID)
+            ex: notification.value (gets the value)
+        """
+        asyncio.run_coroutine_threadsafe(self.process_property_update_notifications(cb, param_blocklist), self.loop)
