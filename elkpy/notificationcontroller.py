@@ -176,11 +176,19 @@ class NotificationController(object):
             raise TypeError(f"Parameter address = {self.address}. "
                             f"Should be a string containing the IP address and port to Sushi")
 
-    async def process_property_update_notifications(self, call_back=None):
+    async def process_property_update_notifications(self, call_back=None, property_list=None):
+        if not property_list:
+            block_list = self._sushi_proto.GenericVoidValue()
+        else:
+            p_list = []
+            for p in property_list:
+                property = self._sushi_proto.PropertyIdentifier(processor_id=p[0], property_id=p[1])
+                p_list.append(param)
+            block_list = self._sushi_proto.PropertyNotificationBlocklist(properties=p_list)
         try:
             async with grpc.experimental.aio.insecure_channel(self.address) as channel:
                 stub = self._sushi_grpc.NotificationControllerStub(channel)
-                stream = stub.SubscribeToPropertyChanges(self._sushi_proto.GenericVoidValue())
+                stream = stub.SubscribeToPropertyUpdates(block_list)
                 async for notification in stream:
                     # User logic here
                     if call_back and callable(call_back):
@@ -193,7 +201,6 @@ class NotificationController(object):
         except AttributeError:
             raise TypeError(f"Parameter address = {self.address}. "
                             f"Should be a string containing the IP address and port to Sushi")
-
 
     ####################################################
     # API : Subscription to Sushi notification streams #
@@ -258,7 +265,7 @@ class NotificationController(object):
         """
         asyncio.run_coroutine_threadsafe(self.process_parameter_update_notifications(cb, param_blocklist), self.loop)
 
-    def subscribe_to_property_updates(self, cb):
+    def subscribe_to_property_updates(self, cb, property_blocklist=None):
         """
         Subscribes to Property update notification stream from Sushi
         User needs to implement their own logic to process these notification in the placeholder methods below
@@ -273,4 +280,4 @@ class NotificationController(object):
             ex: notification.parameter.processor_id (gets the processor ID)
             ex: notification.value (gets the value)
         """
-        asyncio.run_coroutine_threadsafe(self.process_property_update_notifications(cb), self.loop)
+        asyncio.run_coroutine_threadsafe(self.process_property_update_notifications(cb, property_blocklist), self.loop)
