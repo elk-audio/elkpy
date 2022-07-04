@@ -115,6 +115,11 @@ class TestAudioGraphController(unittest.TestCase):
         self.assertEqual(self._agc.get_processor_state(audiograph_service_mock.expected_processor_2.id),
                          audiograph_service_mock.expected_processor_state)
 
+    def test_set_processor_state(self):
+        self._agc.set_processor_state(audiograph_service_mock.expected_processor_1.id,
+                            audiograph_service_mock.expected_processor_state)
+        self.assertTrue(service.called)
+
     def test_create_track(self):
         self._agc.create_track(audiograph_service_mock.expected_create_track_request.name,
                                audiograph_service_mock.expected_create_track_request.channels)

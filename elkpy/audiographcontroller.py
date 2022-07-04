@@ -296,19 +296,19 @@ class AudioGraphController(object):
             grpc_state = self._sushi_proto.ProcessorState()
 
             if state.program_id:
-                grpc_state.program_id.value = program_id
+                grpc_state.program_id.value = state.program_id
                 grpc_state.program_id.has_value = True
 
             if state.bypassed != None:
-                grpc_state.bypassed.value = bypassed
+                grpc_state.bypassed.value = state.bypassed
                 grpc_state.bypassed.has_value = True
 
-            for property in property_values:
+            for property in state.properties:
                 grpc_property = grpc_state.properties.add()
                 grpc_property.property.property_id = property[0]
                 grpc_property.value = property[1]
 
-            for parameter in parameter_values:
+            for parameter in state.parameters:
                 grpc_parameter = grpc_state.parameters.add()
                 grpc_parameter.parameter.parameter_id = parameter[0]
                 grpc_parameter.value = parameter[1]
@@ -323,6 +323,7 @@ class AudioGraphController(object):
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With processor id: {}".format(processor_identifier))
+
     def create_track(self, name: str, channels: int) -> None:
         """
         Create a new track in sushi.

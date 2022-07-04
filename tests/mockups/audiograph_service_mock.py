@@ -225,6 +225,11 @@ class AudioGraphControllerServiceMockup(sushi_rpc_pb2_grpc.AudioGraphControllerS
         else:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, "{} is not a processor id".format(request.id))
 
+    def SetProcessorState(self, request, context):
+        self.called = True
+        self.recent_request = request
+        return proto.GenericVoidValue()
+
     def SetProcessorBypassState(self, request, context):
         self.called = True
         self.recent_request = request
