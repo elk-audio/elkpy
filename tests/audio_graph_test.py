@@ -127,15 +127,15 @@ class TestAudioGraphController(unittest.TestCase):
         self.assertTrue(service.was_called())
         self.assertEqual(service.get_recent_request(), audiograph_service_mock.expected_create_multibus_request)
 
-    def test_create_master_pre_track(self):
-        self._agc.create_master_pre_track(audiograph_service_mock.expected_create_mastertrack_request.name)
+    def test_create_pre_track(self):
+        self._agc.create_pre_track(audiograph_service_mock.expected_create_pre_track_request.name)
         self.assertTrue(service.was_called())
-        self.assertEqual(service.get_recent_request(), audiograph_service_mock.expected_create_mastertrack_request)
+        self.assertEqual(service.get_recent_request(), audiograph_service_mock.expected_create_pre_track_request)
 
-    def test_create_master_post_track(self):
-        self._agc.create_master_post_track(audiograph_service_mock.expected_create_mastertrack_request.name)
+    def test_create_post_track(self):
+        self._agc.create_post_track(audiograph_service_mock.expected_create_post_track_request.name)
         self.assertTrue(service.was_called())
-        self.assertEqual(service.get_recent_request(), audiograph_service_mock.expected_create_mastertrack_request)
+        self.assertEqual(service.get_recent_request(), audiograph_service_mock.expected_create_post_track_request)
 
     def test_create_processor_on_track(self):
         self._agc.create_processor_on_track(audiograph_service_mock.expected_create_processor_request.name,

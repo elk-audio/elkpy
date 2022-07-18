@@ -72,7 +72,7 @@ expected_track_2.label = "Test track 2"
 expected_track_2.name = "test_plugin_2"
 expected_track_2.channels = 2
 expected_track_2.buses = 2
-expected_track_2.type = info.TrackType.MASTER_POST
+expected_track_2.type = info.TrackType.POST
 expected_track_2.processors = [1, 2]
 
 grpc_track_1 = proto.TrackInfo(
@@ -121,8 +121,12 @@ expected_create_multibus_request = proto.CreateMultibusTrackRequest(
     buses = 12
 )
 
-expected_create_mastertrack_request = proto.CreateMasterTrackRequest(
-    name = "test_master"
+expected_create_post_track_request = proto.CreatePostTrackRequest(
+    name = "test_post"
+)
+
+expected_create_pre_track_request = proto.CreatePreTrackRequest(
+    name = "test_pre"
 )
 
 expected_create_processor_request = proto.CreateProcessorRequest(
@@ -239,12 +243,12 @@ class AudioGraphControllerServiceMockup(sushi_rpc_pb2_grpc.AudioGraphControllerS
         self.recent_request = request
         return proto.GenericVoidValue()
 
-    def CreateMasterPreTrack(self, request, context):
+    def CreatePreTrack(self, request, context):
         self.called = True
         self.recent_request = request
         return proto.GenericVoidValue()
 
-    def CreateMasterPostTrack(self, request, context):
+    def CreatePostTrack(self, request, context):
         self.called = True
         self.recent_request = request
         return proto.GenericVoidValue()

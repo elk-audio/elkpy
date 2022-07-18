@@ -87,12 +87,12 @@ class TrackType(IntEnum):
 
     Attributes:
         REGULAR,
-        MASTER_PRE,
-        MASTER_POST
+        PRE,
+        POST
     """
     REGULAR = 1
-    MASTER_PRE = 2
-    MASTER_POST = 3
+    PRE = 2
+    POST = 3
 
 ################
 # Info Classes #

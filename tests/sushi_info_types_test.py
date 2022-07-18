@@ -382,7 +382,7 @@ class TestSushiTrackInfo(unittest.TestCase):
         expected_result.name = 'test'
         expected_result.channels = 2
         expected_result.buses = 1
-        expected_result.type = types.TrackType.MASTER_PRE
+        expected_result.type = types.TrackType.PRE
         expected_result.processors = [10, 20]
 
         self.assertEqual(result, expected_result)

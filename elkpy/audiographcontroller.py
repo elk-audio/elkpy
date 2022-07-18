@@ -357,30 +357,30 @@ class AudioGraphController(object):
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With track name: {}, buses: {}".format(name, buses))
 
-    def create_master_pre_track(self, name: str) -> None:
+    def create_pre_track(self, name: str) -> None:
         """
-        Create a new pre master track in sushi.
+        Create a new pre track in sushi.
 
         Parameters:
             name (str): The name of the new track.
         """
         try:
-            self._stub.CreateMasterPreTrack(self._sushi_proto.CreateMasterTrackRequest(
+            self._stub.CreatePreTrack(self._sushi_proto.CreatePreTrackRequest(
                 name = name
             ))
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With track name: {}".format(name))
 
-    def create_master_post_track(self, name: str) -> None:
+    def create_post_track(self, name: str) -> None:
         """
-        Create a new post master track in sushi.
+        Create a new post track in sushi.
 
         Parameters:
             name (str): The name of the new track.
         """
         try:
-            self._stub.CreateMasterPostTrack(self._sushi_proto.CreateMasterTrackRequest(
+            self._stub.CreatePostTrack(self._sushi_proto.CreatePostTrackRequest(
                 name = name
             ))
 
