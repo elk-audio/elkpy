@@ -81,6 +81,19 @@ class PluginType(IntEnum):
     VST3X = 3
     LV2 = 4
 
+class TrackType(IntEnum):
+    """
+    Enum class to hold the type of track
+
+    Attributes:
+        REGULAR,
+        PRE,
+        POST
+    """
+    REGULAR = 1
+    PRE = 2
+    POST = 3
+
 ################
 # Info Classes #
 ################
@@ -346,10 +359,9 @@ class TrackInfo(object):
         id (int): The id of the track.
         label (str): The label of the track.
         name (str): The name of the track.
-        input_channels (int): The number of input channels available to the track.
-        input_busses (int): The number input busses available to the track.
-        output_channels (int): The number of output channels available to the track.
-        output_busses (int): The number of output busses available to the track.
+        channels (int): The number of input channels available to the track.
+        buses (int): The number input buses available to the track.
+        type (TrackType): The type of track
     """
     def __init__(self, grpc_TrackInfo = None):
         try:
@@ -368,24 +380,19 @@ class TrackInfo(object):
             self.name = ''
 
         try:
-            self.input_channels = grpc_TrackInfo.input_channels
+            self.channels = grpc_TrackInfo.channels
         except:
-            self.input_channels = 0
+            self.channels = 0
 
         try:
-            self.input_busses = grpc_TrackInfo.input_busses
+            self.buses = grpc_TrackInfo.buses
         except:
-            self.input_busses = 0
+            self.buses = 0
 
         try:
-            self.output_channels = grpc_TrackInfo.output_channels
+            self.type = TrackType(grpc_TrackInfo.type.type)
         except:
-            self.output_channels = 0
-
-        try:
-            self.output_busses = grpc_TrackInfo.output_busses
-        except:
-            self.output_busses = 0
+            self.type = TrackType.REGULAR
 
         try:
             self.processors = []
@@ -399,10 +406,9 @@ class TrackInfo(object):
         s += ' id: %s \n' %self.id
         s += ' label: %s \n' %self.label
         s += ' name: %s \n' %self.name
-        s += ' input_channels: %s \n' %self.input_channels
-        s += ' input_busses: %s \n' %self.input_busses
-        s += ' output_channels: %s \n' %self.output_channels
-        s += ' output_busses: %s \n' %self.output_busses
+        s += ' channels: %s \n' %self.channels
+        s += ' buses: %s \n' %self.buses
+        s += ' type: %s \n' %self.type
         s += ' processors: %s \n' %self.processors
         s += '}'
         return s
@@ -414,10 +420,9 @@ class TrackInfo(object):
         return self.id == other.id \
             and self.label == other.label \
             and self.name == other.name \
-            and self.input_channels == other.input_channels \
-            and self.input_busses == other.input_busses \
-            and self.output_channels == other.output_channels \
-            and self.output_busses == other.output_busses \
+            and self.channels == other.channels \
+            and self.buses == other.buses \
+            and self.type == other.type \
             and self.processors == other.processors
 
 class ProgramInfo(object):
