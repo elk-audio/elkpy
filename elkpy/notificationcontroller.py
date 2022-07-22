@@ -261,7 +261,9 @@ class NotificationController(object):
             Parameter itself has 2 attributes: processor_id and _parameter_id;
             ex: notification.parameter.parameter_id (gets the parameter ID)
             ex: notification.parameter.processor_id (gets the processor ID)
-            ex: notification.value (gets the value)
+            ex: notification.normalized_value (gets the value normalized between 0 and 1)
+            ex: notification.domain_value (gets the domain value)
+            ex: notification.formatted_value (gets the value formatted as a string)
         """
         asyncio.run_coroutine_threadsafe(self.process_parameter_update_notifications(cb, param_blocklist), self.loop)
 
