@@ -369,10 +369,9 @@ class TestSushiTrackInfo(unittest.TestCase):
             id = 1,
             label = 'test',
             name = 'test',
-            input_channels = 2,
-            input_busses = 1,
-            output_channels = 2,
-            output_busses = 1,
+            channels = 2,
+            buses = 1,
+            type = SUSHI_PROTO.TrackType(type = 2),
             processors = [SUSHI_PROTO.ProcessorIdentifier(id = 10),
                           SUSHI_PROTO.ProcessorIdentifier(id = 20)]
         ))
@@ -381,10 +380,9 @@ class TestSushiTrackInfo(unittest.TestCase):
         expected_result.id = 1
         expected_result.label = 'test'
         expected_result.name = 'test'
-        expected_result.input_channels = 2
-        expected_result.input_busses = 1
-        expected_result.output_channels = 2
-        expected_result.output_busses = 1
+        expected_result.channels = 2
+        expected_result.buses = 1
+        expected_result.type = types.TrackType.PRE
         expected_result.processors = [10, 20]
 
         self.assertEqual(result, expected_result)
@@ -393,10 +391,9 @@ class TestSushiTrackInfo(unittest.TestCase):
         result = types.TrackInfo(SUSHI_PROTO.TrackInfo(
             label = 'test',
             name = 'test',
-            input_channels = 2,
-            input_busses = 1,
-            output_channels = 2,
-            output_busses = 1,
+            channels = 2,
+            buses = 1,
+            type = SUSHI_PROTO.TrackType(type = 1),
             processors = [SUSHI_PROTO.ProcessorIdentifier(id = 10),
                           SUSHI_PROTO.ProcessorIdentifier(id = 20)]
         ))
@@ -405,10 +402,9 @@ class TestSushiTrackInfo(unittest.TestCase):
         expected_result.id = 0
         expected_result.label = 'test'
         expected_result.name = 'test'
-        expected_result.input_channels = 2
-        expected_result.input_busses = 1
-        expected_result.output_channels = 2
-        expected_result.output_busses = 1
+        expected_result.channels = 2
+        expected_result.buses = 1
+        expected_result.type = types.TrackType.REGULAR
         expected_result.processors = [10, 20]
 
         self.assertEqual(result, expected_result)
@@ -417,10 +413,9 @@ class TestSushiTrackInfo(unittest.TestCase):
         result = types.TrackInfo(SUSHI_PROTO.TrackInfo(
             id = 1,
             name = 'test',
-            input_channels = 2,
-            input_busses = 1,
-            output_channels = 2,
-            output_busses = 1,
+            channels = 2,
+            buses = 1,
+            type = SUSHI_PROTO.TrackType(type = 1),
             processors = [SUSHI_PROTO.ProcessorIdentifier(id = 10),
                           SUSHI_PROTO.ProcessorIdentifier(id = 20)]
         ))
@@ -429,10 +424,9 @@ class TestSushiTrackInfo(unittest.TestCase):
         expected_result.id = 1
         expected_result.label = ''
         expected_result.name = 'test'
-        expected_result.input_channels = 2
-        expected_result.input_busses = 1
-        expected_result.output_channels = 2
-        expected_result.output_busses = 1
+        expected_result.channels = 2
+        expected_result.buses = 1
+        expected_result.type = types.TrackType.REGULAR
         expected_result.processors = [10, 20]
 
         self.assertEqual(result, expected_result)
@@ -441,10 +435,9 @@ class TestSushiTrackInfo(unittest.TestCase):
         result = types.TrackInfo(SUSHI_PROTO.TrackInfo(
             id = 1,
             label = 'test',
-            input_channels = 2,
-            input_busses = 1,
-            output_channels = 2,
-            output_busses = 1,
+            channels = 2,
+            buses = 1,
+            type = SUSHI_PROTO.TrackType(type = 1),
             processors = [SUSHI_PROTO.ProcessorIdentifier(id = 10),
                           SUSHI_PROTO.ProcessorIdentifier(id = 20)]
         ))
@@ -453,22 +446,20 @@ class TestSushiTrackInfo(unittest.TestCase):
         expected_result.id = 1
         expected_result.label = 'test'
         expected_result.name = ''
-        expected_result.input_channels = 2
-        expected_result.input_busses = 1
-        expected_result.output_channels = 2
-        expected_result.output_busses = 1
+        expected_result.channels = 2
+        expected_result.buses = 1
+        expected_result.type = types.TrackType.REGULAR
         expected_result.processors = [10, 20]
 
         self.assertEqual(result, expected_result)
 
-    def test_missing_input_channels(self):
+    def test_missing_channels(self):
         result = types.TrackInfo(SUSHI_PROTO.TrackInfo(
             id = 1,
             label = 'test',
             name = 'test',
-            input_busses = 1,
-            output_channels = 2,
-            output_busses = 1,
+            buses = 1,
+            type = SUSHI_PROTO.TrackType(type = 1),
             processors = [SUSHI_PROTO.ProcessorIdentifier(id = 10),
                           SUSHI_PROTO.ProcessorIdentifier(id = 20)]
         ))
@@ -477,10 +468,9 @@ class TestSushiTrackInfo(unittest.TestCase):
         expected_result.id = 1
         expected_result.label = 'test'
         expected_result.name = 'test'
-        expected_result.input_channels = 0
-        expected_result.input_busses = 1
-        expected_result.output_channels = 2
-        expected_result.output_busses = 1
+        expected_result.channels = 0
+        expected_result.buses = 1
+        expected_result.type = types.TrackType.REGULAR
         expected_result.processors = [10, 20]
 
         self.assertEqual(result, expected_result)
@@ -490,9 +480,8 @@ class TestSushiTrackInfo(unittest.TestCase):
             id = 1,
             label = 'test',
             name = 'test',
-            input_channels = 2,
-            output_channels = 2,
-            output_busses = 1,
+            channels = 2,
+            type = SUSHI_PROTO.TrackType(type = 1),
             processors = [SUSHI_PROTO.ProcessorIdentifier(id = 10),
                           SUSHI_PROTO.ProcessorIdentifier(id = 20)]
         ))
@@ -501,58 +490,9 @@ class TestSushiTrackInfo(unittest.TestCase):
         expected_result.id = 1
         expected_result.label = 'test'
         expected_result.name = 'test'
-        expected_result.input_channels = 2
-        expected_result.input_busses = 0
-        expected_result.output_channels = 2
-        expected_result.output_busses = 1
-        expected_result.processors = [10, 20]
-
-        self.assertEqual(result, expected_result)
-
-    def test_missing_output_channels(self):
-        result = types.TrackInfo(SUSHI_PROTO.TrackInfo(
-            id = 1,
-            label = 'test',
-            name = 'test',
-            input_channels = 2,
-            input_busses = 1,
-            output_busses = 1,
-            processors = [SUSHI_PROTO.ProcessorIdentifier(id = 10),
-                          SUSHI_PROTO.ProcessorIdentifier(id = 20)]
-        ))
-
-        expected_result = types.TrackInfo()
-        expected_result.id = 1
-        expected_result.label = 'test'
-        expected_result.name = 'test'
-        expected_result.input_channels = 2
-        expected_result.input_busses = 1
-        expected_result.output_channels = 0
-        expected_result.output_busses = 1
-        expected_result.processors = [10, 20]
-
-        self.assertEqual(result, expected_result)
-
-    def test_missing_output_busses(self):
-        result = types.TrackInfo(SUSHI_PROTO.TrackInfo(
-            id = 1,
-            label = 'test',
-            name = 'test',
-            input_channels = 2,
-            input_busses = 1,
-            output_channels = 2,
-            processors = [SUSHI_PROTO.ProcessorIdentifier(id = 10),
-                          SUSHI_PROTO.ProcessorIdentifier(id = 20)]
-        ))
-
-        expected_result = types.TrackInfo()
-        expected_result.id = 1
-        expected_result.label = 'test'
-        expected_result.name = 'test'
-        expected_result.input_channels = 2
-        expected_result.input_busses = 1
-        expected_result.output_channels = 2
-        expected_result.output_busses = 0
+        expected_result.channels = 2
+        expected_result.buses = 0
+        expected_result.type = types.TrackType.REGULAR
         expected_result.processors = [10, 20]
 
         self.assertEqual(result, expected_result)
@@ -562,20 +502,18 @@ class TestSushiTrackInfo(unittest.TestCase):
             id = 1,
             label = 'test',
             name = 'test',
-            input_channels = 2,
-            input_busses = 1,
-            output_channels = 2,
-            output_busses = 1
+            channels = 2,
+            buses = 1,
+            type =  SUSHI_PROTO.TrackType(type = 1),
         ))
 
         expected_result = types.TrackInfo()
         expected_result.id = 1
         expected_result.label = 'test'
         expected_result.name = 'test'
-        expected_result.input_channels = 2
-        expected_result.input_busses = 1
-        expected_result.output_channels = 2
-        expected_result.output_busses = 1
+        expected_result.channels = 2
+        expected_result.buses = 1
+        expected_result.type = types.TrackType.REGULAR
         expected_result.processors = []
         self.assertEqual(result, expected_result)
 
