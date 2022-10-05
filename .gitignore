@@ -4,6 +4,8 @@ __pycache__/
 # vscode specific files
 .vscode/
 .env
+.idea
+venv/
 
 # local examples
 local_examples/
@@ -17,3 +19,8 @@ sushi_rpc_pb2_grpc.py
 
 # Eggs
 *.egg-info
+
+# Output of setup.py
+build/
+dist/
+
