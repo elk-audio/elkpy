@@ -10,30 +10,30 @@ __copyright__ = """
     of the License, or (at your option) any later version.
 
     elkpy is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
-    even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License along with elkpy.  If
+    You should have received a copy of the GNU General Public License along with elkpy. If
     not, see <http://www.gnu.org/licenses/>.
 """
 __license__ = "GPL-3.0"
 
 """ 
-    Example passive monitor app using elkpy
-    Connects to a sushi instance, subscribes to notifications and displays all
-    parameter, transport and audio graph changes that Sushi broadcasts
+    An example passive monitor app using elkpy.
+    It connects to a sushi instance, subscribes to notifications and displays all the
+    parameter, transport and audio graph changes that Sushi broadcasts.
 """ 
 
 import os
 import sys
 import time
 import argparse
+
+# This is needed to run sushi_monitor.py from within the examples folder without also copying elkpy to it.
+sys.path.append("../elkpy/")
+
 from elkpy.sushicontroller import SushiController
-from elkpy import sushi_info_types as sushi
 from elkpy import grpc_gen
-from enum import IntEnum
-from pathlib import Path
-import asyncio
 
 SYNC_MODES = ['Dummy', 'Internal', 'Midi', 'Link']
 PLAYING_MODES = ['Dummy', 'Stopped', 'Playing']
@@ -45,13 +45,13 @@ def read_args():
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("-i", "--ip", action="store", help="Ip of sushi device", default="localhost")
     parser.add_argument("-p", "--port", action="store_true", help="Port of Sushi device", default="51051")
-    parser.add_argument("-g", "--protofile", action="store", help="Path to proto_file (Retrived from SUSHI_GRPC_ELKPY_PROTO env. variable)", default=proto_file)
+    parser.add_argument("-g", "--protofile", action="store", help="Path to proto_file (Retrieved from the SUSHI_GRPC_ELKPY_PROTO env. variable)", default=proto_file)
     args = parser.parse_args()
     config = vars(args)
 
     print(config)
     if not config['protofile']:
-        print("No proto file set or environment variable SUSHI_GRPC_ELKPY_PROTO not defined")
+        print("No proto file is found, probably the environment variable SUSHI_GRPC_ELKPY_PROTO is not defined.")
         sys.exit(-1)
 
     return config
@@ -157,7 +157,7 @@ def main():
             time.sleep(1)
 
         except KeyboardInterrupt:
-            listener.close()
+            listener.close() # calls the close() method inherited from SushiController
             sys.exit(0)
 
     listener.close()
