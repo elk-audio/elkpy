@@ -22,9 +22,12 @@ import os
 import sys
 import time
 import argparse
+from typing import Optional
+
+import grpc
 
 from elkpy.sushi_info_types import PluginType
-from elkpy import grpc_gen
+from elkpy import grpc_gen, sushierrors
 
 # This is needed to run sushi_monitor.py from within the examples folder without also copying elkpy to it.
 sys.path.append("../elkpy/")
@@ -52,7 +55,7 @@ PLUGINS = [{
         "uid": "OB-Xd"
     },
     {
-        "path": "/Users/iliaselk/repos/sushi/cmake-build-debug/VST3/Debug/adelay.vst3",
+        "path": "./VST3/Debug/adelay.vst3",
         "name": "ADelay",
         "type": PluginType.VST3X,
         "uid": "ADelay"
@@ -124,17 +127,43 @@ class ArpeggiatedSynthExample(SushiController):
         except Exception as e:
             print('Error creating plugin: {}'.format(e))
 
+        # TODO: IDEALLY we should subscribe to the creation notification though, no?
+        self._wait_for_processor_id(name)
+
     def _create_processor_controllers(self, list_of_processors):
         processors = {}
         for processor in list_of_processors:
             processors[processor] = sp.SushiProcessor(processor, self)
 
-            # TODO: If I don't have this sleep, I get an error that it cannot find a certain processor
-            #  (it varies which it is).
-            #  Not a very good look - how would we fix this?
-            time.sleep(0.5)
         return processors
 
+    def _wait_for_processor_id(self, name, max_retries: Optional[int] = 100) -> int:
+        """The processor creation is asynchronous.
+           This waits for the processor id to be valid, meaning the processor has been created.
+
+        Args:
+            name: the name of the processor
+            max_retries (int, optional): Number of times to try. Defaults to 1000.
+
+        Returns:
+            int: id of the processor
+        """
+        waiting = True
+        retries = 0
+        processor_id = -1
+        while waiting and retries < max_retries:
+            try:
+                processor_id = self.audio_graph.get_processor_id(name)
+                waiting = False
+
+            except sushierrors.SushiNotFoundError as e:
+                retries += 1
+                time.sleep(0.5)
+
+            except grpc._channel._InactiveRpcError as e:
+                retries += 1
+
+        return processor_id
 
     def _print_system_info(self):
         info = self.system.get_build_info()
