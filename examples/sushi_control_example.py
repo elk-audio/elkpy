@@ -22,9 +22,6 @@ import os
 import sys
 import time
 import argparse
-from typing import Optional
-
-import grpc
 
 from elkpy.sushi_info_types import PluginType
 from elkpy import grpc_gen, sushierrors
@@ -38,28 +35,28 @@ from elkpy import sushiprocessor as sp
 TRACK_NAME = 'main'
 PROCESSOR_NAME = 'OB-Xd'
 SEQUENCER_NAME = 'sequencer_obxd'
-EFFECT_NAME = 'ADelay'
+EFFECT_NAME = 'mda DubDelay'
 
 SUSHI_PROCESSORS = [TRACK_NAME, SEQUENCER_NAME, PROCESSOR_NAME, EFFECT_NAME]
 
 PLUGINS = [{
-    "path": "",
-    "name": "sequencer_obxd",
-    "uid": "sushi.testing.step_sequencer",
-    "type": PluginType.INTERNAL
-},
-    {
-        "path": "/Library/Audio/Plug-Ins/VST3/OB-Xd.vst3",
-        "name": "OB-Xd",
-        "type": PluginType.VST3X,
-        "uid": "OB-Xd"
-    },
-    {
-        "path": "./VST3/Debug/adelay.vst3",
-        "name": "ADelay",
-        "type": PluginType.VST3X,
-        "uid": "ADelay"
-    }]
+                "path": "",
+                "name": "sequencer_obxd",
+                "uid": "sushi.testing.step_sequencer",
+                "type": PluginType.INTERNAL
+            },
+            {
+                "path": "/Library/Audio/Plug-Ins/VST3/OB-Xd.vst3",
+                "name": "OB-Xd",
+                "type": PluginType.VST3X,
+                "uid": "OB-Xd"
+            },
+            {
+                "path": "/Users/iliaselk/Library/Audio/Plug-Ins/VST3/mda-vst3.vst3",
+                "name": "mda DubDelay",
+                "type": PluginType.VST3X,
+                "uid": "mda DubDelay"
+            }]
 
 
 def read_args():
@@ -93,15 +90,26 @@ class ArpeggiatedSynthExample(SushiController):
         super().__init__(address, proto_file)
         self._print_system_info()
 
+        self._processor_notifications_received = 0
+        self.notifications.subscribe_to_processor_changes(self._process_processor_notification)
+
         track_id = self.audio_graph.get_track_id(TRACK_NAME)
 
         for plugin_spec in PLUGINS:
             self._add_plugin(track_id, plugin_spec)
 
-        self._processors = self._create_processor_controllers(SUSHI_PROCESSORS)
+    def _process_processor_notification(self, notification):
+        if notification.action == 1:   # PROCESSOR_ADDED
+            print('Processor created with ID: {}'.format(notification.processor.id))
+            self._processor_notifications_received += 1
 
+        if self._processor_notifications_received == len(PLUGINS):
+            self._processors = self._create_processor_controllers(SUSHI_PROCESSORS)
+            self._set_parameters()
+
+    def _set_parameters(self):
+        # Synth parameters
         self._processors[PROCESSOR_NAME].set_parameter_value("VoiceCount", 8)
-
         self._processors[PROCESSOR_NAME].set_parameter_value("Cutoff", 0.5)
 
         # Arpeggio
@@ -127,43 +135,12 @@ class ArpeggiatedSynthExample(SushiController):
         except Exception as e:
             print('Error creating plugin: {}'.format(e))
 
-        # TODO: IDEALLY we should subscribe to the creation notification though, no?
-        self._wait_for_processor_id(name)
-
     def _create_processor_controllers(self, list_of_processors):
         processors = {}
         for processor in list_of_processors:
             processors[processor] = sp.SushiProcessor(processor, self)
 
         return processors
-
-    def _wait_for_processor_id(self, name, max_retries: Optional[int] = 100) -> int:
-        """The processor creation is asynchronous.
-           This waits for the processor id to be valid, meaning the processor has been created.
-
-        Args:
-            name: the name of the processor
-            max_retries (int, optional): Number of times to try. Defaults to 1000.
-
-        Returns:
-            int: id of the processor
-        """
-        waiting = True
-        retries = 0
-        processor_id = -1
-        while waiting and retries < max_retries:
-            try:
-                processor_id = self.audio_graph.get_processor_id(name)
-                waiting = False
-
-            except sushierrors.SushiNotFoundError as e:
-                retries += 1
-                time.sleep(0.5)
-
-            except grpc._channel._InactiveRpcError as e:
-                retries += 1
-
-        return processor_id
 
     def _print_system_info(self):
         info = self.system.get_build_info()
@@ -176,6 +153,11 @@ if __name__ == '__main__':
 
     bridge = ArpeggiatedSynthExample(f"{config['ip']}:{config['port']}", config['protofile'])
 
-    time.sleep(1)
+    while True:
+        try:
+            time.sleep(1)
 
-    bridge.close()
+        except KeyboardInterrupt:
+            # The close() method is inherited from SushiController
+            bridge.close()
+            sys.exit(0)
