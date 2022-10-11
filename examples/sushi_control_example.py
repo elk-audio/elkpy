@@ -42,7 +42,6 @@ SUSHI_PROCESSORS = [TRACK_NAME, SEQUENCER_NAME, SYNTH_NAME, EFFECT_NAME]
 PLUGINS = [{
                 "path": "",
                 "name": SEQUENCER_NAME,
-                "name": SEQUENCER_NAME,
                 "uid": "sushi.testing.step_sequencer",
                 "type": PluginType.INTERNAL
             },
