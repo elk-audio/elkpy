@@ -65,6 +65,37 @@ On the terminal where the elkpy folder is located.
 
 The `examples` subdirectory contains examples of how elkpy can be used.
 
+#### Sushi Control Example ####
+
+This demonstrates instantiating 3 processors onto Sushi started with an “empty” config,
+subscribing to notifications to wait for their instantiation, 
+and then setting their parameters once they're available.
+
+To run:
+
+1. Ensure you have a Python environment set up where the packages described in requirements.txt are available, 
+   globally or in a `venv`.
+2. Start Sushi with the provided "sushi_control_example_config.json", and the '--base-plugin-path' set to point to where
+   `mda-vst.vst3` plugins are available:
+
+```commandline
+$ ./sushi --portaudio \
+          --config-file /path/to/elkpy/examples/sushi_control_example_config.json \
+          --base-plugin-path=/path/to/sushi/build/debug/VST3/Debug/
+```
+
+If you've built Sushi from source, the plugins are built and accessible in the above path relative to the sushi binary.
+
+3. Start `sushi_control_example.py`:
+
+```commandline
+$ python3 ./sushi_control_example.py --protofile "/path/to/sushi/rpc_interface/protos/sushi_rpc.proto"
+```
+
+The `--protofile` argument points elkpy to the protocol buffer file used by Sushi.
+
+You should hear Sushi play a familiar theme tune.
+
 #### Sushi Monitor ####
 
 An example passive monitor app using elkpy.
