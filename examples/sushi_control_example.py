@@ -33,29 +33,30 @@ from elkpy.sushicontroller import SushiController
 from elkpy import sushiprocessor as sp
 
 TRACK_NAME = 'main'
-PROCESSOR_NAME = 'OB-Xd'
-SEQUENCER_NAME = 'sequencer_obxd'
+SYNTH_NAME = 'mda JX10'
+SEQUENCER_NAME = 'step_sequencer'
 EFFECT_NAME = 'mda DubDelay'
 
-SUSHI_PROCESSORS = [TRACK_NAME, SEQUENCER_NAME, PROCESSOR_NAME, EFFECT_NAME]
+SUSHI_PROCESSORS = [TRACK_NAME, SEQUENCER_NAME, SYNTH_NAME, EFFECT_NAME]
 
 PLUGINS = [{
                 "path": "",
-                "name": "sequencer_obxd",
+                "name": SEQUENCER_NAME,
+                "name": SEQUENCER_NAME,
                 "uid": "sushi.testing.step_sequencer",
                 "type": PluginType.INTERNAL
             },
             {
-                "path": "/Library/Audio/Plug-Ins/VST3/OB-Xd.vst3",
-                "name": "OB-Xd",
-                "type": PluginType.VST3X,
-                "uid": "OB-Xd"
+                "path": "mda-vst3.vst3",
+                "name": SYNTH_NAME,
+                "uid": SYNTH_NAME,
+                "type": PluginType.VST3X
             },
             {
-                "path": "/Users/iliaselk/Library/Audio/Plug-Ins/VST3/mda-vst3.vst3",
-                "name": "mda DubDelay",
-                "type": PluginType.VST3X,
-                "uid": "mda DubDelay"
+                "path": "mda-vst3.vst3",
+                "name": EFFECT_NAME,
+                "uid": EFFECT_NAME,
+                "type": PluginType.VST3X
             }]
 
 
@@ -90,29 +91,44 @@ class ArpeggiatedSynthExample(SushiController):
         super().__init__(address, proto_file)
         self._print_system_info()
 
-        self._processor_notifications_received = 0
+        # Subscribing to notifications for processor changes:
+        self._processor_creation_notification_count = 0
         self.notifications.subscribe_to_processor_changes(self._process_processor_notification)
 
+        # Fetching the track ID from the name defined in the Sushi config file:
         track_id = self.audio_graph.get_track_id(TRACK_NAME)
 
+        # Adding the plugins to the track:
         for plugin_spec in PLUGINS:
-            self._add_plugin(track_id, plugin_spec)
+            self._load_plugin_on_track(track_id, plugin_spec)
 
     def _process_processor_notification(self, notification):
-        if notification.action == 1:   # PROCESSOR_ADDED
+        """
+        A callback invoked by the elkpy notification controller, whenever a processor is added/removed.
+        """
+
+        if notification.action == 1:  # PROCESSOR_ADDED
             print('Processor created with ID: {}'.format(notification.processor.id))
-            self._processor_notifications_received += 1
+            self._processor_creation_notification_count += 1
 
-        if self._processor_notifications_received == len(PLUGINS):
+        # When all processors have been created, instantiate controllers for them, and set their parameters:
+        if self._processor_creation_notification_count == len(PLUGINS):
             self._processors = self._create_processor_controllers(SUSHI_PROCESSORS)
-            self._set_parameters()
+            self._set_parameters_for_theme_tune()
 
-    def _set_parameters(self):
-        # Synth parameters
-        self._processors[PROCESSOR_NAME].set_parameter_value("VoiceCount", 8)
-        self._processors[PROCESSOR_NAME].set_parameter_value("Cutoff", 0.5)
+    def _set_parameters_for_theme_tune(self):
+        """
+        Sets the parameters for the processors, to play a familiar theme tune.
+        """
 
-        # Arpeggio
+        # Synth parameters:
+        self._processors[SYNTH_NAME].set_parameter_value("OSC Mix", 0.2)
+        self._processors[SYNTH_NAME].set_parameter_value("ENV Rel", 0.3)
+        self._processors[SYNTH_NAME].set_parameter_value("VCF Vel", 0.6)
+        self._processors[SYNTH_NAME].set_parameter_value("VCF Freq", 0.5)
+        self._processors[SYNTH_NAME].set_parameter_value("VCF Reso", 0.1)
+
+        # Arpeggio:
         self._processors[SEQUENCER_NAME].set_parameter_value("pitch_0", 0.4166666666666667)
         self._processors[SEQUENCER_NAME].set_parameter_value("pitch_1", 0.5)
         self._processors[SEQUENCER_NAME].set_parameter_value("pitch_2", 0.5625)
@@ -124,7 +140,7 @@ class ArpeggiatedSynthExample(SushiController):
 
         self.transport.set_tempo(200)
 
-    def _add_plugin(self, track_id, plugin_spec):
+    def _load_plugin_on_track(self, track_id, plugin_spec):
         path = plugin_spec['path']
         name = plugin_spec['name']
         p_type = plugin_spec['type']
@@ -133,18 +149,22 @@ class ArpeggiatedSynthExample(SushiController):
         try:
             self.audio_graph.create_processor_on_track(name, uid, path, p_type, track_id, 0, True)
         except Exception as e:
-            print('Error creating plugin: {}'.format(e))
+            print('Error loading plugin: {}'.format(e))
 
-    def _create_processor_controllers(self, list_of_processors):
-        processors = {}
-        for processor in list_of_processors:
-            processors[processor] = sp.SushiProcessor(processor, self)
+    def _create_processor_controllers(self, processor_names):
+        """
+        Instantiates elkpy controllers for the Sushi processors named in list argument.
+        """
+        processor_controllers = {}
+        for processor_name in processor_names:
+            processor_controllers[processor_name] = sp.SushiProcessor(processor_name, self)
 
-        return processors
+        return processor_controllers
 
     def _print_system_info(self):
         info = self.system.get_build_info()
-        print(f"Connected to Sushi! \nVersion: {info.version}, built: {info.build_date} from commit: {info.commit_hash}")
+        print(f"Connected to Sushi! \n"
+              f"Version: {info.version}, built: {info.build_date} from commit: {info.commit_hash}")
 
 
 if __name__ == '__main__':
