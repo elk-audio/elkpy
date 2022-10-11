@@ -24,7 +24,7 @@ import time
 import argparse
 
 from elkpy.sushi_info_types import PluginType
-from elkpy import grpc_gen, sushierrors
+from elkpy import grpc_gen
 
 # This is needed to run sushi_monitor.py from within the examples folder without also copying elkpy to it.
 sys.path.append("../elkpy/")
@@ -40,26 +40,26 @@ EFFECT_NAME = 'mda DubDelay'
 SUSHI_PROCESSORS = [TRACK_NAME, SEQUENCER_NAME, SYNTH_NAME, EFFECT_NAME]
 
 PLUGINS = [{
-                "path": "",
-                "name": SEQUENCER_NAME,
-                "uid": "sushi.testing.step_sequencer",
-                "type": PluginType.INTERNAL
-            },
-            {
-                "path": "mda-vst3.vst3",
-                "name": SYNTH_NAME,
-                "uid": SYNTH_NAME,
-                "type": PluginType.VST3X
-            },
-            {
-                "path": "mda-vst3.vst3",
-                "name": EFFECT_NAME,
-                "uid": EFFECT_NAME,
-                "type": PluginType.VST3X
-            }]
+    "path": "",
+    "name": SEQUENCER_NAME,
+    "uid": "sushi.testing.step_sequencer",
+    "type": PluginType.INTERNAL
+    },
+    {
+        "path": "mda-vst3.vst3",
+        "name": SYNTH_NAME,
+        "uid": SYNTH_NAME,
+        "type": PluginType.VST3X
+    },
+    {
+        "path": "mda-vst3.vst3",
+        "name": EFFECT_NAME,
+        "uid": EFFECT_NAME,
+        "type": PluginType.VST3X
+    }]
 
 
-def read_args():
+def read_args() -> dict:
     proto_file = os.environ.get('SUSHI_GRPC_ELKPY_PROTO')
 
     parser = argparse.ArgumentParser(description="Sushi grpc monitor",
@@ -86,7 +86,7 @@ class ArpeggiatedSynthExample(SushiController):
     adds a sequencer, a synth, and an effect, and sets their values to play back an arpeggio.
     """
 
-    def __init__(self, address, proto_file):
+    def __init__(self, address: str, proto_file: str):
         super().__init__(address, proto_file)
         self._print_system_info()
 
@@ -101,7 +101,7 @@ class ArpeggiatedSynthExample(SushiController):
         for plugin_spec in PLUGINS:
             self._load_plugin_on_track(track_id, plugin_spec)
 
-    def _process_processor_notification(self, notification):
+    def _process_processor_notification(self, notification: "ProcessorUpdate"):
         """
         A callback invoked by the elkpy notification controller, whenever a processor is added/removed.
         """
@@ -139,7 +139,7 @@ class ArpeggiatedSynthExample(SushiController):
 
         self.transport.set_tempo(200)
 
-    def _load_plugin_on_track(self, track_id, plugin_spec):
+    def _load_plugin_on_track(self, track_id: int, plugin_spec: dict):
         path = plugin_spec['path']
         name = plugin_spec['name']
         p_type = plugin_spec['type']
@@ -150,7 +150,7 @@ class ArpeggiatedSynthExample(SushiController):
         except Exception as e:
             print('Error loading plugin: {}'.format(e))
 
-    def _create_processor_controllers(self, processor_names):
+    def _create_processor_controllers(self, processor_names: list) -> list:
         """
         Instantiates elkpy controllers for the Sushi processors named in list argument.
         """
