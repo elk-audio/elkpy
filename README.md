@@ -4,16 +4,13 @@ A simple wrapper for controlling sushi over gRPC via a python script.
 
 ### Prerequisites ###
 
-To use this wrapper, [python3.6](https://www.python.org/downloads/) or greater needs to be installed, 
-together with the `grpcio-tools` Python package. Both are installed by default in the development 
-releases of Elk for the various supported architectures.
+To use this wrapper, [python3.6](https://www.python.org/downloads/) or greater needs to be installed, together with the `grpcio-tools` Python package. Both are installed by default in the development releases of Elk for the various supported architectures.
 
 ### Installation ###
 
 If you are running your python program on a device running Elk Audio OS, the latest `elkpy` should already be installed.
 
-But, if you use elkpy on another system, e.g. macOS, you can either copy the module folder to the directory where it will be used,
-or install it locally with `pip3 install -e elkpy` or similar.
+But, if you use elkpy on another system, e.g. macOS, you can either copy the module folder to the directory where it will be used, or install it locally with `pip3 install -e elkpy` or similar.
 
 ### Usage ###
 
@@ -28,11 +25,11 @@ controller = sc.SushiController()
 The default gRPC address is `localhost:51051`. 
 To connect to another address, pass it as an argument to the constructor of the controller with the format `ip-address:port`.
 
-The second argument to the constructor of SushiController is a path to the `sushi_rpc.proto` file, 
-which contains Sushi's Protobuf protocol definition.
+The second argument to the constructor of SushiController is a path to the `sushi_rpc.proto` file, which contains Sushi's Protobuf protocol definition.
 If the argument is empty, the class will look for it at `usr/share/sushi/sushi_rpc.proto`, the default installation path for Sushi.
 
 To use the controller simply use the methods of the controller objects different sections. For example:
+
 ```python
 # To make sure all the sub-controllers of SushiController close properly, you can wrap them in a try except block:
 try:
@@ -67,16 +64,12 @@ The `examples` subdirectory contains examples of how elkpy can be used.
 
 #### Sushi Control Example ####
 
-This demonstrates instantiating 3 processors onto Sushi started with an “empty” config,
-subscribing to notifications to wait for their instantiation, 
-and then setting their parameters once they're available.
+This demonstrates instantiating 3 processors onto Sushi started with an “empty” config, subscribing to notifications to wait for their instantiation, and then setting their parameters once they're available.
 
 To run:
 
-1. Ensure you have a Python environment set up where the packages described in requirements.txt are available, 
-   globally or in a `venv`.
-2. Start Sushi with the provided "sushi_control_example_config.json", and the '--base-plugin-path' set to point to where
-   `mda-vst.vst3` plugins are available:
+1. Ensure you have a Python environment set up where the packages described in requirements.txt are available, globally or in a `venv`.
+2. Start Sushi with the provided "sushi_control_example_config.json", and the '--base-plugin-path' set to point to where `mda-vst.vst3` plugins are available:
 
 ```commandline
 $ ./sushi --portaudio \
@@ -99,8 +92,7 @@ You should hear Sushi play a familiar theme tune.
 #### Sushi Monitor ####
 
 An example passive monitor app using elkpy.
-It connects to a sushi instance, subscribes to notifications and displays all the
-parameter, transport and audio graph changes that Sushi broadcasts.
+It connects to a sushi instance, subscribes to notifications and displays all the parameter, transport and audio graph changes that Sushi broadcasts.
 
 ##### Usage ##### 
 
@@ -113,8 +105,7 @@ $ python3 examples/sushi_monitor.py
 ```
 
 ### Running Unit Tests ###
-Before running unit tests with the unittest command-line interface, 
-you need to export the environment variable `SUSHI_GRPC_ELKPY_PROTO`, pointing to the Sushi's `.proto` definition file.
+Before running unit tests with the unittest command-line interface, you need to export the environment variable `SUSHI_GRPC_ELKPY_PROTO`, pointing to the Sushi's `.proto` definition file.
 
 Example:
 ```
