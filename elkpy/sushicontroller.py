@@ -8,10 +8,10 @@ __copyright__ = """
     of the License, or (at your option) any later version.
 
     elkpy is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
-    even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License along with elkpy.  If
+    You should have received a copy of the GNU General Public License along with elkpy. If
     not, see <http://www.gnu.org/licenses/>.
 """
 __license__ = "GPL-3.0"
@@ -148,7 +148,7 @@ class SushiController(object):
         """
         This method should be called at app close.
         It should call any sub-controller close routines whenever they exist.
-        i.e.: NotificationController has an infinite event loop running in its own thread, which has to be stopped and joined
+        i.e.: NotificationController has an infinite event loop running in its own thread, which has to be stopped and joined,
                 to ensure clean closing and proper releasing of any resources.
         """
         self.notifications.close()

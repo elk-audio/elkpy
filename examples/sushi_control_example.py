@@ -82,28 +82,37 @@ def read_args() -> dict:
 
 class ArpeggiatedSynthExample(SushiController):
     """ 
-    This example takes an existing setup of Sushi, with a single main track connected to MIDI input,
-    adds a sequencer, a synth, and an effect, and sets their values to play back an arpeggio.
+    This example takes an existing setup of Sushi:
+     A single main track connected to MIDI input.
+     It adds a sequencer, a synth, and an effect...
+      and sets their values to play back an arpeggio.
     """
 
     def __init__(self, address: str, proto_file: str):
         super().__init__(address, proto_file)
         self._print_system_info()
 
-        # Subscribing to notifications for processor changes:
+        # Subscribe to notifications for processor changes
+        # (Publish / Subscribe)
         self._processor_creation_notification_count = 0
-        self.notifications.subscribe_to_processor_changes(self._process_processor_notification)
+        self.notifications.subscribe_to_processor_changes(self._set_parameters_when_processors_are_ready)
 
-        # Fetching the track ID from the name defined in the Sushi config file:
+        # Fetch the track ID - for the name defined in the Sushi config file
+        # (request / response, & non-float properties)
         track_id = self.audio_graph.get_track_id(TRACK_NAME)
 
-        # Adding the plugins to the track:
+        # Add plugins to track.
+        # For each addition completion, Sushi will notify by invoking a processor_change callback
+        # (Async communication)
         for plugin_spec in PLUGINS:
             self._load_plugin_on_track(track_id, plugin_spec)
 
-    def _process_processor_notification(self, notification: "ProcessorUpdate"):
+    def _set_parameters_when_processors_are_ready(self, notification: "ProcessorUpdate"):
         """
-        A callback invoked by the elkpy notification controller, whenever a processor is added/removed.
+        A callback invoked by the ElkPy notification controller, whenever a processor is added/removed.
+        This implementation waits until all processors are created...
+        creates processor_controllers...
+        and uses these to set the processor parameters.
         """
 
         if notification.action == 1:  # PROCESSOR_ADDED
@@ -152,7 +161,7 @@ class ArpeggiatedSynthExample(SushiController):
 
     def _create_processor_controllers(self, processor_names: list) -> list:
         """
-        Instantiates elkpy controllers for the Sushi processors named in list argument.
+        Instantiates ElkPy controllers for the Sushi processors named in list argument.
         """
         processor_controllers = {}
         for processor_name in processor_names:
