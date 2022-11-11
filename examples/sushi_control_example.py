@@ -84,8 +84,8 @@ class ArpeggiatedSynthExample(SushiController):
     """ 
     This example takes an existing setup of Sushi:
      A single main track connected to MIDI input.
-     It adds a sequencer, a synth, and an effect...
-      and sets their values to play back an arpeggio.
+     It adds a sequencer, a synth, and an effect.
+     When done, it sets their values to play back an arpeggio.
     """
 
     def __init__(self, address: str, proto_file: str):
@@ -109,7 +109,7 @@ class ArpeggiatedSynthExample(SushiController):
 
     def _set_parameters_when_processors_are_ready(self, notification: "ProcessorUpdate"):
         """
-        A callback invoked by the ElkPy notification controller, whenever a processor is added/removed.
+        A callback invoked by the elkpy notification controller, whenever a processor is added/removed.
         This implementation waits until all processors are created...
         creates processor_controllers...
         and uses these to set the processor parameters.
@@ -161,7 +161,7 @@ class ArpeggiatedSynthExample(SushiController):
 
     def _create_processor_controllers(self, processor_names: list) -> list:
         """
-        Instantiates ElkPy controllers for the Sushi processors named in list argument.
+        Instantiates elkpy controllers for the Sushi processors named in list argument.
         """
         processor_controllers = {}
         for processor_name in processor_names:
