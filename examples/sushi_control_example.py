@@ -26,7 +26,7 @@ import argparse
 from elkpy.sushi_info_types import PluginType
 from elkpy import grpc_gen
 
-# This is needed to run sushi_monitor.py from within the examples folder without also copying elkpy to it.
+# This is needed to run the example from within the examples folder without also copying elkpy to it.
 sys.path.append("../elkpy/")
 
 from elkpy.sushicontroller import SushiController
@@ -93,26 +93,23 @@ class ArpeggiatedSynthExample(SushiController):
         self._print_system_info()
 
         # Subscribe to notifications for processor changes
-        # (Publish / Subscribe)
         self._processor_creation_notification_count = 0
         self.notifications.subscribe_to_processor_changes(self._set_parameters_when_processors_are_ready)
 
         # Fetch the track ID - for the name defined in the Sushi config file
-        # (request / response, & non-float properties)
         track_id = self.audio_graph.get_track_id(TRACK_NAME)
 
         # Add plugins to track.
         # For each addition completion, Sushi will notify by invoking a processor_change callback
-        # (Async communication)
         for plugin_spec in PLUGINS:
             self._load_plugin_on_track(track_id, plugin_spec)
 
     def _set_parameters_when_processors_are_ready(self, notification: "ProcessorUpdate"):
         """
         A callback invoked by the elkpy notification controller, whenever a processor is added/removed.
-        This implementation waits until all processors are created...
-        creates processor_controllers...
-        and uses these to set the processor parameters.
+        This implementation waits until all processors are created.
+        It then creates processor_controllers.
+        And finally, uses these to set the processor parameters.
         """
 
         if notification.action == 1:  # PROCESSOR_ADDED
