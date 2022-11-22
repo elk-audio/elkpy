@@ -1,0 +1,36 @@
+{
+    "host_config" : {
+        "samplerate" : 48000,
+        "playing_mode" : "playing"
+    },
+    "osc": {
+        "enable_all_processor_outputs": true
+    },
+    "tracks" : [
+        {
+            "name" : "main",
+            "channels" : 2,
+            "inputs" : [],
+            "outputs" : [
+                {
+                    "engine_bus" : 0,
+                    "track_bus" : 0
+                }
+            ],
+            "plugins" : [
+
+            ]
+        }
+    ],
+    "midi" : {
+        "track_connections": [
+            {
+                "port": 0,
+                "channel": "all",
+                "track": "main",
+                "raw_midi": false
+            }
+        ]
+    }
+}
+
