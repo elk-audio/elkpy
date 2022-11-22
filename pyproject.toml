@@ -4,9 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "elkpy_MaxELK"
-version = "0.0.1"
+version = "1.0.0"
 authors = [
-  { name="Elk Audio", email="max@elk.audio" },
+  { name="Maxime Gendebien", email="max@elk.audio" },
+  { name="Ruben Svensson", email="ruben@elk.audio" },
 ]
 description = "A basic controller for sushi using gRPC"
 readme = "README.md"
