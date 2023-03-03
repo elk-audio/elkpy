@@ -67,7 +67,8 @@ class NotificationController(object):
             self.notification_thread.setDaemon(True)
             self.notification_thread.start()
 
-    def _run_notification_loop(self, loop):
+    @staticmethod
+    def _run_notification_loop(loop):
         """ Attaches the asyncio event loop to the thread and start looping over it.
             Should not be called by the User.
             """
