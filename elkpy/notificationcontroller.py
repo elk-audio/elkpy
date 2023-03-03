@@ -56,11 +56,16 @@ class NotificationController(object):
             sushi_proto_def (str): path to .proto file with SUSHI's gRPC services definition.
         """
         self.address = address
-        self.loop = asyncio.get_event_loop()
         self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
-        self.notification_thread = Thread(target=self._run_notification_loop, args=(self.loop,))
-        self.notification_thread.setDaemon(True)
-        self.notification_thread.start()
+        try:
+            self.loop = asyncio.get_running_loop()
+            self._async = True
+        except asyncio.RunTimeError:
+            self._async = False
+            self.loop = asyncio.get_event_loop()
+            self.notification_thread = Thread(target=self._run_notification_loop, args=(self.loop,))
+            self.notification_thread.setDaemon(True)
+            self.notification_thread.start()
 
     def _run_notification_loop(self, loop):
         """ Attaches the asyncio event loop to the thread and start looping over it.
@@ -214,7 +219,10 @@ class NotificationController(object):
         Parameters:
             cb: a callable that will be called for each notification received from the stream.
         """
-        asyncio.run_coroutine_threadsafe(self.process_transport_change_notifications(cb), self.loop)
+        if self._async:
+            asyncio.create_task(self.process_transport_change_notifications(cb))
+        else:
+            asyncio.run_coroutine_threadsafe(self.process_transport_change_notifications(cb), self.loop)
 
     def subscribe_to_timing_updates(self, cb):
         """
@@ -223,7 +231,10 @@ class NotificationController(object):
 
         Parameters:
             cb: a callable that will be called for each notification received from the stream.        """
-        asyncio.run_coroutine_threadsafe(self.process_timing_update_notifications(cb), self.loop)
+        if self._async:
+            asyncio.create_task(self.process_timing_update_notifications(cb))
+        else:
+            asyncio.run_coroutine_threadsafe(self.process_timing_update_notifications(cb), self.loop)
 
     def subscribe_to_track_changes(self, cb):
         """
@@ -233,7 +244,10 @@ class NotificationController(object):
         Parameters:
             cb: a callable that will be called for each notification received from the stream.
         """
-        asyncio.run_coroutine_threadsafe(self.process_track_change_notifications(cb), self.loop)
+        if self._async:
+            asyncio.create_task(self.process_track_change_notifications(cb))
+        else:
+            asyncio.run_coroutine_threadsafe(self.process_track_change_notifications(cb), self.loop)
 
     def subscribe_to_processor_changes(self, cb):
         """
@@ -243,7 +257,10 @@ class NotificationController(object):
         Parameters:
             cb: a callable that will be called for each notification received from the stream.
         """
-        asyncio.run_coroutine_threadsafe(self.process_processor_change_notifications(cb), self.loop)
+        if self._async:
+            asyncio.create_task(self.process_processor_change_notifications(cb))
+        else:
+            asyncio.run_coroutine_threadsafe(self.process_processor_change_notifications(cb), self.loop)
 
     def subscribe_to_parameter_updates(self, cb, param_blocklist=None):
         """
@@ -265,7 +282,10 @@ class NotificationController(object):
             ex: notification.domain_value (gets the domain value)
             ex: notification.formatted_value (gets the value formatted as a string)
         """
-        asyncio.run_coroutine_threadsafe(self.process_parameter_update_notifications(cb, param_blocklist), self.loop)
+        if self._async:
+            asyncio.create_task(self.process_parameter_update_notifications(cb))
+        else:
+            asyncio.run_coroutine_threadsafe(self.process_parameter_update_notifications(cb, param_blocklist), self.loop)
 
     def subscribe_to_property_updates(self, cb, property_blocklist=None):
         """
@@ -282,4 +302,7 @@ class NotificationController(object):
             ex: notification.parameter.processor_id (gets the processor ID)
             ex: notification.value (gets the value)
         """
-        asyncio.run_coroutine_threadsafe(self.process_property_update_notifications(cb, property_blocklist), self.loop)
+        if self._async:
+            asyncio.create_task(self.process_property_update_notifications(cb, property_blocklist))
+        else:
+            asyncio.run_coroutine_threadsafe(self.process_property_update_notifications(cb, property_blocklist), self.loop)
