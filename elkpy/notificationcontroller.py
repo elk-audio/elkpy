@@ -76,8 +76,11 @@ class NotificationController(object):
         loop.run_forever()
 
     def close(self):
-        self.loop.call_soon_threadsafe(self.loop.stop)
-        self.notification_thread.join()
+        if self._async:
+            return
+        else:
+            self.loop.call_soon_threadsafe(self.loop.stop)
+            self.notification_thread.join()
 
     def __del__(self):
         self.close()
