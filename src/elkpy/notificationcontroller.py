@@ -98,7 +98,10 @@ class NotificationController(object):
                 async for notification in stream:
                     # User logic here
                     if call_back and callable(call_back):
-                        call_back(notification)
+                        if asyncio.iscoroutinefunction(call_back):
+                            await call_back(notification)
+                        else:
+                            call_back(notification)
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
         except AttributeError:
@@ -113,7 +116,10 @@ class NotificationController(object):
                 async for notification in stream:
                     # User logic here
                     if call_back and callable(call_back):
-                        call_back(notification)
+                        if asyncio.iscoroutinefunction(call_back):
+                            await call_back(notification)
+                        else:
+                            call_back(notification)
                     else:
                         raise TypeError("No valid call-back function has been provided for Timing Update "
                                         "notification processing ")
@@ -131,7 +137,10 @@ class NotificationController(object):
                 async for notification in stream:
                     # User logic here
                     if call_back and callable(call_back):
-                        call_back(notification)
+                        if asyncio.iscoroutinefunction(call_back):
+                            await call_back(notification)
+                        else:
+                            call_back(notification)
                     else:
                         raise TypeError("No valid call-back function has been provided for Track Change "
                                         "notification processing ")
@@ -149,7 +158,10 @@ class NotificationController(object):
                 async for notification in stream:
                     # User logic here
                     if call_back and callable(call_back):
-                        call_back(notification)
+                        if asyncio.iscoroutinefunction(call_back):
+                            await call_back(notification)
+                        else:
+                            call_back(notification)
                     else:
                         raise TypeError("No valid call-back function has been provided for Processor Change "
                                         "notification processing ")
@@ -175,7 +187,10 @@ class NotificationController(object):
                 async for notification in stream:
                     # User logic here
                     if call_back and callable(call_back):
-                        call_back(notification)
+                        if asyncio.iscoroutinefunction(call_back):
+                            await call_back(notification)
+                        else:
+                            call_back(notification)
                     else:
                         raise TypeError("No valid call-back function has been provided for Parameter Update "
                                         "notification processing ")
@@ -201,7 +216,10 @@ class NotificationController(object):
                 async for notification in stream:
                     # User logic here
                     if call_back and callable(call_back):
-                        call_back(notification)
+                        if asyncio.iscoroutinefunction(call_back):
+                            await call_back(notification)
+                        else:
+                            call_back(notification)
                     else:
                         raise TypeError("No valid call-back function has been provided for Property Change "
                                         "notification processing ")
