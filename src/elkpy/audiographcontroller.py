@@ -396,8 +396,8 @@ class AudioGraphController(object):
 
         Parameters:
             name (str): The name to assign the processor. Must be unique.
-            uid (str): The uid of an internal sushi processor or the URI of an LV2 processor. Not applicable for vst2 or vst3.
-            path (str): The path to the processor library. Only for vst2 or vst3 processors.
+            uid (str): The uid of an internal Sushi processor. Not applicable for vst2, vst3 and lv2.
+            path (str): The path to the processor library (for vst2 or vst3 processors) or the URI of an installed lv2 plugin.
             processor_type (info_type.PluginType): The type of processor to create.
             track_id (int): The id of the track to add the processor to.
             before_processor (int): Which existing processor to create the new processor in front of.
