@@ -40,7 +40,6 @@ from typing import List
 from typing import List, Callable
 
 
-
 ############################
 # Error handling functions #
 ############################
@@ -50,11 +49,13 @@ class SushiUnkownError(Exception):
     """
     pass
 
+
 class SushiUnsupportedOperationError(Exception):
     """
     Error thrown when the operation attempted is not currently supported in sushi
     """
     pass
+
 
 class SushiNotFoundError(Exception):
     """
@@ -62,11 +63,13 @@ class SushiNotFoundError(Exception):
     """
     pass
 
+
 class SushiOutOfRangeError(Exception):
     """
     Error thrown if one or more of the passed arguments are out of their allowed range
     """
     pass
+
 
 class SushiInvalidArgumentError(Exception):
     """
@@ -74,33 +77,35 @@ class SushiInvalidArgumentError(Exception):
     """
     pass
 
+
 class SushiInternalError(Exception):
     """
     Error thrown if sushi encountered an internal error
     """
     pass
 
+
 def grpc_error_handling(e, context_info = ''):
     """
     Maps a gRPC exception to the corresponding sushi error. If the exception doesn't have a mapping
     the context info will be printed and the same exception will be re-raised
     """
-    if (e.code().name == 'UNKNOWN'):
+    if e.code().name == 'UNKNOWN':
         raise SushiUnkownError(e.details() , context_info) from e
-    elif (e.code().name == 'FAILED_PRECONDITION'):
+    elif e.code().name == 'FAILED_PRECONDITION':
         raise SushiUnsupportedOperationError(e.details() , context_info) from e
-    elif (e.code().name == 'NOT_FOUND'):
+    elif e.code().name == 'NOT_FOUND':
         raise SushiNotFoundError(e.details() , context_info) from e
-    elif (e.code().name == 'OUT_OF_RANGE'):
+    elif e.code().name == 'OUT_OF_RANGE':
         raise SushiOutOfRangeError(e.details() , context_info) from e
-    elif (e.code().name == 'INVALID_ARGUMENT'):
+    elif e.code().name == 'INVALID_ARGUMENT':
         raise SushiInvalidArgumentError(e.details() , context_info) from e
-    elif (e.code().name == 'INTERNAL'):
+    elif e.code().name == 'INTERNAL':
         raise SushiInternalError(e.details() , context_info) from e
     else:
-        print(context_info)
+        print('Grpc error: ' + str(e.code().name) + ', ' + e.details())
         raise e
-      #  print('Grpc error: ' + str e.code().name) + ', ' + e.details())
+
 
 ###############################
 # Main sushi controller class #
@@ -136,8 +141,7 @@ class SushiController(object):
         self.programs = programcontroller.ProgramController(address, sushi_proto_def)
         self.timings = timingcontroller.TimingController(address, sushi_proto_def)
         self.transport = transportcontroller.TransportController(address, sushi_proto_def)
-        self.audio_routing = audioroutingcontroller.AudioRoutingController(address, sushi_proto_def)
-        self.midi_controller = midicontroller.MidiController(address, sushi_proto_def)
+        self.audio_routing = audioroutingcontroller.AudioRoutingController(address, sushi_proto_def)        self.midi_controller = midicontroller.MidiController(address, sushi_proto_def)
         self.cv_gate_controller = cvgatecontroller.CvGateController(address, sushi_proto_def)
         self.osc_controller = osccontroller.OscController(address, sushi_proto_def)
         self.system = systemcontroller.SystemController(address, sushi_proto_def)
@@ -149,7 +153,7 @@ class SushiController(object):
         This method should be called at app close.
         It should call any sub-controller close routines whenever they exist.
         i.e.: NotificationController has an infinite event loop running in its own thread, which has to be stopped and joined
-                to ensure clean closing and proper releasing of any resources.
+        to ensure clean closing and proper releasing of any resources.
         """
         self.notifications.close()
 

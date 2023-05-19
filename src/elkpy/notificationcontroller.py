@@ -16,6 +16,8 @@ __copyright__ = """
 """
 __license__ = "GPL-3.0"
 
+import time
+
 import grpc.experimental.aio
 import asyncio
 from threading import Thread
@@ -57,6 +59,7 @@ class NotificationController(object):
         """
         self.address = address
         self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
+        self.tasks = []
         try:
             self.loop = asyncio.get_running_loop()
             self._async = True
@@ -76,6 +79,12 @@ class NotificationController(object):
         loop.run_forever()
 
     def close(self):
+        for t in self.tasks:
+            try:
+                t.cancel()
+            except Exception as e:
+                print(e)
+
         if self._async:
             return
         else:
@@ -206,8 +215,8 @@ class NotificationController(object):
         else:
             p_list = []
             for p in property_list:
-                property = self._sushi_proto.PropertyIdentifier(processor_id=p[0], property_id=p[1])
-                p_list.append(param)
+                prop = self._sushi_proto.PropertyIdentifier(processor_id=p[0], property_id=p[1])
+                p_list.append(prop)
             block_list = self._sushi_proto.PropertyNotificationBlocklist(properties=p_list)
         try:
             async with grpc.experimental.aio.insecure_channel(self.address) as channel:
@@ -242,7 +251,7 @@ class NotificationController(object):
             cb: a callable that will be called for each notification received from the stream.
         """
         if self._async:
-            asyncio.create_task(self.process_transport_change_notifications(cb))
+            self.tasks.append(asyncio.create_task(self.process_transport_change_notifications(cb)))
         else:
             asyncio.run_coroutine_threadsafe(self.process_transport_change_notifications(cb), self.loop)
 
@@ -254,7 +263,7 @@ class NotificationController(object):
         Parameters:
             cb: a callable that will be called for each notification received from the stream.        """
         if self._async:
-            asyncio.create_task(self.process_timing_update_notifications(cb))
+            self.tasks.append(asyncio.create_task(self.process_timing_update_notifications(cb)))
         else:
             asyncio.run_coroutine_threadsafe(self.process_timing_update_notifications(cb), self.loop)
 
@@ -267,7 +276,7 @@ class NotificationController(object):
             cb: a callable that will be called for each notification received from the stream.
         """
         if self._async:
-            asyncio.create_task(self.process_track_change_notifications(cb))
+            self.tasks.append(asyncio.create_task(self.process_track_change_notifications(cb)))
         else:
             asyncio.run_coroutine_threadsafe(self.process_track_change_notifications(cb), self.loop)
 
@@ -280,7 +289,7 @@ class NotificationController(object):
             cb: a callable that will be called for each notification received from the stream.
         """
         if self._async:
-            asyncio.create_task(self.process_processor_change_notifications(cb))
+            self.tasks.append(asyncio.create_task(self.process_processor_change_notifications(cb)))
         else:
             asyncio.run_coroutine_threadsafe(self.process_processor_change_notifications(cb), self.loop)
 
@@ -305,7 +314,7 @@ class NotificationController(object):
             ex: notification.formatted_value (gets the value formatted as a string)
         """
         if self._async:
-            asyncio.create_task(self.process_parameter_update_notifications(cb))
+            self.tasks.append(asyncio.create_task(self.process_parameter_update_notifications(cb)))
         else:
             asyncio.run_coroutine_threadsafe(self.process_parameter_update_notifications(cb, param_blocklist), self.loop)
 
@@ -325,6 +334,6 @@ class NotificationController(object):
             ex: notification.value (gets the value)
         """
         if self._async:
-            asyncio.create_task(self.process_property_update_notifications(cb, property_blocklist))
+            self.tasks.append(asyncio.create_task(self.process_property_update_notifications(cb, property_blocklist)))
         else:
             asyncio.run_coroutine_threadsafe(self.process_property_update_notifications(cb, property_blocklist), self.loop)
