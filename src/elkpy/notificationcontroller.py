@@ -65,7 +65,7 @@ class NotificationController(object):
             self._async = True
         except RuntimeError:
             self._async = False
-            self.loop = asyncio.get_event_loop()
+            self.loop = asyncio.new_event_loop()
             self.notification_thread = Thread(target=self._run_notification_loop, args=(self.loop,))
             self.notification_thread.setDaemon(True)
             self.notification_thread.start()
