@@ -19,5 +19,6 @@ classifiers = [
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)"
 ]
 [project.urls]
-"Homepage" = "https://github.com/elkaudio/elkpy"
+"Homepage" = "https://github.com/elk-audio/elkpy"
+#"Homepage" = "https://github.com/elkaudio/elkpy"
 "Bug Tracker" = "https://github.com/elkaudio/elkpy/issues"
