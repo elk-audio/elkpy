@@ -14,4 +14,7 @@ def add_wait_event(wait_manager):
     return add_event
 
 
-
+class ElkpyEvent(asyncio.Event):
+    def __init__(self, state) -> None:
+        super().__init__()
+        self.state = state
