@@ -24,7 +24,12 @@ from threading import Thread
 from . import sushierrors
 from . import sushi_info_types as info_types
 from . import grpc_gen
-from typing import List
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from .sushicontroller import SushiController
+
+
 
 ###########################################
 #   Sushi Notification Controller class   #
@@ -48,6 +53,7 @@ class NotificationController(object):
         ensure proper releasing of resources and clean joining of concurrent threads.
     """
     def __init__(self,
+                 parent,
                  address='localhost:51051',
                  sushi_proto_def='/usr/share/sushi/sushi_rpc.proto'):
         """
@@ -57,6 +63,7 @@ class NotificationController(object):
             address (str): 'ip-address:port' The ip-address and port at which to connect to sushi.
             sushi_proto_def (str): path to .proto file with SUSHI's gRPC services definition.
         """
+        self.parent: 'SushiController'  = parent
         self.address = address
         self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
         self.tasks = []
@@ -69,6 +76,12 @@ class NotificationController(object):
             self.notification_thread = Thread(target=self._run_notification_loop, args=(self.loop,))
             self.notification_thread.setDaemon(True)
             self.notification_thread.start()
+            self.tasks.append(asyncio.run_coroutine_threadsafe(self.match_track_event_notification(), self.loop))
+            self.tasks.append(asyncio.run_coroutine_threadsafe(self.match_processor_event_notification(), self.loop))
+    
+        else:
+            self.tasks.append(asyncio.create_task(self.match_track_event_notification()))
+            self.tasks.append(asyncio.create_task(self.match_processor_event_notification()))
 
     @staticmethod
     def _run_notification_loop(loop):
@@ -337,3 +350,71 @@ class NotificationController(object):
             self.tasks.append(asyncio.create_task(self.process_property_update_notifications(cb, property_blocklist)))
         else:
             asyncio.run_coroutine_threadsafe(self.process_property_update_notifications(cb, property_blocklist), self.loop)
+
+    #################################################
+    # Internal event<->notificaton matching methods #
+    #################################################
+    async def match_track_event_notification(self) -> None:
+        """Listens for track_change notifications, matches them with waiting elkevents to set those events."""
+        try:
+            async with grpc.experimental.aio.insecure_channel(self.address) as channel:
+                stub = self._sushi_grpc.NotificationControllerStub(channel)
+                stream = stub.SubscribeToTrackChanges(self._sushi_proto.GenericVoidValue())
+                async for notification in stream:
+                    if not self.parent.audiograph_event_queue:
+                        continue
+                    
+                    # match with events
+                    for ev in self.parent.audiograph_event_queue[:]:
+                        if ev.state['action'] == notification.action:
+                            match notification.action:
+                                case 1:
+                                    if self.parent.audio_graph.get_track_info(notification.track.id).name == ev.state['name']:
+                                        ev.set()
+                                case 2: 
+                                    if notification.track.id == ev.state['id']:
+                                        ev.set()
+                                case _:
+                                    print(f"Got an unmatchable track update notification: {notification}")
+                            self.parent.audiograph_event_queue.remove(ev)
+        except grpc.RpcError as e:
+            sushierrors.grpc_error_handling(e)
+        except AttributeError:
+            raise TypeError(f"Parameter address = {self.address}. "
+                            f"Should be a string containing the IP address and port to Sushi")
+
+    async def match_processor_event_notification(self) -> None:
+        """Listens for processor change notifications, matches them with waiting elkevents to set those events."""
+        try:
+            async with grpc.experimental.aio.insecure_channel(self.address) as channel:
+                stub = self._sushi_grpc.NotificationControllerStub(channel)
+                stream = stub.SubscribeToProcessorChanges(self._sushi_proto.GenericVoidValue())
+                async for notification in stream:
+                    if not self.parent.processor_event_queue:
+                        continue
+                    
+                    # match with events
+                    for ev in self.parent.processor_event_queue[:]:
+                        if ev.state['action'] == notification.action:
+                            match notification.action:
+                                case 1:
+                                    if self.parent.audio_graph.get_processor_info(notification.processor.id).name == ev.state['name']:
+                                        ev.set()
+                                case 2: 
+                                    if notification.processor.id == ev.state['processor_id']:
+                                        ev.set()
+                                case _:
+                                    print(f"Got an unmatchable processor update notification: {notification}")
+                            self.parent.processor_event_queue.remove(ev)
+        except grpc.RpcError as e:
+            sushierrors.grpc_error_handling(e)
+        except AttributeError:
+            raise TypeError(f"Parameter address = {self.address}. "
+                            f"Should be a string containing the IP address and port to Sushi")
+
+    async def match_parameter_event_notification(self) -> None:
+        ...
+
+    async def match_property_event_notification(self) -> None:
+        ...
+

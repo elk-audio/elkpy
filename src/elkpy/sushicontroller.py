@@ -111,7 +111,7 @@ def grpc_error_handling(e, context_info = ''):
 # Main sushi controller class #
 ###############################
 
-class SushiController(object):
+class SushiController:
     """
     A class to control sushi via gRPC.
     This class creates one instance of each different controller type and makes
@@ -135,7 +135,7 @@ class SushiController(object):
             address (str): 'ip-addres:port' The ip-addres and port at which to connect to sushi.
             sushi_proto_def (str): path to .proto file with SUSHI's gRPC services definition
         """
-        self.audio_graph = audiographcontroller.AudioGraphController(address, sushi_proto_def)
+        self.audio_graph = audiographcontroller.AudioGraphController(self, address, sushi_proto_def)
         self.keyboard = keyboardcontroller.KeyboardController(address, sushi_proto_def)
         self.parameters = parametercontroller.ParameterController(address, sushi_proto_def)
         self.programs = programcontroller.ProgramController(address, sushi_proto_def)
@@ -147,7 +147,11 @@ class SushiController(object):
         self.osc_controller = osccontroller.OscController(address, sushi_proto_def)
         self.system = systemcontroller.SystemController(address, sushi_proto_def)
         self.session = sessioncontroller.SessionController(address, sushi_proto_def)
-        self.notifications = notificationcontroller.NotificationController(address, sushi_proto_def)
+        self.notifications = notificationcontroller.NotificationController(self, address, sushi_proto_def)
+
+        self.audiograph_event_queue = []
+        self.processor_event_queue = []
+        self.parameter_event_queue = []
 
     def close(self):
         """

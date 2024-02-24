@@ -52,7 +52,6 @@ def read_args():
     args = parser.parse_args()
     config = vars(args)
 
-    print(config)
     if not config['protofile']:
         print("No proto file is found, probably the environment variable SUSHI_GRPC_ELKPY_PROTO is not defined.")
         sys.exit(-1)

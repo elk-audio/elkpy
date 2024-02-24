@@ -1,5 +1,8 @@
-from typing_extensions import Callable
+from typing import Callable, TYPE_CHECKING
 import asyncio
+
+if TYPE_CHECKING:
+    from elkpy import sushicontroller
 
 
 def add_wait_event(wait_manager):
@@ -18,3 +21,5 @@ class ElkpyEvent(asyncio.Event):
     def __init__(self, state) -> None:
         super().__init__()
         self.state = state
+
+
