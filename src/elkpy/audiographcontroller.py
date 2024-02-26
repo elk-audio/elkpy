@@ -340,7 +340,7 @@ class AudioGraphController:
             name (str): The name of the new track.
             channels (int): The number of channels to assign the new track.
         """
-        ev = ElkpyEvent(state={'action': 1, 'name': name}) 
+        ev = ElkpyEvent(state={'action': 1, 'name': name})
         self.parent.audiograph_event_queue.append(ev)
         try:
             self._stub.CreateTrack(self._sushi_proto.CreateTrackRequest(
@@ -361,7 +361,7 @@ class AudioGraphController:
             name (str): The name of the new track.
             buses (int): The number of audio buses in the new track.
         """
-        ev = ElkpyEvent(state={'action': 1, 'name': name}) 
+        ev = ElkpyEvent(state={'action': 1, 'name': name})
         self.parent.audiograph_event_queue.append(ev)
         try:
             self._stub.CreateMultibusTrack(self._sushi_proto.CreateMultibusTrackRequest(
@@ -420,7 +420,7 @@ class AudioGraphController:
             before_processor (int): Which existing processor to create the new processor in front of.
             add_to_back (bool): Set to true to add the processor to the back of the processing chain on the track.
         """
-        ev = ElkpyEvent(state={'action': 1, 'name': name}) 
+        ev = ElkpyEvent(state={'action': 1, 'name': name})
         self.parent.processor_event_queue.append(ev)
         try:
             self._stub.CreateProcessorOnTrack(self._sushi_proto.CreateProcessorRequest(
@@ -469,7 +469,7 @@ class AudioGraphController:
             processor (int): The id of the processor to delete.
             track (int): The id of the track that contains the processor.
         """
-        ev = ElkpyEvent(state={'action': 2, 'processor_id': processor, 'track': track}) 
+        ev = ElkpyEvent(state={'action': 2, 'processor_id': processor, 'track': track})
         self.parent.processor_event_queue.append(ev)
         try:
             self._stub.DeleteProcessorFromTrack(self._sushi_proto.DeleteProcessorRequest(
@@ -490,7 +490,7 @@ class AudioGraphController:
         Parameters:
             track_id (int): The id of the track to delete.
         """
-        e = ElkpyEvent(state={'action': 2, 'id': track_id}) 
+        e = ElkpyEvent(state={'action': 2, 'id': track_id})
         self.parent.audiograph_event_queue.append(e)
         try:
             self._stub.DeleteTrack(self._sushi_proto.TrackIdentifier(id = track_id))

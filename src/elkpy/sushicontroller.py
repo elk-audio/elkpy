@@ -16,7 +16,6 @@ __copyright__ = """
 """
 __license__ = "GPL-3.0"
 
-import threading
 import grpc
 from . import sushierrors
 from . import grpc_gen
@@ -36,8 +35,6 @@ from . import systemcontroller
 from . import sessioncontroller
 from . import notificationcontroller
 
-from typing import List
-from typing import List, Callable
 
 
 ############################
