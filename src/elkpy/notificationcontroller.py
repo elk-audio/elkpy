@@ -63,7 +63,7 @@ class NotificationController(object):
             address (str): 'ip-address:port' The ip-address and port at which to connect to sushi.
             sushi_proto_def (str): path to .proto file with SUSHI's gRPC services definition.
         """
-        self.parent: 'SushiController'  = parent
+        self._parent: 'SushiController'  = parent
         self.address = address
         self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
         self.tasks = []
@@ -78,7 +78,7 @@ class NotificationController(object):
             self.notification_thread.start()
             self.tasks.append(asyncio.run_coroutine_threadsafe(self.match_track_event_notification(), self.loop))
             self.tasks.append(asyncio.run_coroutine_threadsafe(self.match_processor_event_notification(), self.loop))
-    
+
         else:
             self.tasks.append(asyncio.create_task(self.match_track_event_notification()))
             self.tasks.append(asyncio.create_task(self.match_processor_event_notification()))
@@ -361,22 +361,22 @@ class NotificationController(object):
                 stub = self._sushi_grpc.NotificationControllerStub(channel)
                 stream = stub.SubscribeToTrackChanges(self._sushi_proto.GenericVoidValue())
                 async for notification in stream:
-                    if not self.parent.audiograph_event_queue:
+                    if not self._parent.audiograph_event_queue:
                         continue
-                    
+
                     # match with events
-                    for ev in self.parent.audiograph_event_queue[:]:
+                    for ev in self._parent.audiograph_event_queue[:]:
                         if ev.state['action'] == notification.action:
                             match notification.action:
                                 case 1:
-                                    if self.parent.audio_graph.get_track_info(notification.track.id).name == ev.state['name']:
+                                    if self._parent.audio_graph.get_track_info(notification.track.id).name == ev.state['name']:
                                         ev.set()
-                                case 2: 
+                                case 2:
                                     if notification.track.id == ev.state['id']:
                                         ev.set()
                                 case _:
                                     print(f"Got an unmatchable track update notification: {notification}")
-                            self.parent.audiograph_event_queue.remove(ev)
+                            self._parent.audiograph_event_queue.remove(ev)
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
         except AttributeError:
@@ -390,22 +390,22 @@ class NotificationController(object):
                 stub = self._sushi_grpc.NotificationControllerStub(channel)
                 stream = stub.SubscribeToProcessorChanges(self._sushi_proto.GenericVoidValue())
                 async for notification in stream:
-                    if not self.parent.processor_event_queue:
+                    if not self._parent.processor_event_queue:
                         continue
-                    
+
                     # match with events
-                    for ev in self.parent.processor_event_queue[:]:
+                    for ev in self._parent.processor_event_queue[:]:
                         if ev.state['action'] == notification.action:
                             match notification.action:
                                 case 1:
-                                    if self.parent.audio_graph.get_processor_info(notification.processor.id).name == ev.state['name']:
+                                    if self._parent.audio_graph.get_processor_info(notification.processor.id).name == ev.state['name']:
                                         ev.set()
-                                case 2: 
+                                case 2:
                                     if notification.processor.id == ev.state['processor_id']:
                                         ev.set()
                                 case _:
                                     print(f"Got an unmatchable processor update notification: {notification}")
-                            self.parent.processor_event_queue.remove(ev)
+                            self._parent.processor_event_queue.remove(ev)
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
         except AttributeError:

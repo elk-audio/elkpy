@@ -71,7 +71,7 @@ To maintain proper management of the audio thread, Sushi uses an internal queue 
 
 **It is assumed that the user will use Sushi's notification system (see `notificationcontroller.py`) to confirm that their commands have been carried out correctly!**
 
-### Convenience for asyncio programs
+### Convenience for asyncio programs [EXPERIMENTAL]
 
 To alleviate this burden for _simple_ use-cases, `elkpy` adopts the following behavior, available to asyncio users:
 

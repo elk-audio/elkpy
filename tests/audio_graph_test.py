@@ -19,7 +19,6 @@ __license__ = "GPL-3.0"
 import os
 import sys
 import unittest
-import time
 import grpc
 
 from concurrent import futures
