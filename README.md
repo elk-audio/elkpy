@@ -71,7 +71,7 @@ To maintain proper management of the audio thread, Sushi uses an internal queue 
 
 **It is assumed that the user will use Sushi's notification system (see `notificationcontroller.py`) to confirm that their commands have been carried out correctly!**
 
-### Convenience for asyncio programs [EXPERIMENTAL]
+### Convenience for asyncio programs - EXPERIMENTAL
 
 To alleviate this burden for _simple_ use-cases, `elkpy` adopts the following behavior, available to asyncio users:
 
@@ -87,7 +87,7 @@ return an `ElkpyEvent`: an asyncio.Event that will be **set** by `elkpy` wheneve
 An asyncio user can elect to `await ElkpyEvent.wait()` to ensure that the command has been properly carried out.
 Ignoring the event is also a valid option for cases where absolute confirmation is not critical.
 
-Purely synchronous program have to implement their own systems to confirm that Sushi is indeed in the state they are expecting.
+Purely synchronous programs have to implement their own systems to confirm that Sushi is indeed in the state they are expecting.
 
 For more information about `asyncio.Event`: [https://docs.python.org/3/library/asyncio-sync.html]
 
