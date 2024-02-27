@@ -97,7 +97,7 @@ For more information about `asyncio.Event`: [https://docs.python.org/3/library/a
 
 The `examples` subdirectory contains examples of how elkpy can be used.
 
-#### Sushi Control Example
+### Sushi Control Example
 
 This demonstrates instantiating 3 processors onto Sushi started with an “empty” config, subscribing to notifications to wait for their instantiation, and then setting their parameters once they're available.
 
@@ -124,7 +124,7 @@ The `--protofile` argument points elkpy to the protocol buffer file used by Sush
 
 You should hear Sushi play a familiar theme tune.
 
-#### Sushi Monitor
+### Sushi Monitor
 
 An example passive monitor app using elkpy.
 It connects to a sushi instance, subscribes to notifications and displays all the parameter, transport and audio graph changes that Sushi broadcasts.
@@ -140,7 +140,7 @@ $ export SUSHI_GRPC_ELKPY_PROTO=./sushi_rpc.proto
 $ python3 examples/sushi_monitor.py
 ```
 
-### Running Unit Tests
+## Running Unit Tests
 
 Before running unit tests with the unittest command-line interface, you need to export the environment variable `SUSHI_GRPC_ELKPY_PROTO`, pointing to the Sushi's `.proto` definition file.
 
