@@ -67,7 +67,7 @@ On the terminal where the elkpy folder is located.
 
 ## Important notes on return values
 
-To maintain proper management of the audio thread, Sushi uses an internal queue for commands passed to it via gRPC. This means that it can not return anything else than a standard -but useless- response.
+To maintain proper management of the audio thread, Sushi uses an internal queue for commands passed to it via gRPC. This means that it can not return anything else than a standard -but of limited use- response.
 
 **It is assumed that the user will use Sushi's notification system (see `notificationcontroller.py`) to confirm that their commands have been carried out correctly!**
 
