@@ -39,7 +39,7 @@ To use the controller simply use the methods of the controller objects different
 # To make sure all the sub-controllers of SushiController close properly, you can wrap them in a try except block:
 try:
     # Get a list of the tracks available in sushi
-    list_of_tracks = controller.audio_graph.get_tracks()
+    list_of_tracks = controller.audio_graph.get_all_tracks()
 
     # Get the parameters of the track with the id passed to the method
     track_id = 0
