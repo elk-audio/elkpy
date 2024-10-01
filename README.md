@@ -71,7 +71,7 @@ To maintain proper management of the audio thread, Sushi uses an internal queue 
 
 **It is assumed that the user will use Sushi's notification system (see `notificationcontroller.py`) to confirm that their commands have been carried out correctly!**
 
-### Convenience for asyncio programs - EXPERIMENTAL
+### Convenience for asyncio programs 
 
 To alleviate this burden for _simple_ use-cases, `elkpy` adopts the following behavior, available to asyncio users:
 
@@ -87,7 +87,17 @@ return an `ElkpyEvent`: an asyncio.Event that will be **set** by `elkpy` wheneve
 An asyncio user can elect to `await ElkpyEvent.wait()` to ensure that the command has been properly carried out.
 Ignoring the event is also a valid option for cases where absolute confirmation is not critical.
 
-Purely synchronous programs have to implement their own systems to confirm that Sushi is indeed in the state they are expecting.
+#### CAUTION
+elkpy uses an asyncio.EventLoop to run its notification monitoring. In asyncio programs, it will simply get the current running loop. And if that fails (for instance
+if you are writing a synchronous program), it will starts a new loop in a separate thread.
+
+You MUST therefore be careful when you instantiate the main SushiController class when writing asyncio applications. Make sure that a loop **is already running**, for instance by instantiating a SushiController inside your `async def main()`.
+
+If you fail to do that, you will end up with 2 running loops: one in the main thread and one in an elkpy thread. And that will break the ElkpyEvent system, because asyncio.Events are **not thread-safe**!
+
+#### Synchronous programs and ElkpyEvents
+Synchronous programs may also leverage ElkpyEvents but in a different way. The object *waiting* on such events can **not** wait() on them but MUST check their `event.is_set()` method instead. This 
+will return `True` once *elkpy* has set the event.
 
 For more information about `asyncio.Event`: [https://docs.python.org/3/library/asyncio-sync.html]
 
