@@ -26,7 +26,7 @@ import grpc
 from . import sushierrors
 from . import grpc_gen
 from . import sushi_info_types as info_types
-from .events import TrackCreationEvent, TrackDeletionEvent
+from .events import ProcessorCreationEvent, ProcessorDeletionEvent, TrackCreationEvent, TrackDeletionEvent
 from typing import List
 
 ####################################
@@ -485,7 +485,7 @@ class AudioGraphController:
         track_id: int,
         before_processor: int,
         add_to_back: bool,
-    ) -> ElkpyCreationEvent | None:
+    ) -> ProcessorCreationEvent | None:
         """
         Create a new processor on an existing track.
 
@@ -583,7 +583,7 @@ class AudioGraphController:
 
     def delete_processor_from_track(
         self, processor: int, track: int
-    ) -> ElkpyCreationEvent | None:
+    ) -> ProcessorDeletionEvent | None:
         """
         Delete an existing processor from a track.
 
