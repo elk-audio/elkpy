@@ -16,7 +16,6 @@ __copyright__ = """
 """
 __license__ = "GPL-3.0"
 
-from elkpy.events import ElkpyCreationEvent
 import grpc
 from . import sushierrors
 from . import grpc_gen

@@ -463,6 +463,7 @@ class NotificationController:
                                     )
                                     if obj_info.name == ev.name:
                                         ev.sushi_id = obj_info.id
+                                        ev.data = obj_info
                                         ev.set()
                                 case 2:
                                     if notification.track.id == ev.id:
