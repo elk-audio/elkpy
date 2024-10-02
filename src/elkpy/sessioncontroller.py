@@ -27,6 +27,7 @@ from typing import List
 # Sushi session controller class #
 ##################################
 
+
 class SessionController(object):
     """
     A class to save and restore the full state of a sushi session.
@@ -34,9 +35,12 @@ class SessionController(object):
     Attributes:
         _stub (SessionControllerStub): Connection stubs to the session interface implemented in sushi.
     """
-    def __init__(self,
-                 address = 'localhost:51051',
-                 sushi_proto_def = '/usr/share/sushi/sushi_rpc.proto'):
+
+    def __init__(
+        self,
+        address="localhost:51051",
+        sushi_proto_def="/usr/share/sushi/sushi_rpc.proto",
+    ):
         """
         The constructor for the SessionController class setting up the gRPC connection with sushi.
 
@@ -47,9 +51,15 @@ class SessionController(object):
         try:
             channel = grpc.insecure_channel(address)
         except AttributeError as e:
-            raise TypeError("Parameter address = {}. Should be a string containing the ip-address and port of sushi ('ip-address:port')".format(address)) from e
+            raise TypeError(
+                "Parameter address = {}. Should be a string containing the ip-address and port of sushi ('ip-address:port')".format(
+                    address
+                )
+            ) from e
 
-        self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
+        self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(
+            sushi_proto_def
+        )
         self._stub = self._sushi_grpc.SessionControllerStub(channel)
 
     def save_binary_session(self) -> bytes:
@@ -60,7 +70,8 @@ class SessionController(object):
             bytes: A bytes object containing the complete state of the sushi session.
         """
         try:
-            response = self._stub.SaveSession(self._sushi_proto.GenericVoidValue())
+            response = self._stub.SaveSession(
+                self._sushi_proto.GenericVoidValue())
             return response.SerializeToString()
 
         except grpc.RpcError as e:

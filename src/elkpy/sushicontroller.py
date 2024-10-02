@@ -16,6 +16,7 @@ __copyright__ = """
 """
 __license__ = "GPL-3.0"
 
+from elkpy.events import ElkpyCreationEvent
 import grpc
 from . import sushierrors
 from . import grpc_gen
@@ -36,7 +37,6 @@ from . import sessioncontroller
 from . import notificationcontroller
 
 
-
 ############################
 # Error handling functions #
 ############################
@@ -44,6 +44,7 @@ class SushiUnkownError(Exception):
     """
     Error thrown when the source of the error can't be determined
     """
+
     pass
 
 
@@ -51,6 +52,7 @@ class SushiUnsupportedOperationError(Exception):
     """
     Error thrown when the operation attempted is not currently supported in sushi
     """
+
     pass
 
 
@@ -58,6 +60,7 @@ class SushiNotFoundError(Exception):
     """
     Error thrown if the requested entity is not found in sushi
     """
+
     pass
 
 
@@ -65,6 +68,7 @@ class SushiOutOfRangeError(Exception):
     """
     Error thrown if one or more of the passed arguments are out of their allowed range
     """
+
     pass
 
 
@@ -72,6 +76,7 @@ class SushiInvalidArgumentError(Exception):
     """
     Error thrown if one or more of the passed arguments are invalid
     """
+
     pass
 
 
@@ -79,34 +84,36 @@ class SushiInternalError(Exception):
     """
     Error thrown if sushi encountered an internal error
     """
+
     pass
 
 
-def grpc_error_handling(e, context_info = ''):
+def grpc_error_handling(e, context_info=""):
     """
     Maps a gRPC exception to the corresponding sushi error. If the exception doesn't have a mapping
     the context info will be printed and the same exception will be re-raised
     """
-    if e.code().name == 'UNKNOWN':
-        raise SushiUnkownError(e.details() , context_info) from e
-    elif e.code().name == 'FAILED_PRECONDITION':
-        raise SushiUnsupportedOperationError(e.details() , context_info) from e
-    elif e.code().name == 'NOT_FOUND':
-        raise SushiNotFoundError(e.details() , context_info) from e
-    elif e.code().name == 'OUT_OF_RANGE':
-        raise SushiOutOfRangeError(e.details() , context_info) from e
-    elif e.code().name == 'INVALID_ARGUMENT':
-        raise SushiInvalidArgumentError(e.details() , context_info) from e
-    elif e.code().name == 'INTERNAL':
-        raise SushiInternalError(e.details() , context_info) from e
+    if e.code().name == "UNKNOWN":
+        raise SushiUnkownError(e.details(), context_info) from e
+    elif e.code().name == "FAILED_PRECONDITION":
+        raise SushiUnsupportedOperationError(e.details(), context_info) from e
+    elif e.code().name == "NOT_FOUND":
+        raise SushiNotFoundError(e.details(), context_info) from e
+    elif e.code().name == "OUT_OF_RANGE":
+        raise SushiOutOfRangeError(e.details(), context_info) from e
+    elif e.code().name == "INVALID_ARGUMENT":
+        raise SushiInvalidArgumentError(e.details(), context_info) from e
+    elif e.code().name == "INTERNAL":
+        raise SushiInternalError(e.details(), context_info) from e
     else:
-        print('Grpc error: ' + str(e.code().name) + ', ' + e.details())
+        print("Grpc error: " + str(e.code().name) + ", " + e.details())
         raise e
 
 
 ###############################
 # Main sushi controller class #
 ###############################
+
 
 class SushiController:
     """
@@ -122,9 +129,12 @@ class SushiController:
         close() should ALWAYS be called as part of an application housekeeping/cleanup-before-shutdown routine as it
         ensure proper releasing of resources and clean joining of concurrent threads.
     """
-    def __init__(self,
-                 address = 'localhost:51051',
-                 sushi_proto_def = '/usr/share/sushi/sushi_rpc.proto'):
+
+    def __init__(
+        self,
+        address="localhost:51051",
+        sushi_proto_def="/usr/share/sushi/sushi_rpc.proto",
+    ):
         """
         The constructor for the SushiController class setting up the gRPC connection with sushi.
 
@@ -132,21 +142,33 @@ class SushiController:
             address (str): 'ip-addres:port' The ip-addres and port at which to connect to sushi.
             sushi_proto_def (str): path to .proto file with SUSHI's gRPC services definition
         """
-        self.audio_graph = audiographcontroller.AudioGraphController(self, address, sushi_proto_def)
+        self.audio_graph = audiographcontroller.AudioGraphController(
+            self, address, sushi_proto_def
+        )
         self.keyboard = keyboardcontroller.KeyboardController(address, sushi_proto_def)
-        self.parameters = parametercontroller.ParameterController(address, sushi_proto_def)
+        self.parameters = parametercontroller.ParameterController(
+            address, sushi_proto_def
+        )
         self.programs = programcontroller.ProgramController(address, sushi_proto_def)
         self.timings = timingcontroller.TimingController(address, sushi_proto_def)
-        self.transport = transportcontroller.TransportController(address, sushi_proto_def)
-        self.audio_routing = audioroutingcontroller.AudioRoutingController(address, sushi_proto_def)
+        self.transport = transportcontroller.TransportController(
+            address, sushi_proto_def
+        )
+        self.audio_routing = audioroutingcontroller.AudioRoutingController(
+            address, sushi_proto_def
+        )
         self.midi_controller = midicontroller.MidiController(address, sushi_proto_def)
-        self.cv_gate_controller = cvgatecontroller.CvGateController(address, sushi_proto_def)
+        self.cv_gate_controller = cvgatecontroller.CvGateController(
+            address, sushi_proto_def
+        )
         self.osc_controller = osccontroller.OscController(address, sushi_proto_def)
         self.system = systemcontroller.SystemController(address, sushi_proto_def)
         self.session = sessioncontroller.SessionController(address, sushi_proto_def)
-        self.notifications = notificationcontroller.NotificationController(self, address, sushi_proto_def)
+        self.notifications = notificationcontroller.NotificationController(
+            self, address, sushi_proto_def
+        )
 
-        self.audiograph_event_queue = []
+        self.audiograph_event_queue: list[ElkpyCreationEvent] = []
         self.processor_event_queue = []
         self.parameter_event_queue = []
 

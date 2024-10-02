@@ -17,6 +17,7 @@ __copyright__ = """
 __license__ = "GPL-3.0"
 
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from elkpy.sushicontroller import SushiController
 
@@ -25,12 +26,13 @@ import grpc
 from . import sushierrors
 from . import grpc_gen
 from . import sushi_info_types as info_types
-from .events import ElkpyEvent
+from .events import ElkpyCreationEvent
 from typing import List
 
 ####################################
 # Sushi audio graph controller class #
 ####################################
+
 
 class AudioGraphController:
     """
@@ -40,10 +42,13 @@ class AudioGraphController:
     Attributes:
         _stub (AudioGraphControllerStub): Connection stubs to the gRPC audio graph interface implemented in sushi.
     """
-    def __init__(self,
-                 parent,
-                 address = 'localhost:51051',
-                 sushi_proto_def = '/usr/share/sushi/sushi_rpc.proto'):
+
+    def __init__(
+        self,
+        parent,
+        address="localhost:51051",
+        sushi_proto_def="/usr/share/sushi/sushi_rpc.proto",
+    ):
         """
         The constructor for the AudioGraphController class setting up the gRPC connection with sushi.
 
@@ -51,17 +56,23 @@ class AudioGraphController:
             address (str): 'ip-addres:port' The ip-addres and port at which to connect to sushi.
             sushi_proto_def (str): path to .proto file with SUSHI's gRPC services definition
         """
-        self._parent: 'SushiController' = parent
+        self._parent: "SushiController" = parent
 
         try:
             channel = grpc.insecure_channel(address)
         except AttributeError as e:
-            raise TypeError("Parameter address = {}. Should be a string containing the ip-address and port of sushi ('ip-address:port')".format(address)) from e
+            raise TypeError(
+                "Parameter address = {}. Should be a string containing the ip-address and port of sushi ('ip-address:port')".format(
+                    address
+                )
+            ) from e
 
-        self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
+        self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(
+            sushi_proto_def
+        )
         self._stub = self._sushi_grpc.AudioGraphControllerStub(channel)
 
-    def get_all_processors(self) ->List[info_types.ProcessorInfo] | None:
+    def get_all_processors(self) -> List[info_types.ProcessorInfo] | None:
         """
         Gets a list of all available processors.
 
@@ -108,9 +119,9 @@ class AudioGraphController:
             int: The id of the track matching the name.
         """
         try:
-            response = self._stub.GetTrackId(self._sushi_proto.GenericStringValue(
-                value = track_name
-            ))
+            response = self._stub.GetTrackId(
+                self._sushi_proto.GenericStringValue(value=track_name)
+            )
             return response.id
 
         except grpc.RpcError as e:
@@ -127,15 +138,19 @@ class AudioGraphController:
             info_types.TrackInfo: The info of the track matching the id.
         """
         try:
-            response = self._stub.GetTrackInfo(self._sushi_proto.TrackIdentifier(
-                id = track_identifier
-            ))
+            response = self._stub.GetTrackInfo(
+                self._sushi_proto.TrackIdentifier(id=track_identifier)
+            )
             return info_types.TrackInfo(response)
 
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, "With track id: {}".format(track_identifier))
+            sushierrors.grpc_error_handling(
+                e, "With track id: {}".format(track_identifier)
+            )
 
-    def get_track_processors(self, track_identifier: int) -> List[info_types.ProcessorInfo] | None:
+    def get_track_processors(
+        self, track_identifier: int
+    ) -> List[info_types.ProcessorInfo] | None:
         """
         Get a list of processors assigned on the specified track.
 
@@ -146,9 +161,9 @@ class AudioGraphController:
             List[info_types.ProcessorInfo]: A list of the info of the processors assigned to the track matching the id.
         """
         try:
-            response = self._stub.GetTrackProcessors(self._sushi_proto.TrackIdentifier(
-                id = track_identifier
-            ))
+            response = self._stub.GetTrackProcessors(
+                self._sushi_proto.TrackIdentifier(id=track_identifier)
+            )
 
             processor_info_list = []
             for processor_info in response.processors:
@@ -157,7 +172,9 @@ class AudioGraphController:
             return processor_info_list
 
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, "With track id: {}".format(track_identifier))
+            sushierrors.grpc_error_handling(
+                e, "With track id: {}".format(track_identifier)
+            )
 
     def get_processor_id(self, processor_name: str) -> int | None:
         """
@@ -170,15 +187,19 @@ class AudioGraphController:
             int: The id of the processor matching the name.
         """
         try:
-            response = self._stub.GetProcessorId(self._sushi_proto.GenericStringValue(
-                value = processor_name
-            ))
+            response = self._stub.GetProcessorId(
+                self._sushi_proto.GenericStringValue(value=processor_name)
+            )
             return response.id
 
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, "With processor name: {}".format(processor_name))
+            sushierrors.grpc_error_handling(
+                e, "With processor name: {}".format(processor_name)
+            )
 
-    def get_processor_info(self, processor_identifier: int) -> info_types.ProcessorInfo | None:
+    def get_processor_info(
+        self, processor_identifier: int
+    ) -> info_types.ProcessorInfo | None:
         """
         Get the info of a processor from its id.
 
@@ -189,13 +210,15 @@ class AudioGraphController:
             info_types.ProcessorInfo: The info of the processor matching the id.
         """
         try:
-            response = self._stub.GetProcessorInfo(self._sushi_proto.ProcessorIdentifier(
-                id = processor_identifier
-            ))
+            response = self._stub.GetProcessorInfo(
+                self._sushi_proto.ProcessorIdentifier(id=processor_identifier)
+            )
             return info_types.ProcessorInfo(response)
 
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, "With processor id: {}".format(processor_identifier))
+            sushierrors.grpc_error_handling(
+                e, "With processor id: {}".format(processor_identifier)
+            )
 
     def get_processor_bypass_state(self, processor_identifier: int) -> bool | None:
         """
@@ -208,15 +231,19 @@ class AudioGraphController:
             bool: The bypass state of the processor matching the id.
         """
         try:
-            response = self._stub.GetProcessorBypassState(self._sushi_proto.ProcessorIdentifier(
-                id = processor_identifier
-            ))
+            response = self._stub.GetProcessorBypassState(
+                self._sushi_proto.ProcessorIdentifier(id=processor_identifier)
+            )
             return response.value
 
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, "With processor id: {}".format(processor_identifier))
+            sushierrors.grpc_error_handling(
+                e, "With processor id: {}".format(processor_identifier)
+            )
 
-    def get_processor_state(self, processor_identifier: int) -> info_types.ProcessorState | None:
+    def get_processor_state(
+        self, processor_identifier: int
+    ) -> info_types.ProcessorState | None:
         """
         Get the full state of the specified processor.
 
@@ -227,15 +254,19 @@ class AudioGraphController:
             ProcessorState: An object describing the full the processor matching the id.
         """
         try:
-            response = self._stub.GetProcessorState(self._sushi_proto.ProcessorIdentifier(
-                id = processor_identifier
-            ))
+            response = self._stub.GetProcessorState(
+                self._sushi_proto.ProcessorIdentifier(id=processor_identifier)
+            )
             return info_types.ProcessorState(response)
 
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, "With processor id: {}".format(processor_identifier))
+            sushierrors.grpc_error_handling(
+                e, "With processor id: {}".format(processor_identifier)
+            )
 
-    def set_processor_bypass_state(self, processor_identifier: int, bypass_state: bool) -> None:
+    def set_processor_bypass_state(
+        self, processor_identifier: int, bypass_state: bool
+    ) -> None:
         """
         Set the bypass state of the specified processor.
 
@@ -244,17 +275,31 @@ class AudioGraphController:
             bypass_sate (bool): The bypass state of the processor matching the id.
         """
         try:
-            self._stub.SetProcessorBypassState(self._sushi_proto.ProcessorBypassStateSetRequest(
-                processor = self._sushi_proto.ProcessorIdentifier(id = processor_identifier),
-                value = bypass_state
-            ))
+            self._stub.SetProcessorBypassState(
+                self._sushi_proto.ProcessorBypassStateSetRequest(
+                    processor=self._sushi_proto.ProcessorIdentifier(
+                        id=processor_identifier
+                    ),
+                    value=bypass_state,
+                )
+            )
 
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, "With processor id: {}, bypass state: {}".format(processor_identifier, bypass_state))
+            sushierrors.grpc_error_handling(
+                e,
+                "With processor id: {}, bypass state: {}".format(
+                    processor_identifier, bypass_state
+                ),
+            )
 
-
-    def set_discrete_processor_state(self, processor_identifier: int, program_id: int | None = None, bypassed: bool | None = False,
-            property_values: list[tuple[int, str]] = [], parameter_values: list[tuple[int, float]] = []) -> None:
+    def set_discrete_processor_state(
+        self,
+        processor_identifier: int,
+        program_id: int | None = None,
+        bypassed: bool | None = False,
+        property_values: list[tuple[int, str]] = [],
+        parameter_values: list[tuple[int, float]] = [],
+    ) -> None:
         """
         Set the full or partial state of the specified processor.
 
@@ -285,15 +330,23 @@ class AudioGraphController:
                 grpc_parameter.parameter.parameter_id = parameter[0]
                 grpc_parameter.value = parameter[1]
 
-            self._stub.SetProcessorState(self._sushi_proto.ProcessorStateSetRequest(
-                processor = self._sushi_proto.ProcessorIdentifier(id = processor_identifier),
-                state = grpc_state
-            ))
+            self._stub.SetProcessorState(
+                self._sushi_proto.ProcessorStateSetRequest(
+                    processor=self._sushi_proto.ProcessorIdentifier(
+                        id=processor_identifier
+                    ),
+                    state=grpc_state,
+                )
+            )
 
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, "With processor id: {}".format(processor_identifier))
+            sushierrors.grpc_error_handling(
+                e, "With processor id: {}".format(processor_identifier)
+            )
 
-    def set_processor_state(self, processor_identifier: int, state: info_types.ProcessorState) -> None:
+    def set_processor_state(
+        self, processor_identifier: int, state: info_types.ProcessorState
+    ) -> None:
         """
         Set the full or partial state of the specified processor from an existing state object.
 
@@ -324,15 +377,21 @@ class AudioGraphController:
             if len(state.binary_data) > 0:
                 grpc_state.binary_data = state.binary_data
 
-            self._stub.SetProcessorState(self._sushi_proto.ProcessorStateSetRequest(
-                processor = self._sushi_proto.ProcessorIdentifier(id = processor_identifier),
-                state = grpc_state
-            ))
+            self._stub.SetProcessorState(
+                self._sushi_proto.ProcessorStateSetRequest(
+                    processor=self._sushi_proto.ProcessorIdentifier(
+                        id=processor_identifier
+                    ),
+                    state=grpc_state,
+                )
+            )
 
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, "With processor id: {}".format(processor_identifier))
+            sushierrors.grpc_error_handling(
+                e, "With processor id: {}".format(processor_identifier)
+            )
 
-    def create_track(self, name: str, channels: int) -> ElkpyEvent | None:
+    def create_track(self, name: str, channels: int) -> ElkpyCreationEvent | None:
         """
         Create a new track in sushi.
 
@@ -340,20 +399,21 @@ class AudioGraphController:
             name (str): The name of the new track.
             channels (int): The number of channels to assign the new track.
         """
-        ev = ElkpyEvent(state={'action': 1, 'name': name})
+        ev = ElkpyCreationEvent(name=name)
         self._parent.audiograph_event_queue.append(ev)
         try:
-            self._stub.CreateTrack(self._sushi_proto.CreateTrackRequest(
-                name = name,
-                channels = channels
-            ))
+            self._stub.CreateTrack(
+                self._sushi_proto.CreateTrackRequest(name=name, channels=channels)
+            )
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, "With track name: {}, number of channels: {}".format(name, channels))
+            sushierrors.grpc_error_handling(
+                e, "With track name: {}, number of channels: {}".format(name, channels)
+            )
             self._parent.audiograph_event_queue.remove(ev)
         else:
             return ev
 
-    def create_multibus_track(self, name: str, buses: int) -> ElkpyEvent | None:
+    def create_multibus_track(self, name: str, buses: int) -> ElkpyCreationEvent | None:
         """
         Create a new multibus track in sushi.
 
@@ -361,16 +421,17 @@ class AudioGraphController:
             name (str): The name of the new track.
             buses (int): The number of audio buses in the new track.
         """
-        ev = ElkpyEvent(state={'action': 1, 'name': name})
+        ev = ElkpyCreationEvent(state={"action": 1, "name": name})
         self._parent.audiograph_event_queue.append(ev)
         try:
-            self._stub.CreateMultibusTrack(self._sushi_proto.CreateMultibusTrackRequest(
-                name = name,
-                buses = buses
-            ))
+            self._stub.CreateMultibusTrack(
+                self._sushi_proto.CreateMultibusTrackRequest(name=name, buses=buses)
+            )
 
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, "With track name: {}, buses: {}".format(name, buses))
+            sushierrors.grpc_error_handling(
+                e, "With track name: {}, buses: {}".format(name, buses)
+            )
             self._parent.audiograph_event_queue.remove(ev)
         else:
             return ev
@@ -383,9 +444,9 @@ class AudioGraphController:
             name (str): The name of the new track.
         """
         try:
-            self._stub.CreatePreTrack(self._sushi_proto.CreatePreTrackRequest(
-                name = name
-            ))
+            self._stub.CreatePreTrack(
+                self._sushi_proto.CreatePreTrackRequest(name=name)
+            )
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With track name: {}".format(name))
@@ -398,16 +459,23 @@ class AudioGraphController:
             name (str): The name of the new track.
         """
         try:
-            self._stub.CreatePostTrack(self._sushi_proto.CreatePostTrackRequest(
-                name = name
-            ))
+            self._stub.CreatePostTrack(
+                self._sushi_proto.CreatePostTrackRequest(name=name)
+            )
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With track name: {}".format(name))
 
-    def create_processor_on_track(self, name: str, uid: str, path:
-                                  str, processor_type: info_types.PluginType, track_id: int,
-                                  before_processor: int, add_to_back: bool) -> ElkpyEvent | None:
+    def create_processor_on_track(
+        self,
+        name: str,
+        uid: str,
+        path: str,
+        processor_type: info_types.PluginType,
+        track_id: int,
+        before_processor: int,
+        add_to_back: bool,
+    ) -> ElkpyCreationEvent | None:
         """
         Create a new processor on an existing track.
 
@@ -420,25 +488,49 @@ class AudioGraphController:
             before_processor (int): Which existing processor to create the new processor in front of.
             add_to_back (bool): Set to true to add the processor to the back of the processing chain on the track.
         """
-        ev = ElkpyEvent(state={'action': 1, 'name': name})
+        ev = ElkpyCreationEvent(state={"action": 1, "name": name})
         self._parent.processor_event_queue.append(ev)
         try:
-            self._stub.CreateProcessorOnTrack(self._sushi_proto.CreateProcessorRequest(
-                name = name,
-                uid = uid,
-                path = path,
-                type = self._sushi_proto.PluginType(type = processor_type),
-                track = self._sushi_proto.TrackIdentifier(id = track_id),
-                position = self._sushi_proto.ProcessorPosition(add_to_back = add_to_back,
-                                                               before_processor = self._sushi_proto.ProcessorIdentifier(id = before_processor))
-            ))
+            self._stub.CreateProcessorOnTrack(
+                self._sushi_proto.CreateProcessorRequest(
+                    name=name,
+                    uid=uid,
+                    path=path,
+                    type=self._sushi_proto.PluginType(type=processor_type),
+                    track=self._sushi_proto.TrackIdentifier(id=track_id),
+                    position=self._sushi_proto.ProcessorPosition(
+                        add_to_back=add_to_back,
+                        before_processor=self._sushi_proto.ProcessorIdentifier(
+                            id=before_processor
+                        ),
+                    ),
+                )
+            )
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, "With processor name: {}, uid: {}, path: {}, type: {}, id: {}, position: {}, add_to_back: {}".format(name, uid, path, processor_type, track_id, before_processor, add_to_back))
+            sushierrors.grpc_error_handling(
+                e,
+                "With processor name: {}, uid: {}, path: {}, type: {}, id: {}, position: {}, add_to_back: {}".format(
+                    name,
+                    uid,
+                    path,
+                    processor_type,
+                    track_id,
+                    before_processor,
+                    add_to_back,
+                ),
+            )
             self._parent.processor_event_queue.remove(ev)
         else:
             return ev
 
-    def move_processor_on_track(self, processor: int, source_track: int, destination_track: int, before_processor: int, add_to_back: bool) -> None:
+    def move_processor_on_track(
+        self,
+        processor: int,
+        source_track: int,
+        destination_track: int,
+        before_processor: int,
+        add_to_back: bool,
+    ) -> None:
         """
         Move an existing processor.
 
@@ -450,18 +542,35 @@ class AudioGraphController:
             add_to_back (bool): Set to true to add the processor to the back of the processing chain on the track.
         """
         try:
-            self._stub.MoveProcessorOnTrack(self._sushi_proto.MoveProcessorRequest(
-                processor = self._sushi_proto.ProcessorIdentifier(id = processor),
-                source_track = self._sushi_proto.TrackIdentifier(id = source_track),
-                dest_track = self._sushi_proto.TrackIdentifier(id = destination_track),
-                position = self._sushi_proto.ProcessorPosition(add_to_back = add_to_back,
-                                                               before_processor = self._sushi_proto.ProcessorIdentifier(id = before_processor))
-            ))
+            self._stub.MoveProcessorOnTrack(
+                self._sushi_proto.MoveProcessorRequest(
+                    processor=self._sushi_proto.ProcessorIdentifier(id=processor),
+                    source_track=self._sushi_proto.TrackIdentifier(id=source_track),
+                    dest_track=self._sushi_proto.TrackIdentifier(id=destination_track),
+                    position=self._sushi_proto.ProcessorPosition(
+                        add_to_back=add_to_back,
+                        before_processor=self._sushi_proto.ProcessorIdentifier(
+                            id=before_processor
+                        ),
+                    ),
+                )
+            )
 
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, "With processor id: {}, source_track: {}, dest_track: {}, before_processor: {}, add_to_back: {}".format(processor, source_track, destination_track, before_processor, add_to_back))
+            sushierrors.grpc_error_handling(
+                e,
+                "With processor id: {}, source_track: {}, dest_track: {}, before_processor: {}, add_to_back: {}".format(
+                    processor,
+                    source_track,
+                    destination_track,
+                    before_processor,
+                    add_to_back,
+                ),
+            )
 
-    def delete_processor_from_track(self, processor: int, track: int) -> ElkpyEvent | None:
+    def delete_processor_from_track(
+        self, processor: int, track: int
+    ) -> ElkpyCreationEvent | None:
         """
         Delete an existing processor from a track.
 
@@ -469,31 +578,37 @@ class AudioGraphController:
             processor (int): The id of the processor to delete.
             track (int): The id of the track that contains the processor.
         """
-        ev = ElkpyEvent(state={'action': 2, 'processor_id': processor, 'track': track})
+        ev = ElkpyCreationEvent(
+            state={"action": 2, "processor_id": processor, "track": track}
+        )
         self._parent.processor_event_queue.append(ev)
         try:
-            self._stub.DeleteProcessorFromTrack(self._sushi_proto.DeleteProcessorRequest(
-                processor = self._sushi_proto.ProcessorIdentifier(id = processor),
-                track = self._sushi_proto.TrackIdentifier(id = track)
-            ))
+            self._stub.DeleteProcessorFromTrack(
+                self._sushi_proto.DeleteProcessorRequest(
+                    processor=self._sushi_proto.ProcessorIdentifier(id=processor),
+                    track=self._sushi_proto.TrackIdentifier(id=track),
+                )
+            )
 
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, "With processor id: {}, track id: {}".format(processor, track))
+            sushierrors.grpc_error_handling(
+                e, "With processor id: {}, track id: {}".format(processor, track)
+            )
             self._parent.processor_event_queue.remove(ev)
         else:
             return ev
 
-    def delete_track(self, track_id: int) -> ElkpyEvent | None:
+    def delete_track(self, track_id: int) -> ElkpyCreationEvent | None:
         """
         Delet a track.
 
         Parameters:
             track_id (int): The id of the track to delete.
         """
-        e = ElkpyEvent(state={'action': 2, 'id': track_id})
+        e = ElkpyCreationEvent(state={"action": 2, "id": track_id})
         self._parent.audiograph_event_queue.append(e)
         try:
-            self._stub.DeleteTrack(self._sushi_proto.TrackIdentifier(id = track_id))
+            self._stub.DeleteTrack(self._sushi_proto.TrackIdentifier(id=track_id))
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With track id: {}".format(track_id))
             self._parent.audiograph_event_queue.remove(e)
