@@ -458,19 +458,20 @@ class NotificationController:
                         if ev.action == notification.action:
                             match notification.action:
                                 case 1:
-                                    obj_info = self._parent.audio_graph.get_track_info(
+                                    if obj_info := self._parent.audio_graph.get_track_info(
                                         notification.track.id
-                                    )
-                                    if obj_info.name == ev.name:
-                                        ev.sushi_id = obj_info.id
-                                        ev.data = obj_info
-                                        ev.set()
+                                    ):
+                                        if obj_info.name == ev.name:
+                                            ev.sushi_id = obj_info.id
+                                            ev.data = obj_info
+                                            ev.set()
                                 case 2:
                                     if notification.track.id == ev.id:
                                         ev.set()
                                 case _:
-                                    print(f"Got an unmatchable track update notification: {
-                                          notification}")
+                                    print(
+                                        f"Got an unmatchable track update notification: {notification}"
+                                    )
                             self._parent.audiograph_event_queue.remove(ev)
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
@@ -497,22 +498,20 @@ class NotificationController:
                         if ev.state["action"] == notification.action:
                             match notification.action:
                                 case 1:
-                                    if (
-                                        self._parent.audio_graph.get_processor_info(
+                                    if proc_info := self._parent.audio_graph.get_processor_info(
                                             notification.processor.id
-                                        ).name
-                                        == ev.state["name"]
-                                    ):
-                                        ev.set()
+                                        ):
+                                        if proc_info.name == ev.state["name"]:
+                                            ev.set()
                                 case 2:
                                     if (
-                                        notification.processor.id
-                                        == ev.state["processor_id"]
+                                        notification.processor.id == ev.state["processor_id"]
                                     ):
                                         ev.set()
                                 case _:
-                                    print(f"Got an unmatchable processor update notification: {
-                                          notification}")
+                                    print(
+                                        f"Got an unmatchable processor update notification: {notification}"
+                                    )
                             self._parent.processor_event_queue.remove(ev)
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)

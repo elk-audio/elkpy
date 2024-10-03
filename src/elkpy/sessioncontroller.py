@@ -20,8 +20,7 @@ import grpc
 
 from . import sushierrors
 from . import grpc_gen
-from . import sushi_info_types as info_types
-from typing import List
+
 
 ##################################
 # Sushi session controller class #
@@ -62,7 +61,7 @@ class SessionController(object):
         )
         self._stub = self._sushi_grpc.SessionControllerStub(channel)
 
-    def save_binary_session(self) -> bytes:
+    def save_binary_session(self) -> bytes | None:
         """
         Save the sushi session.
 

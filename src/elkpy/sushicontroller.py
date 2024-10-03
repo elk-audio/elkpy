@@ -16,10 +16,6 @@ __copyright__ = """
 """
 __license__ = "GPL-3.0"
 
-import grpc
-from . import sushierrors
-from . import grpc_gen
-from . import sushi_info_types as info_types
 
 from . import audiographcontroller
 from . import keyboardcontroller

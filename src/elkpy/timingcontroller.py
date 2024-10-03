@@ -20,8 +20,7 @@ import grpc
 
 from . import sushierrors
 from . import grpc_gen
-from . import sushi_info_types as info_types
-from typing import List
+
 
 ####################################
 # Sushi timing controller class #
@@ -53,7 +52,7 @@ class TimingController(object):
         self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
         self._stub = self._sushi_grpc.TimingControllerStub(channel)
 
-    def get_timings_enabled(self) -> bool:
+    def get_timings_enabled(self) -> bool | None:
         """
         Get the state of timing statstics.
 
@@ -80,7 +79,7 @@ class TimingController(object):
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def get_engine_timings(self) -> (float, float, float):
+    def get_engine_timings(self) -> tuple[float, float, float] | None:
         """
         Get the average, min and max timings of the engine.
 
@@ -96,7 +95,7 @@ class TimingController(object):
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def get_track_timings(self, track_identifier: int) -> (float, float, float):
+    def get_track_timings(self, track_identifier: int) -> tuple[float, float, float] | None:
         """
         Get the average, min and max timings of the specified track.
 
@@ -117,7 +116,7 @@ class TimingController(object):
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With track id: {}".format(track_identifier))
 
-    def get_processor_timings(self, processor_identifier: int) -> (float, float, float):
+    def get_processor_timings(self, processor_identifier: int) -> tuple[float, float, float] | None:
         """
         Get the average, min and max timings of the specified processor.
 
