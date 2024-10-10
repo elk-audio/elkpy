@@ -71,9 +71,9 @@ To maintain proper management of the audio thread, Sushi uses an internal queue 
 
 **It is assumed that the user will use Sushi's notification system (see `notificationcontroller.py`) to confirm that their commands have been carried out correctly!**
 
-### Convenience for asyncio programs 
+### Elkpy asyncio events 
 
-To alleviate this burden for _simple_ use-cases, `elkpy` adopts the following behavior, available to asyncio users:
+To alleviate this burden for _simple_ use-cases, `elkpy` adopts the following behavior:
 
 Commands that edit the audio graph:
 
@@ -84,8 +84,20 @@ Commands that edit the audio graph:
 
 return an `ElkpyEvent`: an asyncio.Event that will be **set** by `elkpy` whenever the corresponding notification is emitted by Sushi.
 
-An asyncio user can elect to `await ElkpyEvent.wait()` to ensure that the command has been properly carried out.
+An asyncio user can elect to `await ElkpyEvent.wait()` to ensure that the command has been properly carried out before carrying on
+with further rpcs.
 Ignoring the event is also a valid option for cases where absolute confirmation is not critical.
+
+On top of ensuring completion of gRPC calls, Elkpy events related to track and processor creation bring additional convenience once there are set.
+Indeed elkpy will add relevant data to those events:
+* TrackCreationEvents will have the following attributes:
+  * TrackCreationEvent.sushi_id: the internal id in sushi that must be used to identify the track.
+  * TrackCreationEvent.data: the track_info object returned by *get_track_info()*
+* ProcessorCreationEvent will have:
+  * ProcessorCreationEvent.sushi_id: the processor internal id
+  * ProcessorCreationEvent.data: the return value of *get_processor_info()*
+  * ProcessorCreationEvent.params: a list of processor parameters as returned by *get_processor_parameters()*
+
 
 #### CAUTION
 elkpy uses an asyncio.EventLoop to run its notification monitoring. In asyncio programs, it will simply get the current running loop. And if that fails (for instance
