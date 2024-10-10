@@ -324,7 +324,8 @@ class NotificationController:
         """
         if self._async:
             self.tasks.append(
-                asyncio.create_task(self.process_transport_change_notifications(cb))
+                asyncio.create_task(
+                    self.process_transport_change_notifications(cb))
             )
         else:
             asyncio.run_coroutine_threadsafe(
@@ -340,7 +341,8 @@ class NotificationController:
             cb: a callable that will be called for each notification received from the stream."""
         if self._async:
             self.tasks.append(
-                asyncio.create_task(self.process_timing_update_notifications(cb))
+                asyncio.create_task(
+                    self.process_timing_update_notifications(cb))
             )
         else:
             asyncio.run_coroutine_threadsafe(
@@ -357,7 +359,8 @@ class NotificationController:
         """
         if self._async:
             self.tasks.append(
-                asyncio.create_task(self.process_track_change_notifications(cb))
+                asyncio.create_task(
+                    self.process_track_change_notifications(cb))
             )
         else:
             asyncio.run_coroutine_threadsafe(
@@ -374,7 +377,8 @@ class NotificationController:
         """
         if self._async:
             self.tasks.append(
-                asyncio.create_task(self.process_processor_change_notifications(cb))
+                asyncio.create_task(
+                    self.process_processor_change_notifications(cb))
             )
         else:
             asyncio.run_coroutine_threadsafe(
@@ -403,11 +407,13 @@ class NotificationController:
         """
         if self._async:
             self.tasks.append(
-                asyncio.create_task(self.process_parameter_update_notifications(cb))
+                asyncio.create_task(
+                    self.process_parameter_update_notifications(cb))
             )
         else:
             asyncio.run_coroutine_threadsafe(
-                self.process_parameter_update_notifications(cb, param_blocklist),
+                self.process_parameter_update_notifications(
+                    cb, param_blocklist),
                 self.loop,
             )
 
@@ -429,12 +435,14 @@ class NotificationController:
         if self._async:
             self.tasks.append(
                 asyncio.create_task(
-                    self.process_property_update_notifications(cb, property_blocklist)
+                    self.process_property_update_notifications(
+                        cb, property_blocklist)
                 )
             )
         else:
             asyncio.run_coroutine_threadsafe(
-                self.process_property_update_notifications(cb, property_blocklist),
+                self.process_property_update_notifications(
+                    cb, property_blocklist),
                 self.loop,
             )
 
@@ -458,8 +466,11 @@ class NotificationController:
                         if ev.action == notification.action:
                             match notification.action:
                                 case 1:
-                                    if obj_info := self._parent.audio_graph.get_track_info(
-                                        notification.track.id
+                                    if (
+                                        obj_info
+                                        := self._parent.audio_graph.get_track_info(
+                                            notification.track.id
+                                        )
                                     ):
                                         if obj_info.name == ev.name:
                                             ev.sushi_id = obj_info.id
@@ -470,7 +481,8 @@ class NotificationController:
                                         ev.set()
                                 case _:
                                     print(
-                                        f"Got an unmatchable track update notification: {notification}"
+                                        f"Got an unmatchable track update notification: {
+                                            notification}"
                                     )
                             self._parent.audiograph_event_queue.remove(ev)
         except grpc.RpcError as e:
@@ -495,22 +507,30 @@ class NotificationController:
 
                     # match with events
                     for ev in self._parent.processor_event_queue[:]:
-                        if ev.state["action"] == notification.action:
+                        if ev.action == notification.action:
                             match notification.action:
                                 case 1:
-                                    if proc_info := self._parent.audio_graph.get_processor_info(
+                                    if (
+                                        proc_info
+                                        := self._parent.audio_graph.get_processor_info(
                                             notification.processor.id
-                                        ):
-                                        if proc_info.name == ev.state["name"]:
+                                        )
+                                    ):
+                                        if proc_info.name == ev.name:
+                                            proc_params = self._parent.parameters.get_processor_parameters(
+                                                processor_identifier=proc_info.id
+                                            )
+                                            ev.data = proc_info
+                                            ev.params = proc_params
+                                            ev.sushi_id = proc_info.id
                                             ev.set()
                                 case 2:
-                                    if (
-                                        notification.processor.id == ev.state["processor_id"]
-                                    ):
+                                    if notification.processor.id == ev.sushi_id:
                                         ev.set()
                                 case _:
                                     print(
-                                        f"Got an unmatchable processor update notification: {notification}"
+                                        f"Got an unmatchable processor update notification: {
+                                            notification}"
                                     )
                             self._parent.processor_event_queue.remove(ev)
         except grpc.RpcError as e:
