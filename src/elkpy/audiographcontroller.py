@@ -16,7 +16,6 @@ __copyright__ = """
 """
 __license__ = "GPL-3.0"
 
-from enum import NAMED_FLAGS
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -498,6 +497,7 @@ class AudioGraphController:
         """
         ev = ProcessorCreationEvent(name=name)
         self._parent.processor_event_queue.append(ev)
+
         try:
             self._stub.CreateProcessorOnTrack(
                 self._sushi_proto.CreateProcessorRequest(
@@ -577,9 +577,7 @@ class AudioGraphController:
                 ),
             )
 
-    def delete_processor_from_track(
-        self, processor: int, track: int
-    ) -> ProcessorDeletionEvent | None:
+    def delete_processor_from_track(self, processor: int, track: int) -> ProcessorDeletionEvent:
         """
         Delete an existing processor from a track.
 
@@ -587,10 +585,9 @@ class AudioGraphController:
             processor (int): The id of the processor to delete.
             track (int): The id of the track that contains the processor.
         """
-        ev = ProcessorDeletionEvent(
-            sushi_id=processor
-        )
+        ev = ProcessorDeletionEvent(sushi_id=processor)
         self._parent.processor_event_queue.append(ev)
+
         try:
             self._stub.DeleteProcessorFromTrack(
                 self._sushi_proto.DeleteProcessorRequest(
@@ -603,23 +600,25 @@ class AudioGraphController:
             sushierrors.grpc_error_handling(
                 e, "With processor id: {}, track id: {}".format(processor, track)
             )
+            ev.error = True
             self._parent.processor_event_queue.remove(ev)
-        else:
+        finally:
             return ev
 
-    def delete_track(self, track_id: int) -> TrackDeletionEvent | None:
+    def delete_track(self, track_id: int) -> TrackDeletionEvent:
         """
         Delet a track.
 
         Parameters:
             track_id (int): The id of the track to delete.
         """
-        e = TrackDeletionEvent(sushi_id=track_id)
-        self._parent.audiograph_event_queue.append(e)
+        ev = TrackDeletionEvent(sushi_id=track_id)
+        self._parent.audiograph_event_queue.append(ev)
         try:
             self._stub.DeleteTrack(self._sushi_proto.TrackIdentifier(id=track_id))
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With track id: {}".format(track_id))
-            self._parent.audiograph_event_queue.remove(e)
-        else:
-            return e
+            ev.error = True
+            self._parent.audiograph_event_queue.remove(ev)
+        finally:
+            return ev

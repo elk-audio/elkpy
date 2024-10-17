@@ -9,6 +9,7 @@ class ElkpyEvent(asyncio.Event):
             raise
         return await super().wait()
 
+
 class TrackCreationEvent(ElkpyEvent):
     sushi_id: int 
 
@@ -17,7 +18,6 @@ class TrackCreationEvent(ElkpyEvent):
         self.name: str = name
         self.action = 1
         self.data: dict = {}
-        self.error: bool = False
 
 
 class TrackDeletionEvent(ElkpyEvent):
@@ -35,7 +35,6 @@ class ProcessorCreationEvent(ElkpyEvent):
         self.name: str = name
         self.action = 1
         self.data: dict = {}
-        self.error: bool = False
 
 
 class ProcessorDeletionEvent(ElkpyEvent):
