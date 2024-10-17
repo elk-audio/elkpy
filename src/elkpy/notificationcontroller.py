@@ -480,17 +480,13 @@ class NotificationController:
                                     if notification.track.id == ev.id:
                                         ev.set()
                                 case _:
-                                    print(
-                                        f"Got an unmatchable track update notification: {
-                                            notification}"
-                                    )
+                                    print(f"Got an unmatchable track update notification: {notification}")
                             self._parent.audiograph_event_queue.remove(ev)
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
         except AttributeError:
             raise TypeError(
-                f"Parameter address = {self.address}. "
-                f"Should be a string containing the IP address and port to Sushi"
+                f"Parameter address = {self.address}. Should be a string containing the IP address and port to Sushi"
             )
 
     async def match_processor_event_notification(self) -> None:
@@ -528,10 +524,7 @@ class NotificationController:
                                     if notification.processor.id == ev.sushi_id:
                                         ev.set()
                                 case _:
-                                    print(
-                                        f"Got an unmatchable processor update notification: {
-                                            notification}"
-                                    )
+                                    print(f"Got an unmatchable processor update notification: {notification}")
                             self._parent.processor_event_queue.remove(ev)
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)

@@ -397,7 +397,7 @@ class AudioGraphController:
                 e, "With processor id: {}".format(processor_identifier)
             )
 
-    def create_track(self, name: str, channels: int) -> TrackCreationEvent | None:
+    def create_track(self, name: str, channels: int) -> TrackCreationEvent:
         """
         Create a new track in sushi.
 
@@ -415,8 +415,9 @@ class AudioGraphController:
             sushierrors.grpc_error_handling(
                 e, "With track name: {}, number of channels: {}".format(name, channels)
             )
+            ev.error = True
             self._parent.audiograph_event_queue.remove(ev)
-        else:
+        finally:
             return ev
 
     def create_multibus_track(self, name: str, buses: int) -> TrackCreationEvent | None:
@@ -438,8 +439,9 @@ class AudioGraphController:
             sushierrors.grpc_error_handling(
                 e, "With track name: {}, buses: {}".format(name, buses)
             )
+            ev.error = True
             self._parent.audiograph_event_queue.remove(ev)
-        else:
+        finally:
             return ev
 
     def create_pre_track(self, name: str) -> None:
@@ -481,7 +483,7 @@ class AudioGraphController:
         track_id: int,
         before_processor: int,
         add_to_back: bool,
-    ) -> ProcessorCreationEvent | None:
+    ) -> ProcessorCreationEvent:
         """
         Create a new processor on an existing track.
 
@@ -525,8 +527,9 @@ class AudioGraphController:
                     add_to_back,
                 ),
             )
+            ev.error = True
             self._parent.processor_event_queue.remove(ev)
-        else:
+        finally:
             return ev
 
     def move_processor_on_track(
@@ -585,7 +588,7 @@ class AudioGraphController:
             track (int): The id of the track that contains the processor.
         """
         ev = ProcessorDeletionEvent(
-            state={"action": 2, "processor_id": processor, "track": track}
+            sushi_id=processor
         )
         self._parent.processor_event_queue.append(ev)
         try:
