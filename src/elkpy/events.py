@@ -1,4 +1,5 @@
 import asyncio
+from sushierrors import SushiUnkownError
 
 
 class ElkpyEvent(asyncio.Event):
@@ -6,7 +7,7 @@ class ElkpyEvent(asyncio.Event):
 
     async def wait(self):
         if self.error: 
-            raise
+            raise SushiUnkownError
         return await super().wait()
 
 
