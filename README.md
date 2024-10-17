@@ -88,6 +88,8 @@ An asyncio user can elect to `await ElkpyEvent.wait()` to ensure that the comman
 with further rpcs.
 Ignoring the event is also a valid option for cases where absolute confirmation is not critical.
 
+If an error has occurred in grpc, `wait()` will raise a `SushiUnknownError`.
+
 On top of ensuring completion of gRPC calls, Elkpy events related to track and processor creation bring additional convenience once there are set.
 Indeed elkpy will add relevant data to those events:
 * TrackCreationEvents will have the following attributes:
