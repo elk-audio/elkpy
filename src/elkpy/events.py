@@ -1,18 +1,18 @@
 import asyncio
-from sushierrors import SushiUnkownError
+from .sushierrors import SushiUnkownError
 
 
 class ElkpyEvent(asyncio.Event):
     error: bool = False
 
     async def wait(self):
-        if self.error: 
+        if self.error:
             raise SushiUnkownError
         return await super().wait()
 
 
 class TrackCreationEvent(ElkpyEvent):
-    sushi_id: int 
+    sushi_id: int
 
     def __init__(self, name: str) -> None:
         super().__init__()

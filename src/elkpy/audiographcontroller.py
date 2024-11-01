@@ -16,7 +16,7 @@ __copyright__ = """
 """
 __license__ = "GPL-3.0"
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NoReturn
 
 if TYPE_CHECKING:
     from elkpy.sushicontroller import SushiController
@@ -77,7 +77,7 @@ class AudioGraphController:
         )
         self._stub = self._sushi_grpc.AudioGraphControllerStub(channel)
 
-    def get_all_processors(self) -> List[info_types.ProcessorInfo] | None:
+    def get_all_processors(self) -> List[info_types.ProcessorInfo] | NoReturn:
         """
         Gets a list of all available processors.
 
@@ -95,7 +95,7 @@ class AudioGraphController:
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def get_all_tracks(self) -> List[info_types.TrackInfo] | None:
+    def get_all_tracks(self) -> List[info_types.TrackInfo] | NoReturn:
         """
         Gets a list of all available tracks.
 
@@ -113,7 +113,7 @@ class AudioGraphController:
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def get_track_id(self, track_name: str) -> int | None:
+    def get_track_id(self, track_name: str) -> int | NoReturn:
         """
         Get the id of a track from its name.
 
@@ -132,7 +132,7 @@ class AudioGraphController:
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With track name: {}".format(track_name))
 
-    def get_track_info(self, track_identifier: int) -> info_types.TrackInfo | None:
+    def get_track_info(self, track_identifier: int) -> info_types.TrackInfo | NoReturn:
         """
         Get the info of a track from its id.
 
@@ -155,7 +155,7 @@ class AudioGraphController:
 
     def get_track_processors(
         self, track_identifier: int
-    ) -> List[info_types.ProcessorInfo] | None:
+    ) -> List[info_types.ProcessorInfo]:
         """
         Get a list of processors assigned on the specified track.
 
@@ -181,7 +181,7 @@ class AudioGraphController:
                 e, "With track id: {}".format(track_identifier)
             )
 
-    def get_processor_id(self, processor_name: str) -> int | None:
+    def get_processor_id(self, processor_name: str) -> int | NoReturn:
         """
         Get the id of a processor from its name.
 
@@ -204,7 +204,7 @@ class AudioGraphController:
 
     def get_processor_info(
         self, processor_identifier: int
-    ) -> info_types.ProcessorInfo | None:
+    ) -> info_types.ProcessorInfo | NoReturn:
         """
         Get the info of a processor from its id.
 
@@ -225,7 +225,7 @@ class AudioGraphController:
                 e, "With processor id: {}".format(processor_identifier)
             )
 
-    def get_processor_bypass_state(self, processor_identifier: int) -> bool | None:
+    def get_processor_bypass_state(self, processor_identifier: int) -> bool | NoReturn:
         """
         Get the bypass state of the specified processor.
 
@@ -248,7 +248,7 @@ class AudioGraphController:
 
     def get_processor_state(
         self, processor_identifier: int
-    ) -> info_types.ProcessorState | None:
+    ) -> info_types.ProcessorState | NoReturn:
         """
         Get the full state of the specified processor.
 
@@ -271,7 +271,7 @@ class AudioGraphController:
 
     def set_processor_bypass_state(
         self, processor_identifier: int, bypass_state: bool
-    ) -> None:
+    ) -> NoReturn:
         """
         Set the bypass state of the specified processor.
 
@@ -419,7 +419,7 @@ class AudioGraphController:
         finally:
             return ev
 
-    def create_multibus_track(self, name: str, buses: int) -> TrackCreationEvent | None:
+    def create_multibus_track(self, name: str, buses: int) -> TrackCreationEvent:
         """
         Create a new multibus track in sushi.
 
@@ -577,7 +577,9 @@ class AudioGraphController:
                 ),
             )
 
-    def delete_processor_from_track(self, processor: int, track: int) -> ProcessorDeletionEvent:
+    def delete_processor_from_track(
+        self, processor: int, track: int
+    ) -> ProcessorDeletionEvent:
         """
         Delete an existing processor from a track.
 
