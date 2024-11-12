@@ -16,6 +16,7 @@ __copyright__ = """
 """
 __license__ = "GPL-3.0"
 
+from events import ElkpyEvent
 
 from . import audiographcontroller
 from . import keyboardcontroller
@@ -140,30 +141,37 @@ class SushiController:
         self.audio_graph = audiographcontroller.AudioGraphController(
             self, address, sushi_proto_def
         )
-        self.keyboard = keyboardcontroller.KeyboardController(address, sushi_proto_def)
+        self.keyboard = keyboardcontroller.KeyboardController(
+            address, sushi_proto_def)
         self.parameters = parametercontroller.ParameterController(
             address, sushi_proto_def
         )
-        self.programs = programcontroller.ProgramController(address, sushi_proto_def)
-        self.timings = timingcontroller.TimingController(address, sushi_proto_def)
+        self.programs = programcontroller.ProgramController(
+            address, sushi_proto_def)
+        self.timings = timingcontroller.TimingController(
+            address, sushi_proto_def)
         self.transport = transportcontroller.TransportController(
             address, sushi_proto_def
         )
         self.audio_routing = audioroutingcontroller.AudioRoutingController(
             address, sushi_proto_def
         )
-        self.midi_controller = midicontroller.MidiController(address, sushi_proto_def)
+        self.midi_controller = midicontroller.MidiController(
+            address, sushi_proto_def)
         self.cv_gate_controller = cvgatecontroller.CvGateController(
             address, sushi_proto_def
         )
-        self.osc_controller = osccontroller.OscController(address, sushi_proto_def)
-        self.system = systemcontroller.SystemController(address, sushi_proto_def)
-        self.session = sessioncontroller.SessionController(address, sushi_proto_def)
+        self.osc_controller = osccontroller.OscController(
+            address, sushi_proto_def)
+        self.system = systemcontroller.SystemController(
+            address, sushi_proto_def)
+        self.session = sessioncontroller.SessionController(
+            address, sushi_proto_def)
         self.notifications = notificationcontroller.NotificationController(
             self, address, sushi_proto_def
         )
 
-        self.audiograph_event_queue: list[ElkpyCreationEvent] = []
+        self.audiograph_event_queue: list[ElkpyEvent] = []
         self.processor_event_queue = []
         self.parameter_event_queue = []
 
