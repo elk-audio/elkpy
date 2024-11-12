@@ -16,7 +16,7 @@ __copyright__ = """
 """
 __license__ = "GPL-3.0"
 
-from events import ElkpyEvent
+from .events import ElkpyEvent
 
 from . import audiographcontroller
 from . import keyboardcontroller
