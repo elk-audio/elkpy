@@ -17,7 +17,7 @@ __copyright__ = """
 __license__ = "GPL-3.0"
 
 from enum import IntEnum
-from . import grpc_gen
+from types import ModuleType
 
 ################
 # Custom Enums #
@@ -98,7 +98,7 @@ class TrackType(IntEnum):
 # Info Classes #
 ################
 
-class SushiBuildInfo(object):
+class SushiBuildInfo:
     """
     Class to represent build info from sushi in a clear way
 
@@ -109,30 +109,30 @@ class SushiBuildInfo(object):
         commit_hash (str) : Commit hash of the build
         build_date (str) : The date sushi was built
     """
-    def __init__(self, grpc_SushiBuildInfo = None):
+    def __init__(self, grpc_SushiBuildInfo: ModuleType) -> None:
         try:
             self.version = grpc_SushiBuildInfo.version
-        except:
+        except AttributeError:
             self._version = ""
 
         try:
             self.build_options = grpc_SushiBuildInfo.build_options
-        except:
+        except AttributeError:
             self.build_options = [""]
 
         try:
             self.audio_buffer_size = grpc_SushiBuildInfo.audio_buffer_size
-        except:
+        except AttributeError:
             self.audio_buffer_size = -1
 
         try:
             self.commit_hash = grpc_SushiBuildInfo.commit_hash
-        except:
+        except AttributeError:
             self.commit_hash = ""
 
         try:
             self.build_date = grpc_SushiBuildInfo.build_date
-        except:
+        except AttributeError:
             self.build_date = "1-1-1970"
 
     def __str__(self) -> str:
@@ -155,7 +155,7 @@ class SushiBuildInfo(object):
 
 
 
-class ParameterInfo(object):
+class ParameterInfo:
     """
     Class to represent the parameter info received from sushi in a clear way.
 
@@ -170,7 +170,7 @@ class ParameterInfo(object):
         max_domain_value (float): The maximum value of the parameter.
     """
 
-    def __init__(self, grpc_ParameterInfo = None):
+    def __init__(self, grpc_ParameterInfo):
         """
         The constructor of the ParameterInfo class.
 
@@ -179,44 +179,42 @@ class ParameterInfo(object):
         """
         try:
             self.id = grpc_ParameterInfo.id
-        except:
+        except AttributeError:
             self.id = 0
 
-        grpc_types = {0: "DUMMY", 1: "BOOL", 2: "INT", 3: "FLOAT", 4: "STRING_PROPERTY", 5: "DATA_PROPERTY"}
         try:
             self.type = ParameterType(grpc_ParameterInfo.type.type)
-
-        except:
+        except AttributeError:
             self.type = "DUMMY"
 
         try:
             self.label = grpc_ParameterInfo.label
-        except:
+        except AttributeError:
             self.label = ''
 
         try:
             self.name = grpc_ParameterInfo.name
-        except:
+        except AttributeError:
             self.name = ''
 
         try:
             self.unit = grpc_ParameterInfo.unit
-        except:
+        except AttributeError:
             self.unit = ''
 
         try:
             self.automatable = grpc_ParameterInfo.automatable
-        except:
+        except AttributeError:
             self.automatable = False
 
         try:
             self.min_domain_value = grpc_ParameterInfo.min_domain_value
-        except:
+        except AttributeError:
             self.min_domain_value = 0.0
 
         try:
             self.max_domain_value = grpc_ParameterInfo.max_domain_value
-        except:
+        except AttributeError:
             self.max_domain_value = 0.0
 
     def __str__(self):
@@ -245,7 +243,8 @@ class ParameterInfo(object):
             and self.min_domain_value == other.min_domain_value \
             and self.max_domain_value == other.max_domain_value
 
-class PropertyInfo(object):
+
+class PropertyInfo:
     """
     Class to represent the property info received from sushi in a clear way.
 
@@ -255,7 +254,7 @@ class PropertyInfo(object):
         name (str): The name of the property.
     """
 
-    def __init__(self, grpc_PropertyInfo = None):
+    def __init__(self, grpc_PropertyInfo):
         """
         The constructor of the PropertyInfo class.
 
@@ -264,17 +263,17 @@ class PropertyInfo(object):
         """
         try:
             self.id = grpc_PropertyInfo.id
-        except:
+        except AttributeError:
             self.id = 0
 
         try:
             self.label = grpc_PropertyInfo.label
-        except:
+        except AttributeError:
             self.label = ''
 
         try:
             self.name = grpc_PropertyInfo.name
-        except:
+        except AttributeError:
             self.name = ''
 
     def __str__(self):
@@ -293,7 +292,8 @@ class PropertyInfo(object):
             and self.label == other.label \
             and self.name == other.name
 
-class ProcessorInfo(object):
+
+class ProcessorInfo:
     """
     Class to represent the processor info received from sushi in a clear way.
 
@@ -304,30 +304,30 @@ class ProcessorInfo(object):
         parameter_count (int): The number of parameters available to the processor.
         program_count (int): The number of programs available to the processor.
     """
-    def __init__(self, grpc_ProcessorInfo = None):
+    def __init__(self, grpc_ProcessorInfo):
         try:
             self.id = grpc_ProcessorInfo.id
-        except:
+        except AttributeError:
             self.id = 0
 
         try:
             self.label = grpc_ProcessorInfo.label
-        except:
+        except AttributeError:
             self.label = ''
 
         try:
             self.name = grpc_ProcessorInfo.name
-        except:
+        except AttributeError:
             self.name = ''
 
         try:
             self.parameter_count = grpc_ProcessorInfo.parameter_count
-        except:
+        except AttributeError:
             self.parameter_count = 0
 
         try:
             self.program_count = grpc_ProcessorInfo.program_count
-        except:
+        except AttributeError:
             self.program_count = 0
 
     def __str__(self):
@@ -351,7 +351,7 @@ class ProcessorInfo(object):
             and self.program_count == other.program_count
 
 
-class TrackInfo(object):
+class TrackInfo:
     """
     Class to represent the track info received from sushi in a clear way.
 
@@ -363,42 +363,42 @@ class TrackInfo(object):
         buses (int): The number input buses available to the track.
         type (TrackType): The type of track
     """
-    def __init__(self, grpc_TrackInfo = None):
+    def __init__(self, grpc_TrackInfo):
         try:
             self.id = grpc_TrackInfo.id
-        except:
+        except AttributeError:
             self.id = 0
 
         try:
             self.label = grpc_TrackInfo.label
-        except:
+        except AttributeError:
             self.label = ''
 
         try:
             self.name = grpc_TrackInfo.name
-        except:
+        except AttributeError:
             self.name = ''
 
         try:
             self.channels = grpc_TrackInfo.channels
-        except:
+        except AttributeError:
             self.channels = 0
 
         try:
             self.buses = grpc_TrackInfo.buses
-        except:
+        except AttributeError:
             self.buses = 0
 
         try:
             self.type = TrackType(grpc_TrackInfo.type.type)
-        except:
+        except AttributeError:
             self.type = TrackType.REGULAR
 
         try:
             self.processors = []
             for processor in grpc_TrackInfo.processors:
                 self.processors.append(processor.id)
-        except:
+        except AttributeError:
             self.processors = []
 
     def __str__(self):
@@ -425,7 +425,8 @@ class TrackInfo(object):
             and self.type == other.type \
             and self.processors == other.processors
 
-class ProgramInfo(object):
+
+class ProgramInfo:
     """
     Class to represent the program info received from sushi in a clear way.
 
@@ -433,15 +434,15 @@ class ProgramInfo(object):
         id (int): The id of the program.
         name (str): The name of the program.
     """
-    def __init__(self, grpc_ProgramInfo = None):
+    def __init__(self, grpc_ProgramInfo):
         try:
             self.id = grpc_ProgramInfo.id.program
-        except:
+        except AttributeError:
             self.id = 0
 
         try:
             self.name = grpc_ProgramInfo.name
-        except:
+        except AttributeError:
             self.name = ''
 
     def __str__(self):
@@ -458,7 +459,8 @@ class ProgramInfo(object):
         return self.id == other.id \
             and self.name == other.name
 
-class ProcessorState(object):
+
+class ProcessorState:
     """
     Class to represent the processor state info received from sushi in a clear way.
 
@@ -469,37 +471,34 @@ class ProcessorState(object):
         parameters ((int, float)): All parameter values of the processor.
         binary_data (bytes): Opaque binary data saved by the plugin.
     """
-    def __init__(self, grpc_ProcessorState = None):
+    def __init__(self, grpc_ProcessorState):
         try:
             self.program_id = grpc_ProcessorState.program_id.value
-        except:
+        except AttributeError:
             self.program_id = None
 
         try:
             self.bypassed = grpc_ProcessorState.bypassed.value
-        except:
+        except AttributeError:
             self.bypassed = None
 
         try:
             self.properties = []
             for property in grpc_ProcessorState.properties:
                 self.properties.append((property.property.id, property.value))
-
-        except:
+        except AttributeError:
             self.properties = []
 
         try:
             self.parameters = []
             for parameter in grpc_ProcessorState.parameters:
                 self.parameters.append((parameter.parameter.parameter_id, parameter.value))
-
-        except:
+        except AttributeError:
             self.parameters = []
 
         try:
             self.binary_data = grpc_ProcessorState.binary_data
-
-        except:
+        except AttributeError:
             self.binary_data = bytes()
 
     def __str__(self):
@@ -523,7 +522,7 @@ class ProcessorState(object):
             and self.binary_data  == other.binary_data
 
 
-class AudioConnection(object):
+class AudioConnection:
     """
     Class to represent an audio connection info received from Sushi in a cleaner way.
 
@@ -532,18 +531,20 @@ class AudioConnection(object):
         track_channel (int):
         engine_channel (int):
     """
-    def __init__(self, grpc_AudioConnection = None):
+    def __init__(self, grpc_AudioConnection):
         try:
             self.track = grpc_AudioConnection.track.id
-        except:
+        except AttributeError:
             self.track = 0
+
         try:
             self.track_channel = grpc_AudioConnection.track_channel
-        except:
+        except AttributeError:
             self.track_channel = 0
+
         try:
             self.engine_channel = grpc_AudioConnection.engine_channel
-        except:
+        except AttributeError:
             self.engine_channel = 0
 
     def __str__(self):
@@ -560,7 +561,7 @@ class AudioConnection(object):
                and self.engine_channel == other.engine_channel
 
 
-class MidiKbdConnection(object):
+class MidiKbdConnection:
     """
     Class to represent a MIDI keyboard connection in Sushi in a cleaner way.
 
@@ -570,22 +571,25 @@ class MidiKbdConnection(object):
         port (int): a MIDI port number
         raw_midi (bool): is this track a raw MIDI track or not.
     """
-    def __init__(self, grpc_MidiKbdConnection=None):
+    def __init__(self, grpc_MidiKbdConnection):
         try:
             self.track = grpc_MidiKbdConnection.track.id
-        except:
+        except AttributeError:
             self.track = 0
+
         try:
             self.channel = grpc_MidiKbdConnection.channel.channel
-        except:
+        except AttributeError:
             self.channel = 0
+
         try:
             self.port = grpc_MidiKbdConnection.port
-        except:
+        except AttributeError:
             self.port = 0
+
         try:
             self.raw_midi = grpc_MidiKbdConnection.raw_midi
-        except:
+        except AttributeError:
             self.raw_midi = False
 
     def __str__(self):
@@ -602,12 +606,12 @@ class MidiKbdConnection(object):
                and self.port == other.port and self.raw_midi == other.raw_midi
 
 
-class MidiCCConnection(object):
+class MidiCCConnection:
     """
     Class to represent a MIDI Continious Controller connection in Sushi in a cleaner way.
 
     Attributes:
-        parameter (_sushi_proto.ParameterIdentifier):
+        parameter_id (_sushi_proto.ParameterIdentifier):
         channel (MidiChannel)
         port (int)
         cc_number (int)
@@ -615,42 +619,49 @@ class MidiCCConnection(object):
         max_range (float)
         relative_mode (bool)
     """
-    def __init__(self, grpc_MidiCCConnection=None):
+    def __init__(self, grpc_MidiCCConnection):
         try:
             self.processor_id = grpc_MidiCCConnection.parameter.processor_id
-        except:
+        except AttributeError:
             self.processor_id = 0
+
         try:
             self.parameter_id = grpc_MidiCCConnection.parameter.parameter_id
-        except:
+        except AttributeError:
             self.parameter_id = 0
+
         try:
             self.channel = grpc_MidiCCConnection.channel.channel
-        except:
+        except AttributeError:
             self.channel = 0
+
         try:
             self.port = grpc_MidiCCConnection.port
-        except:
+        except AttributeError:
             self.port = 0
+
         try:
             self.cc_number = grpc_MidiCCConnection.cc_number
-        except:
+        except AttributeError:
             self.cc_number = 0
+
         try:
             self.min_range = grpc_MidiCCConnection.min_range
-        except:
+        except AttributeError:
             self.min_range = 0.0
+
         try:
             self.max_range = grpc_MidiCCConnection.max_range
-        except:
+        except AttributeError:
             self.max_range = 0.0
+
         try:
             self.relative_mode = grpc_MidiCCConnection.relative_mode
-        except:
+        except AttributeError:
             self.relative_mode = False
 
     def __str__(self):
-        return f"{{\n parameter: {self.parameter}\n" \
+        return f"{{\n parameter: {self.parameter_id}\n" \
                f" channel: {self.channel}\n" \
                f" port: {self.port}\n" \
                f" cc_number: {self.cc_number}\n" \
@@ -667,7 +678,7 @@ class MidiCCConnection(object):
                and self.max_range == other.max_range and self.relative_mode == other.relative_mode
 
 
-class MidiPCConnection(object):
+class MidiPCConnection:
     """
     Class to represent a MIDI Program Change connection in Sushi in a cleaner way.
 
@@ -676,18 +687,20 @@ class MidiPCConnection(object):
         channel (_sushi_proto.MidiChannel): a MIDI channel
         port (int): a MIDI port number
     """
-    def __init__(self, grpc_MidiPCConnection=None):
+    def __init__(self, grpc_MidiPCConnection):
         try:
             self.processor = grpc_MidiPCConnection.processor.id
-        except:
+        except AttributeError:
             self.processor = 0
+
         try:
             self.channel = grpc_MidiPCConnection.channel.channel
-        except:
+        except AttributeError:
             self.channel = 0
+
         try:
             self.port = grpc_MidiPCConnection.port
-        except:
+        except AttributeError:
             self.port = 0
 
     def __str__(self):
@@ -703,30 +716,32 @@ class MidiPCConnection(object):
                and self.port == other.port
 
 
-class CvConnection(object):
+class CvConnection:
     """
     Class to represent a CV connection in Sushi in a cleaner way
 
     Attributes:
-        parameter (int): The id of the connected parameter
+        parameter_id (int): The id of the connected parameter
         cv_port_id (int): The id of the connected CV port
     """
-    def __init__(self, grpc_CvConnection=None):
+    def __init__(self, grpc_CvConnection):
         try:
             self.processor_id = grpc_CvConnection.parameter.processor_id
-        except:
+        except AttributeError:
             self.processor_id = 0
+
         try:
             self.parameter_id = grpc_CvConnection.parameter.parameter_id
-        except:
+        except AttributeError:
             self.parameter_id = 0
+
         try:
             self.cv_port_id = grpc_CvConnection.cv_port_id
-        except:
+        except AttributeError:
             self.cv_port_id = 0
 
     def __str__(self):
-        return f"{{\n parameter: {self.parameter}\n" \
+        return f"{{\n parameter: {self.parameter_id}\n" \
                f" cv_port_id: {self.cv_port_id}\n}}"
 
     def __repr__(self):
@@ -736,32 +751,35 @@ class CvConnection(object):
         return self.processor_id == other.processor_id and self.parameter_id == other.parameter_id and self.cv_port_id == other.cv_port_id
 
 
-class GateConnection(object):
+class GateConnection:
     """
     Class to represent a Gate connection in Sushi in a cleaner way
 
     Attributes:
-        processor (int): The id of the connected processor
+        processor_id (int): The id of the connected processor
         gate_port_id (int): The id of the connected Gate port
         channel (int): The connected midi channel number
         note_no (int): The midi note number to trigger
     """
-    def __init__(self, grpc_CvConnection=None):
+    def __init__(self, grpc_CvConnection):
         try:
             self.processor_id = grpc_CvConnection.processor.id
-        except:
+        except AttributeError:
             self.processor_id = 0
+
         try:
             self.gate_port_id = grpc_CvConnection.gate_port_id
-        except:
+        except AttributeError:
             self.gate_port_id = 0
+
         try:
             self.channel = grpc_CvConnection.channel
-        except:
+        except AttributeError:
             self.channel = 0
+
         try:
             self.note_no = grpc_CvConnection.note_no
-        except:
+        except AttributeError:
             self.note_no = 0
 
     def __str__(self):

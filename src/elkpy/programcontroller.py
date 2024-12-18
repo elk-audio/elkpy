@@ -27,7 +27,7 @@ from typing import List
 # Sushi program controller class #
 ####################################
 
-class ProgramController(object):
+class ProgramController:
     """
     A class to control the program in sushi via gRPC. It controls the programs for the processors and
     can set programs and the get the current program as well as other programs availble.

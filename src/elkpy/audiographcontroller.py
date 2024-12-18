@@ -16,7 +16,7 @@ __copyright__ = """
 """
 __license__ = "GPL-3.0"
 
-from typing import TYPE_CHECKING, NoReturn
+from typing import TYPE_CHECKING 
 
 if TYPE_CHECKING:
     from elkpy.sushicontroller import SushiController
@@ -77,7 +77,7 @@ class AudioGraphController:
         )
         self._stub = self._sushi_grpc.AudioGraphControllerStub(channel)
 
-    def get_all_processors(self) -> List[info_types.ProcessorInfo] | NoReturn:
+    def get_all_processors(self) -> List[info_types.ProcessorInfo]:
         """
         Gets a list of all available processors.
 
@@ -95,7 +95,7 @@ class AudioGraphController:
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def get_all_tracks(self) -> List[info_types.TrackInfo] | NoReturn:
+    def get_all_tracks(self) -> List[info_types.TrackInfo]:
         """
         Gets a list of all available tracks.
 
@@ -113,7 +113,7 @@ class AudioGraphController:
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def get_track_id(self, track_name: str) -> int | NoReturn:
+    def get_track_id(self, track_name: str) -> int:
         """
         Get the id of a track from its name.
 
@@ -132,7 +132,7 @@ class AudioGraphController:
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With track name: {}".format(track_name))
 
-    def get_track_info(self, track_identifier: int) -> info_types.TrackInfo | NoReturn:
+    def get_track_info(self, track_identifier: int) -> info_types.TrackInfo:
         """
         Get the info of a track from its id.
 
@@ -153,9 +153,7 @@ class AudioGraphController:
                 e, "With track id: {}".format(track_identifier)
             )
 
-    def get_track_processors(
-        self, track_identifier: int
-    ) -> List[info_types.ProcessorInfo]:
+    def get_track_processors(self, track_identifier: int) -> List[info_types.ProcessorInfo]:
         """
         Get a list of processors assigned on the specified track.
 
@@ -181,7 +179,7 @@ class AudioGraphController:
                 e, "With track id: {}".format(track_identifier)
             )
 
-    def get_processor_id(self, processor_name: str) -> int | NoReturn:
+    def get_processor_id(self, processor_name: str) -> int:
         """
         Get the id of a processor from its name.
 
@@ -202,9 +200,7 @@ class AudioGraphController:
                 e, "With processor name: {}".format(processor_name)
             )
 
-    def get_processor_info(
-        self, processor_identifier: int
-    ) -> info_types.ProcessorInfo | NoReturn:
+    def get_processor_info(self, processor_identifier: int) -> info_types.ProcessorInfo:
         """
         Get the info of a processor from its id.
 
@@ -225,7 +221,7 @@ class AudioGraphController:
                 e, "With processor id: {}".format(processor_identifier)
             )
 
-    def get_processor_bypass_state(self, processor_identifier: int) -> bool | NoReturn:
+    def get_processor_bypass_state(self, processor_identifier: int) -> bool:
         """
         Get the bypass state of the specified processor.
 
@@ -246,9 +242,7 @@ class AudioGraphController:
                 e, "With processor id: {}".format(processor_identifier)
             )
 
-    def get_processor_state(
-        self, processor_identifier: int
-    ) -> info_types.ProcessorState | NoReturn:
+    def get_processor_state(self, processor_identifier: int) -> info_types.ProcessorState:
         """
         Get the full state of the specified processor.
 
@@ -269,9 +263,7 @@ class AudioGraphController:
                 e, "With processor id: {}".format(processor_identifier)
             )
 
-    def set_processor_bypass_state(
-        self, processor_identifier: int, bypass_state: bool
-    ) -> NoReturn:
+    def set_processor_bypass_state(self, processor_identifier: int, bypass_state: bool) -> None:
         """
         Set the bypass state of the specified processor.
 
@@ -321,7 +313,7 @@ class AudioGraphController:
                 grpc_state.program_id.value = program_id
                 grpc_state.program_id.has_value = True
 
-            if bypassed != None:
+            if bypassed is not None:
                 grpc_state.bypassed.value = bypassed
                 grpc_state.bypassed.has_value = True
 
@@ -365,7 +357,7 @@ class AudioGraphController:
                 grpc_state.program_id.value = state.program_id
                 grpc_state.program_id.has_value = True
 
-            if state.bypassed != None:
+            if state.bypassed is not None:
                 grpc_state.bypassed.value = state.bypassed
                 grpc_state.bypassed.has_value = True
 
@@ -411,11 +403,11 @@ class AudioGraphController:
                 self._sushi_proto.CreateTrackRequest(name=name, channels=channels)
             )
         except grpc.RpcError as e:
+            ev.error = True
+            self._parent.audiograph_event_queue.remove(ev)
             sushierrors.grpc_error_handling(
                 e, "With track name: {}, number of channels: {}".format(name, channels)
             )
-            ev.error = True
-            self._parent.audiograph_event_queue.remove(ev)
         finally:
             return ev
 
@@ -435,11 +427,11 @@ class AudioGraphController:
             )
 
         except grpc.RpcError as e:
+            ev.error = True
+            self._parent.audiograph_event_queue.remove(ev)
             sushierrors.grpc_error_handling(
                 e, "With track name: {}, buses: {}".format(name, buses)
             )
-            ev.error = True
-            self._parent.audiograph_event_queue.remove(ev)
         finally:
             return ev
 
@@ -515,6 +507,8 @@ class AudioGraphController:
                 )
             )
         except grpc.RpcError as e:
+            ev.error = True
+            self._parent.processor_event_queue.remove(ev)
             sushierrors.grpc_error_handling(
                 e,
                 "With processor name: {}, uid: {}, path: {}, type: {}, id: {}, position: {}, add_to_back: {}".format(
@@ -527,8 +521,6 @@ class AudioGraphController:
                     add_to_back,
                 ),
             )
-            ev.error = True
-            self._parent.processor_event_queue.remove(ev)
         finally:
             return ev
 
@@ -599,11 +591,11 @@ class AudioGraphController:
             )
 
         except grpc.RpcError as e:
+            ev.error = True
+            self._parent.processor_event_queue.remove(ev)
             sushierrors.grpc_error_handling(
                 e, "With processor id: {}, track id: {}".format(processor, track)
             )
-            ev.error = True
-            self._parent.processor_event_queue.remove(ev)
         finally:
             return ev
 
@@ -619,8 +611,8 @@ class AudioGraphController:
         try:
             self._stub.DeleteTrack(self._sushi_proto.TrackIdentifier(id=track_id))
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, "With track id: {}".format(track_id))
             ev.error = True
             self._parent.audiograph_event_queue.remove(ev)
+            sushierrors.grpc_error_handling(e, "With track id: {}".format(track_id))
         finally:
             return ev

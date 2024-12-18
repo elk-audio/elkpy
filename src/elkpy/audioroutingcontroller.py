@@ -113,7 +113,6 @@ class AudioRoutingController(object):
             return [info_types.AudioConnection(connection) for connection in response.connections]
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
-        pass
 
     def connect_input_channel_to_track(self, track: int, track_channel: int, engine_channel: int) -> None:
         """

@@ -21,6 +21,9 @@ __license__ = "GPL-3.0"
 # Error handling functions #
 ############################
 
+from typing import NoReturn
+
+
 class SushiUnkownError(Exception):
     pass
 
@@ -49,22 +52,22 @@ class SushiUnavailableError(Exception):
     pass
 
 
-def grpc_error_handling(e, context_info=''):
-    if e.code().name == 'UNKNOWN':
+def grpc_error_handling(e, context_info="") -> NoReturn:
+    if e.code().name == "UNKNOWN":
         raise SushiUnkownError(e.details(), context_info) from e
-    elif e.code().name == 'FAILED_PRECONDITION':
+    elif e.code().name == "FAILED_PRECONDITION":
         raise SushiUnsupportedOperationError(e.details(), context_info) from e
-    elif e.code().name == 'NOT_FOUND':
+    elif e.code().name == "NOT_FOUND":
         raise SushiNotFoundError(e.details(), context_info) from e
-    elif e.code().name == 'OUT_OF_RANGE':
+    elif e.code().name == "OUT_OF_RANGE":
         raise SushiOutOfRangeError(e.details(), context_info) from e
-    elif e.code().name == 'INVALID_ARGUMENT':
+    elif e.code().name == "INVALID_ARGUMENT":
         raise SushiInvalidArgumentError(e.details(), context_info) from e
-    elif e.code().name == 'INTERNAL':
+    elif e.code().name == "INTERNAL":
         raise SushiInternalError(e.details(), context_info) from e
-    elif e.code().name == 'UNAVAILABLE':
+    elif e.code().name == "UNAVAILABLE":
         raise SushiUnavailableError(e.details(), context_info) from e
     else:
-        if context_info != '':
+        if context_info != "":
             print(context_info)
         raise e

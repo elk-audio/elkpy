@@ -27,7 +27,7 @@ from . import grpc_gen
 ##################################
 
 
-class SessionController(object):
+class SessionController:
     """
     A class to save and restore the full state of a sushi session.
 

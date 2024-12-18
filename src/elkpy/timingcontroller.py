@@ -26,7 +26,7 @@ from . import grpc_gen
 # Sushi timing controller class #
 ####################################
 
-class TimingController(object):
+class TimingController:
     """
     A class to control the timing in sushi via gRPC. It can get and reset the different timing statistics
     provided by sushi.

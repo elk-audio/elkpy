@@ -27,7 +27,7 @@ from typing import List
 # Sushi parameter controller class #
 ####################################
 
-class ParameterController(object):
+class ParameterController:
     """
     A class to control the parameter in sushi via gRPC. It manages the parameters of sushi. Enabling
     getting and setting of values as well as getting info about what parameters are availble and their

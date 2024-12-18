@@ -477,7 +477,7 @@ class NotificationController:
                                             ev.data = obj_info
                                             ev.set()
                                 case 2:
-                                    if notification.track.id == ev.id:
+                                    if notification.track.id == ev.sushi_id:
                                         ev.set()
                                 case _:
                                     print(f"Got an unmatchable track update notification: {notification}")

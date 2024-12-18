@@ -1,9 +1,14 @@
 import asyncio
 from .sushierrors import SushiUnkownError
+from sushi_info_types import TrackInfo, ProcessorInfo
 
 
 class ElkpyEvent(asyncio.Event):
     error: bool = False
+    action: int
+    name: str = ''
+    sushi_id: int = 0 
+    data: TrackInfo | ProcessorInfo
 
     async def wait(self):
         if self.error:
@@ -12,13 +17,10 @@ class ElkpyEvent(asyncio.Event):
 
 
 class TrackCreationEvent(ElkpyEvent):
-    sushi_id: int
-
     def __init__(self, name: str) -> None:
         super().__init__()
         self.name: str = name
         self.action = 1
-        self.data: dict = {}
 
 
 class TrackDeletionEvent(ElkpyEvent):
@@ -29,13 +31,10 @@ class TrackDeletionEvent(ElkpyEvent):
 
 
 class ProcessorCreationEvent(ElkpyEvent):
-    sushi_id: int
-
     def __init__(self, name: str) -> None:
         super().__init__()
         self.name: str = name
         self.action = 1
-        self.data: dict = {}
 
 
 class ProcessorDeletionEvent(ElkpyEvent):

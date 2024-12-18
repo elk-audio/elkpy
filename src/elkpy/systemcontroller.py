@@ -17,12 +17,9 @@ __copyright__ = """
 __license__ = "GPL-3.0"
 
 import grpc
-import asyncio
-from threading import Thread
 from . import sushierrors
 from . import sushi_info_types as info_types
 from . import grpc_gen
-from typing import List
 
 ###############################
 #   System Controller class   #
@@ -55,7 +52,7 @@ class SystemController(object):
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def get_build_info(self) -> list:
+    def get_build_info(self) -> info_types.SushiBuildInfo:
         try:
             response = self._stub.GetBuildInfo(self._sushi_proto.GenericVoidValue())
             return info_types.SushiBuildInfo(response)

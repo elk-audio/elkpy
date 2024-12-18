@@ -28,7 +28,7 @@ from typing import List
 ######################################
 
 
-class CvGateController(object):
+class CvGateController:
     """
     Class to manage CV/Gate connections in Sushi via gRPC. It creates, deletes and gets info about
     Cv/Gate connections on sushi tracks.

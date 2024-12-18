@@ -19,7 +19,6 @@ __license__ = "GPL-3.0"
 import grpc
 
 from . import sushierrors
-from . import sushi_info_types as info_types
 from . import grpc_gen
 from typing import List
 
@@ -28,7 +27,7 @@ from typing import List
 ##################################
 
 
-class OscController(object):
+class OscController:
     """
     Class to manage OSC communication features in Sushi. It can change the OSC port and enable/disable
     OSC output for particular parameters
@@ -117,7 +116,7 @@ class OscController(object):
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def enable_all_output(self):
+    def enable_all_output(self) -> None:
         """
         Enable OSC output for all parameters
         """
@@ -126,7 +125,7 @@ class OscController(object):
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def disable_all_output(self):
+    def disable_all_output(self) -> None:
         """
         Disable OSC output for all parameters
         """
