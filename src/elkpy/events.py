@@ -1,6 +1,6 @@
 import asyncio
 from .sushierrors import SushiUnkownError
-from sushi_info_types import TrackInfo, ProcessorInfo
+from .sushi_info_types import TrackInfo, ProcessorInfo
 
 
 class ElkpyEvent(asyncio.Event):
