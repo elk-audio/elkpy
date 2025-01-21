@@ -20,14 +20,8 @@ import os
 import sys
 import unittest
 import grpc
-
-from concurrent import futures
-from tests.mockups import audiograph_service_mock
-from elkpy import audiographcontroller as agc
-from elkpy import sushi_info_types as info_types
-
-from elkpy import grpc_gen
-from elkpy import sushierrors
+from src.elkpy import grpc_gen
+from src.elkpy import sushierrors
 
 proto_file = os.environ.get('SUSHI_GRPC_ELKPY_PROTO')
 if proto_file is None:
@@ -35,6 +29,13 @@ if proto_file is None:
     sys.exit(-1)
 
 SUSHI_PROTO, SUSHI_GRPC = grpc_gen.modules_from_proto(proto_file)
+
+from concurrent import futures
+from tests.mockups import audiograph_service_mock
+from src.elkpy import audiographcontroller as agc
+from src.elkpy import sushi_info_types as info_types
+
+
 
 SUSHI_ADDRESS = ('localhost:51051')
 
