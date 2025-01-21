@@ -391,7 +391,7 @@ class TrackInfo:
 
         try:
             self.type = TrackType(grpc_TrackInfo.type.type)
-        except AttributeError:
+        except Exception:
             self.type = TrackType.REGULAR
 
         try:
