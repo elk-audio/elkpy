@@ -24,11 +24,11 @@ import grpc
 
 from concurrent import futures
 from tests.mockups import audiorouting_service_mock
-from elkpy import audioroutingcontroller as arc
-from elkpy import sushi_info_types as info_types
+from src.elkpy import audioroutingcontroller as arc
+from src.elkpy import sushi_info_types as info_types
 
-from elkpy import grpc_gen
-from elkpy import sushierrors
+from src.elkpy import grpc_gen
+from src.elkpy import sushierrors
 
 proto_file = os.environ.get('SUSHI_GRPC_ELKPY_PROTO')
 if proto_file is None:

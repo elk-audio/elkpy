@@ -19,7 +19,7 @@ __license__ = "GPL-3.0"
 import grpc
 import sushi_rpc_pb2 as proto
 import sushi_rpc_pb2_grpc
-from elkpy import sushi_info_types as info
+from src.elkpy import sushi_info_types as info
 
 expected_cv_input_channel_count = 5
 expected_cv_output_channel_count = 7

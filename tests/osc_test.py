@@ -24,20 +24,22 @@ import grpc
 
 from concurrent import futures
 from tests.mockups import osc_service_mock
-from elkpy import osccontroller as oc
-from elkpy import sushi_info_types as info_types
+from src.elkpy import osccontroller as oc
+from src.elkpy import sushi_info_types as info_types
 
-from elkpy import grpc_gen
-from elkpy import sushierrors
+from src.elkpy import grpc_gen
+from src.elkpy import sushierrors
 
-proto_file = os.environ.get('SUSHI_GRPC_ELKPY_PROTO')
+proto_file = os.environ.get("SUSHI_GRPC_ELKPY_PROTO")
 if proto_file is None:
-    print("Environment variable SUSHI_GRPC_ELKPY_PROTO not defined, set it to point the .proto definition")
+    print(
+        "Environment variable SUSHI_GRPC_ELKPY_PROTO not defined, set it to point the .proto definition"
+    )
     sys.exit(-1)
 
 SUSHI_PROTO, SUSHI_GRPC = grpc_gen.modules_from_proto(proto_file)
 
-SUSHI_ADDRESS = ('localhost:51057')
+SUSHI_ADDRESS = "localhost:51057"
 
 mock_server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 service = osc_service_mock.OscControllerServiceMockup()
@@ -45,30 +47,39 @@ SUSHI_GRPC.add_OscControllerServicer_to_server(service, mock_server)
 mock_server.add_insecure_port(SUSHI_ADDRESS)
 mock_server.start()
 
+
 class TestOscController(unittest.TestCase):
     def setUp(self):
         self._oc = oc.OscController(SUSHI_ADDRESS, proto_file)
 
     def test_get_send_port(self):
-        self.assertEqual(self._oc.get_send_port(),
-                         osc_service_mock.expected_osc_send_port)
+        self.assertEqual(
+            self._oc.get_send_port(), osc_service_mock.expected_osc_send_port
+        )
 
     def test_get_receive_port(self):
-        self.assertEqual(self._oc.get_receive_port(),
-                         osc_service_mock.expected_osc_receive_port)
+        self.assertEqual(
+            self._oc.get_receive_port(), osc_service_mock.expected_osc_receive_port
+        )
 
     def test_get_enabled_parameter_outputs(self):
-        self.assertEqual(self._oc.get_enabled_parameter_outputs(),
-                         osc_service_mock.expected_osc_parameter_outputs)
+        self.assertEqual(
+            self._oc.get_enabled_parameter_outputs(),
+            osc_service_mock.expected_osc_parameter_outputs,
+        )
 
     def test_enable_output_for_parameter(self):
-        self._oc.enable_output_for_parameter(osc_service_mock.expected_processor_id,
-                                             osc_service_mock.expected_parameter_id)
+        self._oc.enable_output_for_parameter(
+            osc_service_mock.expected_processor_id,
+            osc_service_mock.expected_parameter_id,
+        )
         self.assertTrue(service.was_called())
 
     def test_disable_output_for_parameter(self):
-        self._oc.enable_output_for_parameter(osc_service_mock.expected_processor_id,
-                                             osc_service_mock.expected_parameter_id)
+        self._oc.enable_output_for_parameter(
+            osc_service_mock.expected_processor_id,
+            osc_service_mock.expected_parameter_id,
+        )
         self.assertTrue(service.was_called())
 
     def test_enable_all_output(self):
@@ -78,4 +89,3 @@ class TestOscController(unittest.TestCase):
     def test_disable_all_output(self):
         self._oc.enable_all_output()
         self.assertTrue(service.was_called())
-

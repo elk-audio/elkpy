@@ -24,10 +24,10 @@ import grpc
 
 from concurrent import futures
 from tests.mockups import transport_service_mock
-from elkpy import transportcontroller as tc
-from elkpy import sushi_info_types as info_types
+from src.elkpy import transportcontroller as tc
+from src.elkpy import sushi_info_types as info_types
 
-from elkpy import grpc_gen
+from src.elkpy import grpc_gen
 
 proto_file = os.environ.get('SUSHI_GRPC_ELKPY_PROTO')
 if proto_file is None:

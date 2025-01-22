@@ -21,9 +21,9 @@ import sys
 import inspect
 import unittest
 import time
-from elkpy import sushi_info_types as types
+from src.elkpy import sushi_info_types as types
 
-from elkpy import grpc_gen
+from src.elkpy import grpc_gen
 
 proto_file = os.environ.get('SUSHI_GRPC_ELKPY_PROTO')
 if proto_file is None:

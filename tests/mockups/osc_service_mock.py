@@ -19,7 +19,7 @@ __license__ = "GPL-3.0"
 import grpc
 import sushi_rpc_pb2 as proto
 import sushi_rpc_pb2_grpc
-from elkpy import sushi_info_types as info
+from src.elkpy import sushi_info_types as info
 
 expected_osc_send_port = 24024
 expected_osc_receive_port = 24023

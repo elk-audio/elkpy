@@ -19,7 +19,7 @@ __license__ = "GPL-3.0"
 import grpc
 import sushi_rpc_pb2 as proto
 import sushi_rpc_pb2_grpc
-from elkpy import sushi_info_types as info
+from src.elkpy import sushi_info_types as info
 
 expected_timings_set = False
 expected_cpu_timings = (2.5,2,3)
