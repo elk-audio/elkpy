@@ -25,7 +25,7 @@ expected_processor_identifier = proto.ProcessorIdentifier(
     id = 12
 )
 
-expected_program_1 = info.ProgramInfo()
+expected_program_1 = info.ProgramInfo({})
 expected_program_1.name = "Test program 1"
 expected_program_1.id = 1
 
@@ -34,7 +34,7 @@ grpc_program_1 = proto.ProgramInfo(
     id = proto.ProgramIdentifier(program = expected_program_1.id)
 )
 
-expected_program_2 = info.ProgramInfo()
+expected_program_2 = info.ProgramInfo({})
 expected_program_2.name = "Test program 2"
 expected_program_2.id = 2
 

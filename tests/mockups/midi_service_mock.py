@@ -25,7 +25,7 @@ expected_input_ports = 16
 expected_output_ports = 7
 expected_midi_clock_port = 1
 
-expected_input_kbd_connection = info.MidiKbdConnection()
+expected_input_kbd_connection = info.MidiKbdConnection({})
 expected_input_kbd_connection.channel = 2
 expected_input_kbd_connection.port = 3
 expected_input_kbd_connection.raw_midi = True
@@ -40,7 +40,7 @@ grpc_input_kbd_connection = proto.MidiKbdConnection(channel=proto.MidiChannel(ch
 
 grpc_input_kbd_connections = proto.MidiKbdConnectionList(connections=[grpc_input_kbd_connection, grpc_input_kbd_connection])
 
-expected_output_kbd_connection = info.MidiKbdConnection()
+expected_output_kbd_connection = info.MidiKbdConnection({})
 expected_output_kbd_connection.channel = 4
 expected_output_kbd_connection.port = 7
 expected_output_kbd_connection.raw_midi = False
@@ -55,7 +55,7 @@ grpc_output_kbd_connection = proto.MidiKbdConnection(channel=proto.MidiChannel(c
 
 grpc_output_kbd_connections = proto.MidiKbdConnectionList(connections=[grpc_output_kbd_connection, grpc_output_kbd_connection])
 
-expected_input_cc_connection = info.MidiCCConnection()
+expected_input_cc_connection = info.MidiCCConnection({})
 expected_input_cc_connection.port = 2
 expected_input_cc_connection.cc_number = 77
 expected_input_cc_connection.channel = 5
@@ -76,7 +76,7 @@ grpc_input_cc_connection = proto.MidiCCConnection(port=expected_input_cc_connect
 
 grpc_input_cc_connections = proto.MidiCCConnectionList(connections=[grpc_input_cc_connection, grpc_input_cc_connection])
 
-expected_input_pc_connection = info.MidiPCConnection()
+expected_input_pc_connection = info.MidiPCConnection({})
 expected_input_pc_connection.channel = 64
 expected_input_pc_connection.port = 2
 expected_input_pc_connection.processor = 92

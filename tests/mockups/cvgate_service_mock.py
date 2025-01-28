@@ -24,7 +24,7 @@ from src.elkpy import sushi_info_types as info
 expected_cv_input_channel_count = 5
 expected_cv_output_channel_count = 7
 
-expected_input_cv_connection = info.CvConnection()
+expected_input_cv_connection = info.CvConnection({})
 expected_input_cv_connection.cv_port_id = 2
 expected_input_cv_connection.processor_id = 7
 expected_input_cv_connection.parameter_id = 12
@@ -39,7 +39,7 @@ grpc_input_cv_connection = proto.CvConnection(cv_port_id=expected_input_cv_conne
 
 grpc_input_cv_connections = proto.CvConnectionList(connections=[grpc_input_cv_connection, grpc_input_cv_connection])
 
-expected_output_cv_connection = info.CvConnection()
+expected_output_cv_connection = info.CvConnection({})
 expected_output_cv_connection.cv_port_id = 4
 expected_output_cv_connection.parameter_id = 8
 expected_output_cv_connection.processor_id = 13
@@ -54,7 +54,7 @@ grpc_output_cv_connection = proto.CvConnection(cv_port_id=expected_output_cv_con
 
 grpc_output_cv_connections = proto.CvConnectionList(connections=[grpc_output_cv_connection, grpc_output_cv_connection])
 
-expected_input_gate_connection = info.GateConnection()
+expected_input_gate_connection = info.GateConnection({})
 expected_input_gate_connection.channel = 3
 expected_input_gate_connection.gate_port_id = 2
 expected_input_gate_connection.note_no = 64
@@ -70,7 +70,7 @@ grpc_input_gate_connection = proto.GateConnection(channel=expected_input_gate_co
 
 grpc_input_gate_connections = proto.GateConnectionList(connections=[grpc_input_gate_connection, grpc_input_gate_connection])
 
-expected_output_gate_connection = info.GateConnection()
+expected_output_gate_connection = info.GateConnection({})
 expected_output_gate_connection.channel = 9
 expected_output_gate_connection.gate_port_id = 7
 expected_output_gate_connection.note_no = 62

@@ -21,7 +21,7 @@ import sushi_rpc_pb2 as proto
 import sushi_rpc_pb2_grpc
 from src.elkpy import sushi_info_types as info
 
-expected_parameter_1 = info.ParameterInfo()
+expected_parameter_1 = info.ParameterInfo({})
 expected_parameter_1.id = 1
 expected_parameter_1.type = info.ParameterType.FLOAT
 expected_parameter_1.label = "Test Parameter 1"
@@ -45,7 +45,7 @@ grpc_param_1 = proto.ParameterInfo(
     max_domain_value = expected_parameter_1.max_domain_value
 )
 
-expected_parameter_2 = info.ParameterInfo()
+expected_parameter_2 = info.ParameterInfo({})
 expected_parameter_2.id = 2
 expected_parameter_2.type = info.ParameterType.FLOAT
 expected_parameter_2.label = "Test Parameter 2"
@@ -80,7 +80,7 @@ expected_parameter_value_request = proto.ParameterValue(
     value = 0.666
 )
 
-expected_property = info.PropertyInfo()
+expected_property = info.PropertyInfo({})
 expected_property.id = 1
 expected_property.label = "Prop 1"
 expected_property.name = "prop_1"

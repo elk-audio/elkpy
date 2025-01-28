@@ -21,7 +21,7 @@ import sushi_rpc_pb2 as proto
 import sushi_rpc_pb2_grpc
 from src.elkpy import sushi_info_types as info
 
-expected_input_connection = info.AudioConnection()
+expected_input_connection = info.AudioConnection({})
 expected_input_connection.track = 4
 expected_input_connection.track_channel = 3
 expected_input_connection.engine_channel = 2
@@ -36,7 +36,7 @@ grpc_input_connection = proto.AudioConnection(
 
 grpc_input_connections = proto.AudioConnectionList(connections = [grpc_input_connection, grpc_input_connection])
 
-expected_output_connection = info.AudioConnection()
+expected_output_connection = info.AudioConnection({})
 expected_output_connection.track = 11
 expected_output_connection.track_channel = 1
 expected_output_connection.engine_channel = 0
