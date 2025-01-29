@@ -155,6 +155,7 @@ class AudioGraphControllerServiceMockup(
     sushi_rpc_pb2_grpc.AudioGraphControllerServicer
 ):
     def __init__(self):
+        print("in AudioGraphControllerServiceMockup init")
         super().__init__()
         self.called = False
         self.recent_request = None
@@ -263,6 +264,7 @@ class AudioGraphControllerServiceMockup(
         return proto.GenericVoidValue()
 
     def CreateTrack(self, request, context):
+        print("CreateTrack")
         self.called = True
         self.recent_request = request
         return proto.GenericVoidValue()

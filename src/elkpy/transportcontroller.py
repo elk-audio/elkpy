@@ -18,10 +18,9 @@ __license__ = "GPL-3.0"
 
 import grpc
 
-from src.elkpy import sushierrors
-from src.elkpy import grpc_gen
-from src.elkpy import sushi_info_types as info_types
-from typing import List
+from . import sushierrors
+from . import grpc_gen
+from . import sushi_info_types as info_types
 
 ####################################
 # Sushi transport controller class #

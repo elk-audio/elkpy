@@ -141,38 +141,33 @@ class SushiController:
         self.audio_graph = audiographcontroller.AudioGraphController(
             self, address, sushi_proto_def
         )
-        self.keyboard = keyboardcontroller.KeyboardController(
-            address, sushi_proto_def)
+        self.keyboard = keyboardcontroller.KeyboardController(address, sushi_proto_def)
         self.parameters = parametercontroller.ParameterController(
             address, sushi_proto_def
         )
-        self.programs = programcontroller.ProgramController(
-            address, sushi_proto_def)
-        self.timings = timingcontroller.TimingController(
-            address, sushi_proto_def)
+        self.programs = programcontroller.ProgramController(address, sushi_proto_def)
+        self.timings = timingcontroller.TimingController(address, sushi_proto_def)
         self.transport = transportcontroller.TransportController(
             address, sushi_proto_def
         )
         self.audio_routing = audioroutingcontroller.AudioRoutingController(
             address, sushi_proto_def
         )
-        self.midi_controller = midicontroller.MidiController(
-            address, sushi_proto_def)
+        self.midi_controller = midicontroller.MidiController(address, sushi_proto_def)
         self.cv_gate_controller = cvgatecontroller.CvGateController(
             address, sushi_proto_def
         )
-        self.osc_controller = osccontroller.OscController(
-            address, sushi_proto_def)
-        self.system = systemcontroller.SystemController(
-            address, sushi_proto_def)
-        self.session = sessioncontroller.SessionController(
-            address, sushi_proto_def)
+        self.osc_controller = osccontroller.OscController(address, sushi_proto_def)
+        self.system = systemcontroller.SystemController(address, sushi_proto_def)
+        self.session = sessioncontroller.SessionController(address, sushi_proto_def)
         self.notifications = notificationcontroller.NotificationController(
             self, address, sushi_proto_def
         )
 
-        self.audiograph_event_queue: list[ElkpyEvent] = []
-        self.processor_event_queue = []
+        self.audiograph_event_queue: list[ElkpyEvent] = (
+            self.audio_graph.audiograph_event_queue
+        )
+        self.processor_event_queue = self.audio_graph.processor_event_queue
         self.parameter_event_queue = []
 
     def close(self):
