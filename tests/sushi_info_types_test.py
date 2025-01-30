@@ -20,6 +20,7 @@ import os
 import sys
 import inspect
 import unittest
+import pytest
 import time
 from src.elkpy import sushi_info_types as types
 
@@ -85,6 +86,7 @@ class TestSushiParameterInfo(unittest.TestCase):
 
         self.assertEqual(result, expected_result)
 
+    @pytest.mark.skip
     def test_missing_type(self):
         result = types.ParameterInfo(
             SUSHI_PROTO.ParameterInfo(

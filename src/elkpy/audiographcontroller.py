@@ -408,7 +408,6 @@ class AudioGraphController:
         ev = TrackCreationEvent(name=name)
         self.audiograph_event_queue.append(ev)
         try:
-            print("in create_track")
             self._stub.CreateTrack(
                 self._sushi_proto.CreateTrackRequest(name=name, channels=channels)
             )
