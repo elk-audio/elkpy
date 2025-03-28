@@ -164,11 +164,7 @@ class SushiController:
             self, address, sushi_proto_def
         )
 
-        self.audiograph_event_queue: list[ElkpyEvent] = (
-            self.audio_graph.audiograph_event_queue
-        )
-        self.processor_event_queue = self.audio_graph.processor_event_queue
-        self.parameter_event_queue = []
+        self.command_responses: dict[int, ElkpyEvent] = {}
 
     def close(self):
         """

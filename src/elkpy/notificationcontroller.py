@@ -23,7 +23,7 @@ from threading import Thread
 from . import sushierrors
 from . import grpc_gen
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 if TYPE_CHECKING:
     from .sushicontroller import SushiController
@@ -73,6 +73,9 @@ class NotificationController:
         try:
             self.loop = asyncio.get_running_loop()
             self._async = True
+            self.tasks.append(
+                asyncio.create_task(self.update_command_responses())
+            )
         except RuntimeError:
             self._async = False
             self.loop = asyncio.new_event_loop()
@@ -83,21 +86,8 @@ class NotificationController:
             self.notification_thread.start()
             self.tasks.append(
                 asyncio.run_coroutine_threadsafe(
-                    self.match_track_event_notification(), self.loop
+                    self.update_command_responses(), self.loop
                 )
-            )
-            self.tasks.append(
-                asyncio.run_coroutine_threadsafe(
-                    self.match_processor_event_notification(), self.loop
-                )
-            )
-
-        else:
-            self.tasks.append(
-                asyncio.create_task(self.match_track_event_notification())
-            )
-            self.tasks.append(
-                asyncio.create_task(self.match_processor_event_notification())
             )
 
     @staticmethod
@@ -310,6 +300,32 @@ class NotificationController:
                 f"Should be a string containing the IP address and port to Sushi"
             )
 
+    async def process_async_command_response_updates(
+        self, call_back=None
+    ):
+        try:
+            async with grpc.experimental.aio.insecure_channel(self.address) as channel:
+                stub = self._sushi_grpc.NotificationControllerStub(channel)
+                stream = stub.SubscribeToAsyncCommandUpdates()
+                async for notification in stream:
+                    # User logic here
+                    if call_back and callable(call_back):
+                        if asyncio.iscoroutinefunction(call_back):
+                            await call_back(notification)
+                        else:
+                            call_back(notification)
+                    else:
+                        raise TypeError(
+                            "No valid call-back function has been provided for Async Command Response updates. "
+                        )
+        except grpc.RpcError as e:
+            sushierrors.grpc_error_handling(e)
+        except AttributeError:
+            raise TypeError(
+                f"Parameter address = {self.address}. "
+                f"Should be a string containing the IP address and port to Sushi"
+            )
+
     ####################################################
     # API : Subscription to Sushi notification streams #
     ####################################################
@@ -446,9 +462,49 @@ class NotificationController:
                 self.loop,
             )
 
+    def subscribe_to_async_command_response(self, cb: Callable) -> None:
+        """
+        Subscribes to asynchronous updates to command responses.
+        User may implement their own logic to process these notifications but when it comes to leveraging 
+        this mechanism to wait for a command completion, elkpy includes ElkpyEvents, specifically 
+        designed for that purpose.
+
+        Parameters:
+            cb: a callable that will be called for each notification received from the stream.
+        """
+        if self._async:
+            self.tasks.append(
+                asyncio.create_task(
+                    self.process_async_command_response_updates(
+                        cb)
+                )
+            )
+        else:
+            asyncio.run_coroutine_threadsafe(
+                self.process_async_command_response_updates(
+                    cb),
+                self.loop,
+            )
+        
+
     #################################################
     # Internal event<->notificaton matching methods #
     #################################################
+    async def update_command_responses(self) -> None:
+        """ Matches incoming notifications for command response updates with ElkpyEvents """
+        try:
+            async with grpc.experimental.aio.insecure_channel(self.address) as channel:
+                stub = self._sushi_grpc.NotificationControllerStub(channel)
+                stream = stub.SubscribeToAsyncCommandUpdates(
+                    self._sushi_proto.GenericVoidValue()
+                )
+                async for notification in stream:
+                    # match with events and set them.
+                    if ev := self._parent.command_responses.get(notification.id):
+                        ev.set()
+        except Exception:
+            pass
+
     async def match_track_event_notification(self) -> None:
         """Listens for track_change notifications, matches them with waiting elkevents to set those events."""
         try:
