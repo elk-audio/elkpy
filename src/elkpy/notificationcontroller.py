@@ -17,6 +17,7 @@ __copyright__ = """
 __license__ = "GPL-3.0"
 
 
+from elkpy.events import ElkpyEvent, ProcessorCreationEvent, ProcessorDeletionEvent, TrackCreationEvent, TrackDeletionEvent
 import grpc.experimental.aio
 import asyncio
 from threading import Thread
@@ -501,95 +502,28 @@ class NotificationController:
                 async for notification in stream:
                     # match with events and set them.
                     if ev := self._parent.command_responses.get(notification.id):
-                        ev.set()
+                        self.update_event(ev)
         except Exception:
             pass
 
-    async def match_track_event_notification(self) -> None:
-        """Listens for track_change notifications, matches them with waiting elkevents to set those events."""
-        try:
-            async with grpc.experimental.aio.insecure_channel(self.address) as channel:
-                stub = self._sushi_grpc.NotificationControllerStub(channel)
-                stream = stub.SubscribeToTrackChanges(
-                    self._sushi_proto.GenericVoidValue()
-                )
-                async for notification in stream:
-                    if not self._parent.audiograph_event_queue:
-                        continue
+    def update_event(self, event: ElkpyEvent) -> None:
+        match event:
+            case TrackCreationEvent():
+                track_id = self._parent.audio_graph.get_track_id(event.name)
+                track_info = self._parent.audio_graph.get_track_info(track_id)
+                event.sushi_id = track_id
+                event.data = track_info
+                event.set()
+            case TrackDeletionEvent():
+                event.set()
+            case ProcessorCreationEvent():
+                proc_id = self._parent.audio_graph.get_processor_id(event.name)
+                proc_info = self._parent.audio_graph.get_processor_info(proc_id)
+                event.sushi_id = proc_id
+                event.data = proc_info
+                event.set()
+            case ProcessorDeletionEvent():
+                event.set()
+            case _:
+                pass
 
-                    # match with events
-                    for ev in self._parent.audiograph_event_queue:
-                        if ev.action == notification.action:
-                            match notification.action:
-                                case 1:
-                                    if (
-                                        obj_info
-                                        := self._parent.audio_graph.get_track_info(
-                                            notification.track.id
-                                        )
-                                    ):
-                                        if obj_info.name == ev.name:
-                                            ev.sushi_id = obj_info.id
-                                            ev.data = obj_info
-                                            ev.set()
-                                case 2:
-                                    if notification.track.id == ev.sushi_id:
-                                        ev.set()
-                                case _:
-                                    print(f"Got an unmatchable track update notification: {notification}")
-                            self._parent.audiograph_event_queue.remove(ev)
-        except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e)
-        except AttributeError:
-            raise TypeError(
-                f"Parameter address = {self.address}. Should be a string containing the IP address and port to Sushi"
-            )
-
-    async def match_processor_event_notification(self) -> None:
-        """Listens for processor change notifications, matches them with waiting elkevents to set those events."""
-        try:
-            async with grpc.experimental.aio.insecure_channel(self.address) as channel:
-                stub = self._sushi_grpc.NotificationControllerStub(channel)
-                stream = stub.SubscribeToProcessorChanges(
-                    self._sushi_proto.GenericVoidValue()
-                )
-                async for notification in stream:
-                    if not self._parent.processor_event_queue:
-                        continue
-
-                    # match with events
-                    for ev in self._parent.processor_event_queue[:]:
-                        if ev.action == notification.action:
-                            match notification.action:
-                                case 1:
-                                    if (
-                                        proc_info
-                                        := self._parent.audio_graph.get_processor_info(
-                                            notification.processor.id
-                                        )
-                                    ):
-                                        if proc_info.name == ev.name:
-                                            proc_params = self._parent.parameters.get_processor_parameters(
-                                                processor_identifier=proc_info.id
-                                            )
-                                            ev.data = proc_info
-                                            ev.params = proc_params
-                                            ev.sushi_id = proc_info.id
-                                            ev.set()
-                                case 2:
-                                    if notification.processor.id == ev.sushi_id:
-                                        ev.set()
-                                case _:
-                                    print(f"Got an unmatchable processor update notification: {notification}")
-                            self._parent.processor_event_queue.remove(ev)
-        except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e)
-        except AttributeError:
-            raise TypeError(
-                f"Parameter address = {self.address}. "
-                f"Should be a string containing the IP address and port to Sushi"
-            )
-
-    async def match_parameter_event_notification(self) -> None: ...
-
-    async def match_property_event_notification(self) -> None: ...
