@@ -215,7 +215,6 @@ class AudioGraphController:
             response = self._stub.GetProcessorInfo(
                 self._sushi_proto.ProcessorIdentifier(id=processor_identifier)
             )
-            print(f"r={response}")
             return info_types.ProcessorInfo(response.processor)
 
         except grpc.RpcError as e:
@@ -261,7 +260,6 @@ class AudioGraphController:
                 self._sushi_proto.ProcessorIdentifier(id=processor_identifier)
             )
             # return info_types.ProcessorState(response)
-            print(response.state)
             return response.state
 
         except grpc.RpcError as e:
@@ -405,11 +403,11 @@ class AudioGraphController:
             channels (int): The number of channels to assign the new track.
         """
         try:
-            command_response = self._stub.CreateTrack(
+            cr = self._stub.CreateTrack(
                 self._sushi_proto.CreateTrackRequest(name=name, channels=channels)
             )
-            ev = TrackCreationEvent(name=name, command_response_id=command_response.id, command_response_status=command_response.status)
-            self._parent.command_responses[command_response.id] = ev
+            ev = TrackCreationEvent(name=name, command_response_id=cr.id, command_response_status=cr.status)
+            self._parent.command_responses[cr.id] = ev
             return ev
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(
