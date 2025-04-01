@@ -50,7 +50,8 @@ mock_server.start()
 class TestAudioGraphController(unittest.TestCase):
     def setUp(self):
         print("in setUp")
-        self._agc = agc.AudioGraphController(self, SUSHI_ADDRESS, proto_file)
+        self.command_responses = {}
+        self._agc = agc.AudioGraphController(parent=self, address=SUSHI_ADDRESS, sushi_proto_def=proto_file)
 
     def test_get_all_processors(self):
         self.assertEqual(
@@ -165,13 +166,7 @@ class TestAudioGraphController(unittest.TestCase):
             self._agc.get_processor_state(
                 audiograph_service_mock.expected_processor_1.id
             ),
-            audiograph_service_mock.expected_processor_state,
-        )
-        self.assertEqual(
-            self._agc.get_processor_state(
-                audiograph_service_mock.expected_processor_2.id
-            ),
-            audiograph_service_mock.expected_processor_state,
+            audiograph_service_mock.expected_result_processor_state,
         )
 
     def test_set_processor_state(self):

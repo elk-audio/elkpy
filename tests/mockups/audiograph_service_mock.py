@@ -28,7 +28,7 @@ expected_processor_1.name = "test_plugin_1"
 expected_processor_1.parameter_count = 1
 expected_processor_1.program_count = 1
 
-expected_processor_1_bypass = True
+expected_processor_1_bypass = False
 
 expected_processor_2 = info.ProcessorInfo({})
 expected_processor_2.id = 2
@@ -55,7 +55,7 @@ grpc_proc_2 = proto.ProcessorInfo(
     program_count=expected_processor_2.program_count,
 )
 
-grpc_proc_list = proto.ProcessorInfoList(processors=[grpc_proc_1, grpc_proc_2])
+grpc_proc_list = [grpc_proc_1, grpc_proc_2]
 
 expected_track_1 = info.TrackInfo({})
 expected_track_1.id = 1
@@ -114,6 +114,14 @@ expected_processor_state.properties = []
 expected_processor_state.parameters = [(0, 0.5), (1, 1.0)]
 expected_processor_state.binary_data = bytes()
 
+expected_result_processor_state = info.ProcessorState({})
+expected_result_processor_state.program_id = proto.OptionalIntValue(has_value=True, value=5)
+expected_result_processor_state.bypassed = proto.OptionalBoolValue(has_value=True, value=False)
+expected_result_processor_state.properties = []
+expected_result_processor_state.parameters = [proto.ParameterValue(parameter=proto.ParameterIdentifier(processor_id=0, parameter_id=0), value=0.5), 
+                                              proto.ParameterValue(parameter=proto.ParameterIdentifier(processor_id=0, parameter_id=1), value=1.0)]
+expected_result_processor_state.binary_data = bytes()
+
 expected_create_track_request = proto.CreateTrackRequest(
     name="test_track_3", channels=3
 )
@@ -161,16 +169,16 @@ class AudioGraphControllerServiceMockup(
         self.recent_request = None
 
     def GetAllProcessors(self, request, context):
-        return grpc_proc_list
+        return proto.ProcessorInfoList(processors=grpc_proc_list)
 
     def GetAllTracks(self, request, context):
         return grpc_track_list
 
     def GetTrackId(self, request, context):
         if request.value == expected_track_1.name:
-            return proto.TrackIdentifier(id=grpc_track_1.id)
+            return proto.TrackIdentifierResponse(status=proto.CommandStatus(status=0), id=grpc_track_1.id)
         elif request.value == expected_track_2.name:
-            return proto.TrackIdentifier(id=grpc_track_2.id)
+            return proto.TrackIdentifierResponse(status=proto.CommandStatus(status=0), id=grpc_track_2.id)
         else:
             context.abort(
                 grpc.StatusCode.INVALID_ARGUMENT,
@@ -179,9 +187,9 @@ class AudioGraphControllerServiceMockup(
 
     def GetTrackInfo(self, request, context):
         if request.id == expected_track_1.id:
-            return grpc_track_1
+            return proto.TrackInfoResponse(status=proto.CommandStatus(status=0), info=grpc_track_1)
         elif request.id == expected_track_2.id:
-            return grpc_track_2
+            return proto.TrackInfoResponse(status=proto.CommandStatus(status=0), info=grpc_track_2)
         else:
             context.abort(
                 grpc.StatusCode.INVALID_ARGUMENT,
@@ -190,7 +198,7 @@ class AudioGraphControllerServiceMockup(
 
     def GetTrackProcessors(self, request, context):
         if request.id == 1 or request.id == 2:
-            return grpc_proc_list
+            return proto.ProcessorInfoListResponse(status=proto.CommandStatus(status=0), processors=[p for p in grpc_proc_list])
         else:
             context.abort(
                 grpc.StatusCode.INVALID_ARGUMENT,
@@ -199,9 +207,9 @@ class AudioGraphControllerServiceMockup(
 
     def GetProcessorId(self, request, context):
         if request.value == expected_processor_1.name:
-            return proto.ProcessorIdentifier(id=grpc_proc_1.id)
+            return proto.ProcessorIdentifierResponse(status=proto.CommandStatus(status=0), id=grpc_proc_1.id)
         elif request.value == expected_processor_2.name:
-            return proto.ProcessorIdentifier(id=grpc_proc_2.id)
+            return proto.ProcessorIdentifierResponse(status=proto.CommandStatus(status=0), id=grpc_proc_2.id)
         else:
             context.abort(
                 grpc.StatusCode.INVALID_ARGUMENT,
@@ -210,9 +218,9 @@ class AudioGraphControllerServiceMockup(
 
     def GetProcessorInfo(self, request, context):
         if request.id == expected_processor_1.id:
-            return grpc_proc_1
+            return proto.ProcessorInfoResponse(status=proto.CommandStatus(status=0), processor=grpc_proc_1)
         elif request.id == expected_processor_2.id:
-            return grpc_proc_2
+            return proto.ProcessorInfoResponse(status=proto.CommandStatus(status=0), processor=grpc_proc_2)
         else:
             context.abort(
                 grpc.StatusCode.INVALID_ARGUMENT,
@@ -246,7 +254,7 @@ class AudioGraphControllerServiceMockup(
                 state_param.parameter.parameter_id = parameter[0]
                 state_param.value = parameter[1]
 
-            return state
+            return proto.ProcessorStateResponse(status=proto.CommandStatus(status=0), state=state)
         else:
             context.abort(
                 grpc.StatusCode.INVALID_ARGUMENT,

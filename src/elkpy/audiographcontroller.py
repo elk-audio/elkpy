@@ -86,7 +86,6 @@ class AudioGraphController:
         """
         try:
             response = self._stub.GetAllProcessors(self._sushi_proto.GenericVoidValue())
-
             processor_info_list = []
             for processor_info in response.processors:
                 processor_info_list.append(info_types.ProcessorInfo(processor_info))
@@ -146,7 +145,7 @@ class AudioGraphController:
             response = self._stub.GetTrackInfo(
                 self._sushi_proto.TrackIdentifier(id=track_identifier)
             )
-            return info_types.TrackInfo(response)
+            return info_types.TrackInfo(response.info)
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(
@@ -216,7 +215,8 @@ class AudioGraphController:
             response = self._stub.GetProcessorInfo(
                 self._sushi_proto.ProcessorIdentifier(id=processor_identifier)
             )
-            return info_types.ProcessorInfo(response)
+            print(f"r={response}")
+            return info_types.ProcessorInfo(response.processor)
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(
@@ -260,7 +260,9 @@ class AudioGraphController:
             response = self._stub.GetProcessorState(
                 self._sushi_proto.ProcessorIdentifier(id=processor_identifier)
             )
-            return info_types.ProcessorState(response)
+            # return info_types.ProcessorState(response)
+            print(response.state)
+            return response.state
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(
