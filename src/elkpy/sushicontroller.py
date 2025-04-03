@@ -16,7 +16,7 @@ __copyright__ = """
 """
 __license__ = "GPL-3.0"
 
-from .events import ElkpyEvent
+from .events import ElkpyEvent, SushiCommandResponse
 
 from . import audiographcontroller
 from . import keyboardcontroller
@@ -31,7 +31,9 @@ from . import osccontroller
 from . import systemcontroller
 from . import sessioncontroller
 from . import notificationcontroller
+from . import grpc_gen
 
+from .sushi_info_types import CommandResponseStatus, TrackInfo
 
 ############################
 # Error handling functions #
@@ -138,20 +140,22 @@ class SushiController:
             address (str): 'ip-addres:port' The ip-addres and port at which to connect to sushi.
             sushi_proto_def (str): path to .proto file with SUSHI's gRPC services definition
         """
+        self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
+
         self.audio_graph = audiographcontroller.AudioGraphController(
-            self, address, sushi_proto_def
+            self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc
         )
-        self.keyboard = keyboardcontroller.KeyboardController(address, sushi_proto_def)
+        self.keyboard = keyboardcontroller.KeyboardController(self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc)
         self.parameters = parametercontroller.ParameterController(
-            address, sushi_proto_def
+            address, sushi_proto_def, self._sushi_proto, self._sushi_grpc
         )
         self.programs = programcontroller.ProgramController(address, sushi_proto_def)
-        self.timings = timingcontroller.TimingController(address, sushi_proto_def)
+        self.timings = timingcontroller.TimingController(self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc)
         self.transport = transportcontroller.TransportController(
-            address, sushi_proto_def
+            self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc
         )
         self.audio_routing = audioroutingcontroller.AudioRoutingController(
-            address, sushi_proto_def
+            self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc
         )
         self.midi_controller = midicontroller.MidiController(address, sushi_proto_def)
         self.cv_gate_controller = cvgatecontroller.CvGateController(
@@ -164,7 +168,28 @@ class SushiController:
             self, address, sushi_proto_def
         )
 
-        self.command_responses: dict[int, ElkpyEvent] = {}
+        self.command_responses: dict[int, ElkpyEvent | SushiCommandResponse] = {}
+
+
+    def validate_command_response(self, cr, context_info: str = ""):
+        match CommandResponseStatus(cr.status.status):
+            case CommandResponseStatus.SUCCESS:
+                print('Got success', context_info)
+                event = SushiCommandResponse(id=0)
+                event.set()
+                event.result = cr
+                return event
+            case CommandResponseStatus.ERROR:
+                raise SushiUnkownError()
+            case CommandResponseStatus.NOT_FOUND:
+                raise SushiNotFoundError(context_info)
+            case CommandResponseStatus.ASYNC_RESPONSE:
+                print('got ASYNC_RESPONSE')
+                event = SushiCommandResponse(id=cr.id)
+                self.command_responses[cr.id] = event
+                return event
+            case _:
+                return cr
 
     def close(self):
         """

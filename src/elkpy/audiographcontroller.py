@@ -29,6 +29,7 @@ from . import sushi_info_types as info_types
 from .events import (
     ProcessorCreationEvent,
     ProcessorDeletionEvent,
+    SushiCommandResponse,
     TrackCreationEvent,
     TrackDeletionEvent,
 )
@@ -53,6 +54,7 @@ class AudioGraphController:
         parent,
         address="localhost:51051",
         sushi_proto_def="/usr/share/sushi/sushi_rpc.proto",
+        sushi_proto = None, sushi_grpc = None
     ):
         """
         The constructor for the AudioGraphController class setting up the gRPC connection with sushi.
@@ -72,9 +74,12 @@ class AudioGraphController:
                 )
             ) from e
 
-        self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(
-            sushi_proto_def
-        )
+        if sushi_proto and sushi_grpc:
+            self._sushi_proto = sushi_proto
+            self._sushi_grpc = sushi_grpc
+        else:
+            self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
+
         self._stub = self._sushi_grpc.AudioGraphControllerStub(channel)
 
     def get_all_processors(self) -> List[info_types.ProcessorInfo]:
@@ -112,7 +117,7 @@ class AudioGraphController:
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def get_track_id(self, track_name: str) -> int:
+    def get_track_id(self, track_name: str) -> SushiCommandResponse | int:
         """
         Get the id of a track from its name.
 
@@ -120,18 +125,33 @@ class AudioGraphController:
             track_name (str): The name of the track.
 
         Returns:
-            int: The id of the track matching the name.
+            SushiCommandResponse: an asyncio.Event with the following attributes:
+            - id: int: Identifies the command in Sushi. Only relevant for commands that Sushi handles asynchronously.
+            - is_set(): method to check if it is set.
+        Or:
+            int: the id of the requested track
+
+        Because this API might not return the expected id but only an async event, the user must 
+        test whether the SushiCommandResponse is set or not. This can be done in 2 ways:
+        - by calling SushiCommandResponse.is_set() -> bool
+        - by testing its truthiness: if SushiCommandResponse
+
         """
         try:
-            response = self._stub.GetTrackId(
+            cr = self._stub.GetTrackId(
                 self._sushi_proto.GenericStringValue(value=track_name)
             )
-            return response.id
+            if response := self._parent.validate_command_response(
+                cr, context_info=f"Getting id for track {track_name}"
+            ):
+                return response.result.id
+            else:
+                return response
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With track name: {}".format(track_name))
 
-    def get_track_info(self, track_identifier: int) -> info_types.TrackInfo:
+    def get_track_info(self, track_identifier: int) -> SushiCommandResponse:
         """
         Get the info of a track from its id.
 
@@ -142,10 +162,13 @@ class AudioGraphController:
             info_types.TrackInfo: The info of the track matching the id.
         """
         try:
-            response = self._stub.GetTrackInfo(
+            cr = self._stub.GetTrackInfo(
                 self._sushi_proto.TrackIdentifier(id=track_identifier)
             )
-            return info_types.TrackInfo(response.info)
+            if response := self._parent.validate_command_response(cr, context_info=f"Getting track info for track {track_identifier}"):
+                return info_types.TrackInfo(response.result.info)
+            else:
+                return response
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(
@@ -165,15 +188,15 @@ class AudioGraphController:
             List[info_types.ProcessorInfo]: A list of the info of the processors assigned to the track matching the id.
         """
         try:
-            response = self._stub.GetTrackProcessors(
+            cr = self._stub.GetTrackProcessors(
                 self._sushi_proto.TrackIdentifier(id=track_identifier)
             )
+            if response := self._parent.validate_command_response(cr, f"Getting track processors for track {track_identifier}"):
+                processor_info_list = []
+                for processor_info in response.result.processors:
+                    processor_info_list.append(info_types.ProcessorInfo(processor_info))
 
-            processor_info_list = []
-            for processor_info in response.processors:
-                processor_info_list.append(info_types.ProcessorInfo(processor_info))
-
-            return processor_info_list
+                return processor_info_list
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(
@@ -191,10 +214,13 @@ class AudioGraphController:
             int: The id of the processor matching the name.
         """
         try:
-            response = self._stub.GetProcessorId(
+            cr = self._stub.GetProcessorId(
                 self._sushi_proto.GenericStringValue(value=processor_name)
             )
-            return response.id
+            if response := self._parent.validate_command_response(cr, f"Getting id for processor {processor_name}"):
+                return response.result.id
+            else:
+                return response
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(
@@ -212,10 +238,13 @@ class AudioGraphController:
             info_types.ProcessorInfo: The info of the processor matching the id.
         """
         try:
-            response = self._stub.GetProcessorInfo(
+            cr = self._stub.GetProcessorInfo(
                 self._sushi_proto.ProcessorIdentifier(id=processor_identifier)
             )
-            return info_types.ProcessorInfo(response.processor)
+            if response := self._parent.validate_command_response(cr, f"Getting processor info for processor {processor_identifier}"):
+                return info_types.ProcessorInfo(response.result.processor)
+            else:
+                return response
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(
@@ -233,10 +262,13 @@ class AudioGraphController:
             bool: The bypass state of the processor matching the id.
         """
         try:
-            response = self._stub.GetProcessorBypassState(
+            cr = self._stub.GetProcessorBypassState(
                 self._sushi_proto.ProcessorIdentifier(id=processor_identifier)
             )
-            return response.value
+            if response := self._parent.validate_command_response(cr, f"Getting bypass state for processor {processor_identifier}"):
+                return response.result.value
+            else:
+                return response
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(
@@ -256,11 +288,13 @@ class AudioGraphController:
             ProcessorState: An object describing the full the processor matching the id.
         """
         try:
-            response = self._stub.GetProcessorState(
+            cr = self._stub.GetProcessorState(
                 self._sushi_proto.ProcessorIdentifier(id=processor_identifier)
             )
-            # return info_types.ProcessorState(response)
-            return response.state
+            if response := self._parent.validate_command_response(cr, f"Getting the state of processor {processor_identifier}"):
+                return response.result.state
+            else:
+                return response
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(
@@ -269,7 +303,7 @@ class AudioGraphController:
 
     def set_processor_bypass_state(
         self, processor_identifier: int, bypass_state: bool
-    ) -> None:
+    ) -> SushiCommandResponse:
         """
         Set the bypass state of the specified processor.
 
@@ -278,7 +312,7 @@ class AudioGraphController:
             bypass_sate (bool): The bypass state of the processor matching the id.
         """
         try:
-            self._stub.SetProcessorBypassState(
+            cr = self._stub.SetProcessorBypassState(
                 self._sushi_proto.ProcessorBypassStateSetRequest(
                     processor=self._sushi_proto.ProcessorIdentifier(
                         id=processor_identifier
@@ -286,6 +320,7 @@ class AudioGraphController:
                     value=bypass_state,
                 )
             )
+            return self._parent.validate_command_response(cr, f"Setting bypass state of processor {processor_identifier} to {bypass_state}")
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(
@@ -406,7 +441,9 @@ class AudioGraphController:
             cr = self._stub.CreateTrack(
                 self._sushi_proto.CreateTrackRequest(name=name, channels=channels)
             )
-            ev = TrackCreationEvent(name=name, command_response_id=cr.id, command_response_status=cr.status)
+            ev = TrackCreationEvent(
+                name=name, command_response_id=cr.id, command_response_status=cr.status
+            )
             self._parent.command_responses[cr.id] = ev
             return ev
         except grpc.RpcError as e:
@@ -426,7 +463,9 @@ class AudioGraphController:
             cr = self._stub.CreateMultibusTrack(
                 self._sushi_proto.CreateMultibusTrackRequest(name=name, buses=buses)
             )
-            ev = TrackCreationEvent(name=name, command_response_id=cr.id, command_response_status=cr.status)
+            ev = TrackCreationEvent(
+                name=name, command_response_id=cr.id, command_response_status=cr.status
+            )
             self._parent.command_responses[cr.id] = ev
             return ev
         except grpc.RpcError as e:
@@ -445,7 +484,9 @@ class AudioGraphController:
             cr = self._stub.CreatePreTrack(
                 self._sushi_proto.CreatePreTrackRequest(name=name)
             )
-            ev = TrackCreationEvent(name=name, command_response_id=cr.id, command_response_status=cr.status)
+            ev = TrackCreationEvent(
+                name=name, command_response_id=cr.id, command_response_status=cr.status
+            )
             self._parent.command_responses[cr.id] = ev
             return ev
         except grpc.RpcError as e:
@@ -462,7 +503,9 @@ class AudioGraphController:
             cr = self._stub.CreatePostTrack(
                 self._sushi_proto.CreatePostTrackRequest(name=name)
             )
-            ev = TrackCreationEvent(name=name, command_response_id=cr.id, command_response_status=cr.status)
+            ev = TrackCreationEvent(
+                name=name, command_response_id=cr.id, command_response_status=cr.status
+            )
             self._parent.command_responses[cr.id] = ev
             return ev
 
@@ -508,7 +551,9 @@ class AudioGraphController:
                     ),
                 )
             )
-            ev = ProcessorCreationEvent(name=name, command_response_id=cr.id, command_response_status=cr.status)
+            ev = ProcessorCreationEvent(
+                name=name, command_response_id=cr.id, command_response_status=cr.status
+            )
             self._parent.command_responses[cr.id] = ev
             return ev
         except grpc.RpcError as e:
@@ -588,7 +633,11 @@ class AudioGraphController:
                     track=self._sushi_proto.TrackIdentifier(id=track),
                 )
             )
-            ev = ProcessorDeletionEvent(sushi_id=processor, command_response_id=cr.id, command_response_status=cr.status)
+            ev = ProcessorDeletionEvent(
+                sushi_id=processor,
+                command_response_id=cr.id,
+                command_response_status=cr.status,
+            )
             self._parent.command_responses[cr.id] = ev
             return ev
         except grpc.RpcError as e:
@@ -605,7 +654,11 @@ class AudioGraphController:
         """
         try:
             cr = self._stub.DeleteTrack(self._sushi_proto.TrackIdentifier(id=track_id))
-            ev = TrackDeletionEvent(sushi_id=track_id, command_response_id=cr.id, command_response_status=cr.status)
+            ev = TrackDeletionEvent(
+                sushi_id=track_id,
+                command_response_id=cr.id,
+                command_response_status=cr.status,
+            )
             self._parent.command_responses[cr.id] = ev
             return ev
         except grpc.RpcError as e:

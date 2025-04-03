@@ -24,8 +24,8 @@ import grpc
 
 from concurrent import futures
 from tests.mockups import keyboard_service_mock
-from src.elkpy import keyboardcontroller as kc
 from src.elkpy import sushi_info_types as info_types
+from src.elkpy import sushicontroller as sc
 
 from src.elkpy import grpc_gen
 
@@ -46,7 +46,8 @@ mock_server.start()
 
 class TestKeyboardController(unittest.TestCase):
     def setUp(self):
-        self._kc = kc.KeyboardController(SUSHI_ADDRESS, proto_file)
+        self._sc = sc.SushiController(address=SUSHI_ADDRESS, sushi_proto_def=proto_file)
+        self._kc = self._sc.keyboard
 
     def test_send_note_on(self):
         self._kc.send_note_on(

@@ -27,10 +27,13 @@ from . import grpc_gen
 
 
 class SystemController(object):
-    """ Class to manage system-level settings in Sushi """
-    def __init__(self,
-                 address: str = 'localhost:51051',
-                 sushi_proto_def: str = '/usr/share/sushi/sushi_rpc.proto') -> None:
+    """Class to manage system-level settings in Sushi"""
+
+    def __init__(
+        self,
+        address: str = "localhost:51051",
+        sushi_proto_def: str = "/usr/share/sushi/sushi_rpc.proto",
+    ) -> None:
         """
         Args:
             address: IP address to Sushi in the uri form : 'ip-addr:port'
@@ -39,10 +42,14 @@ class SystemController(object):
         try:
             channel = grpc.insecure_channel(address)
         except AttributeError as e:
-            raise TypeError(f"Parameter address = {address}. Should be a string containing the ip-address and port "
-                            f"to Sushi") from e
+            raise TypeError(
+                f"Parameter address = {address}. Should be a string containing the ip-address and port "
+                f"to Sushi"
+            ) from e
 
-        self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
+        self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(
+            sushi_proto_def
+        )
         self._stub = self._sushi_grpc.SystemControllerStub(channel)
 
     def get_sushi_version(self) -> str:
@@ -61,14 +68,18 @@ class SystemController(object):
 
     def get_input_audio_channel_count(self) -> int:
         try:
-            response = self._stub.GetInputAudioChannelCount(self._sushi_proto.GenericVoidValue())
+            response = self._stub.GetInputAudioChannelCount(
+                self._sushi_proto.GenericVoidValue()
+            )
             return response.value
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
     def get_output_audio_channel_count(self) -> int:
         try:
-            response = self._stub.GetOutputAudioChannelCount(self._sushi_proto.GenericVoidValue())
+            response = self._stub.GetOutputAudioChannelCount(
+                self._sushi_proto.GenericVoidValue()
+            )
             return response.value
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)

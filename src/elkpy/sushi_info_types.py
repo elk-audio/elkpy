@@ -23,6 +23,34 @@ from types import ModuleType
 # Custom Enums #
 ################
 
+
+class CommandResponseStatus(IntEnum):
+    """
+    Enum class to hold the values matching the different status code in Command Responses.
+
+    Attributes:
+        DUMMY,
+        SUCCESS
+        ASYNC_RESPONSE
+        ERROR
+        UNSUPPORTED_OPERATION
+        NOT_FOUND
+        OUT_OF_RANGE
+        INVALID_ARGUMENTS
+
+    Note: DUMMY is equivalent to SUCCESS for methods that can not fail.
+    """
+
+    DUMMY = 0
+    SUCCESS = 1
+    ASYNC_RESPONSE = 2
+    ERROR = 3
+    UNSUPPORTED_OPERATION = 4
+    NOT_FOUND = 5
+    OUT_OF_RANGE = 6
+    INVALID_ARGUMENTS = 7
+
+
 class PlayingMode(IntEnum):
     """
     Enum class to hold the values matching the different playing modes.
@@ -32,9 +60,11 @@ class PlayingMode(IntEnum):
         PLAYING,
         RECORDING
     """
+
     STOPPED = 1
     PLAYING = 2
     RECORDING = 3
+
 
 class SyncMode(IntEnum):
     """
@@ -45,9 +75,11 @@ class SyncMode(IntEnum):
         MIDI,
         LINK
     """
+
     INTERNAL = 1
     MIDI = 2
     LINK = 3
+
 
 class ParameterType(IntEnum):
     """
@@ -60,11 +92,13 @@ class ParameterType(IntEnum):
         STRING_PROPERTY,
         DATA_PROPERTY
     """
+
     BOOL = 1
     INT = 2
     FLOAT = 3
     STRING_PROPERTY = 4
     DATA_PROPERTY = 5
+
 
 class PluginType(IntEnum):
     """
@@ -76,10 +110,12 @@ class PluginType(IntEnum):
         VST3X,
         LV2
     """
+
     INTERNAL = 1
     VST2X = 2
     VST3X = 3
     LV2 = 4
+
 
 class TrackType(IntEnum):
     """
@@ -90,13 +126,16 @@ class TrackType(IntEnum):
         PRE,
         POST
     """
+
     REGULAR = 1
     PRE = 2
     POST = 3
 
+
 ################
 # Info Classes #
 ################
+
 
 class SushiBuildInfo:
     """
@@ -109,6 +148,7 @@ class SushiBuildInfo:
         commit_hash (str) : Commit hash of the build
         build_date (str) : The date sushi was built
     """
+
     def __init__(self, grpc_SushiBuildInfo: ModuleType) -> None:
         try:
             self.version = grpc_SushiBuildInfo.version
@@ -136,23 +176,23 @@ class SushiBuildInfo:
             self.build_date = "1-1-1970"
 
     def __str__(self) -> str:
-        s = '{\n'
-        s += ' version: %s \n' %self.version
-        s += ' build options: %s \n' %self.build_options
-        s += ' audio buffer size: %s \n' %self.audio_buffer_size
-        s += ' commit hash: %s \n' %self.commit_hash
-        s += ' build date: %s \n' %self.build_date
-        s += '}'
+        s = "{\n"
+        s += " version: %s \n" % self.version
+        s += " build options: %s \n" % self.build_options
+        s += " audio buffer size: %s \n" % self.audio_buffer_size
+        s += " commit hash: %s \n" % self.commit_hash
+        s += " build date: %s \n" % self.build_date
+        s += "}"
         return s
 
     def __eq__(self, other):
-        return self.version == other.version \
-            and self.build_options == other.build_options \
-            and self.audio_buffer_size == other.audio_buffer_size \
-            and self.commit_hash == other.commit_hash \
+        return (
+            self.version == other.version
+            and self.build_options == other.build_options
+            and self.audio_buffer_size == other.audio_buffer_size
+            and self.commit_hash == other.commit_hash
             and self.build_date == other.build_date
-
-
+        )
 
 
 class ParameterInfo:
@@ -190,17 +230,17 @@ class ParameterInfo:
         try:
             self.label = grpc_ParameterInfo.label
         except AttributeError:
-            self.label = ''
+            self.label = ""
 
         try:
             self.name = grpc_ParameterInfo.name
         except AttributeError:
-            self.name = ''
+            self.name = ""
 
         try:
             self.unit = grpc_ParameterInfo.unit
         except AttributeError:
-            self.unit = ''
+            self.unit = ""
 
         try:
             self.automatable = grpc_ParameterInfo.automatable
@@ -218,30 +258,32 @@ class ParameterInfo:
             self.max_domain_value = 0.0
 
     def __str__(self):
-        s = '{\n'
-        s += ' id: %s \n' %self.id
-        s += ' type: %s \n' %self.type
-        s += ' label: %s \n' %self.label
-        s += ' name: %s \n' %self.name
-        s += ' unit: %s \n' %self.unit
-        s += ' automatable: %s \n' %self.automatable
-        s += ' min_domain_value: %s \n' %self.min_domain_value
-        s += ' max_domain_value: %s \n' %self.max_domain_value
-        s += '}'
+        s = "{\n"
+        s += " id: %s \n" % self.id
+        s += " type: %s \n" % self.type
+        s += " label: %s \n" % self.label
+        s += " name: %s \n" % self.name
+        s += " unit: %s \n" % self.unit
+        s += " automatable: %s \n" % self.automatable
+        s += " min_domain_value: %s \n" % self.min_domain_value
+        s += " max_domain_value: %s \n" % self.max_domain_value
+        s += "}"
         return s
 
     def __repr__(self) -> str:
         return self.__str__()
 
     def __eq__(self, other):
-        return self.id == other.id \
-            and self.type == other.type \
-            and self.label == other.label \
-            and self.name == other.name \
-            and self.unit == other.unit \
-            and self.automatable == other .automatable \
-            and self.min_domain_value == other.min_domain_value \
+        return (
+            self.id == other.id
+            and self.type == other.type
+            and self.label == other.label
+            and self.name == other.name
+            and self.unit == other.unit
+            and self.automatable == other.automatable
+            and self.min_domain_value == other.min_domain_value
             and self.max_domain_value == other.max_domain_value
+        )
 
 
 class PropertyInfo:
@@ -269,28 +311,30 @@ class PropertyInfo:
         try:
             self.label = grpc_PropertyInfo.label
         except AttributeError:
-            self.label = ''
+            self.label = ""
 
         try:
             self.name = grpc_PropertyInfo.name
         except AttributeError:
-            self.name = ''
+            self.name = ""
 
     def __str__(self):
-        s = '{\n'
-        s += ' id: %s \n' %self.id
-        s += ' label: %s \n' %self.label
-        s += ' name: %s \n' %self.name
-        s += '}'
+        s = "{\n"
+        s += " id: %s \n" % self.id
+        s += " label: %s \n" % self.label
+        s += " name: %s \n" % self.name
+        s += "}"
         return s
 
     def __repr__(self) -> str:
         return self.__str__()
 
     def __eq__(self, other):
-        return self.id == other.id \
-            and self.label == other.label \
+        return (
+            self.id == other.id
+            and self.label == other.label
             and self.name == other.name
+        )
 
 
 class ProcessorInfo:
@@ -304,6 +348,7 @@ class ProcessorInfo:
         parameter_count (int): The number of parameters available to the processor.
         program_count (int): The number of programs available to the processor.
     """
+
     def __init__(self, grpc_ProcessorInfo):
         try:
             self.id = grpc_ProcessorInfo.id
@@ -313,12 +358,12 @@ class ProcessorInfo:
         try:
             self.label = grpc_ProcessorInfo.label
         except AttributeError:
-            self.label = ''
+            self.label = ""
 
         try:
             self.name = grpc_ProcessorInfo.name
         except AttributeError:
-            self.name = ''
+            self.name = ""
 
         try:
             self.parameter_count = grpc_ProcessorInfo.parameter_count
@@ -331,24 +376,26 @@ class ProcessorInfo:
             self.program_count = 0
 
     def __str__(self):
-        s = '{\n'
-        s += (' id: %s \n' %self.id)
-        s += (' label: %s \n' %self.label)
-        s += (' name: %s \n' %self.name)
-        s += (' parameter count: %s \n' %self.parameter_count)
-        s += (' program count: %s \n' %self.program_count)
-        s += '}'
+        s = "{\n"
+        s += " id: %s \n" % self.id
+        s += " label: %s \n" % self.label
+        s += " name: %s \n" % self.name
+        s += " parameter count: %s \n" % self.parameter_count
+        s += " program count: %s \n" % self.program_count
+        s += "}"
         return s
 
     def __repr__(self):
         return self.__str__()
 
     def __eq__(self, other):
-        return self.id == other.id \
-            and self.label == other.label \
-            and self.name == other.name \
-            and self.parameter_count == other.parameter_count \
+        return (
+            self.id == other.id
+            and self.label == other.label
+            and self.name == other.name
+            and self.parameter_count == other.parameter_count
             and self.program_count == other.program_count
+        )
 
 
 class TrackInfo:
@@ -363,6 +410,7 @@ class TrackInfo:
         buses (int): The number input buses available to the track.
         type (TrackType): The type of track
     """
+
     def __init__(self, grpc_TrackInfo):
         try:
             self.id = grpc_TrackInfo.id
@@ -372,12 +420,12 @@ class TrackInfo:
         try:
             self.label = grpc_TrackInfo.label
         except AttributeError:
-            self.label = ''
+            self.label = ""
 
         try:
             self.name = grpc_TrackInfo.name
         except AttributeError:
-            self.name = ''
+            self.name = ""
 
         try:
             self.channels = grpc_TrackInfo.channels
@@ -402,28 +450,30 @@ class TrackInfo:
             self.processors = []
 
     def __str__(self):
-        s = '{\n'
-        s += ' id: %s \n' %self.id
-        s += ' label: %s \n' %self.label
-        s += ' name: %s \n' %self.name
-        s += ' channels: %s \n' %self.channels
-        s += ' buses: %s \n' %self.buses
-        s += ' type: %s \n' %self.type
-        s += ' processors: %s \n' %self.processors
-        s += '}'
+        s = "{\n"
+        s += " id: %s \n" % self.id
+        s += " label: %s \n" % self.label
+        s += " name: %s \n" % self.name
+        s += " channels: %s \n" % self.channels
+        s += " buses: %s \n" % self.buses
+        s += " type: %s \n" % self.type
+        s += " processors: %s \n" % self.processors
+        s += "}"
         return s
 
     def __repr__(self):
         return self.__str__()
 
     def __eq__(self, other):
-        return self.id == other.id \
-            and self.label == other.label \
-            and self.name == other.name \
-            and self.channels == other.channels \
-            and self.buses == other.buses \
-            and self.type == other.type \
+        return (
+            self.id == other.id
+            and self.label == other.label
+            and self.name == other.name
+            and self.channels == other.channels
+            and self.buses == other.buses
+            and self.type == other.type
             and self.processors == other.processors
+        )
 
 
 class ProgramInfo:
@@ -434,6 +484,7 @@ class ProgramInfo:
         id (int): The id of the program.
         name (str): The name of the program.
     """
+
     def __init__(self, grpc_ProgramInfo):
         try:
             self.id = grpc_ProgramInfo.id.program
@@ -443,21 +494,20 @@ class ProgramInfo:
         try:
             self.name = grpc_ProgramInfo.name
         except AttributeError:
-            self.name = ''
+            self.name = ""
 
     def __str__(self):
-        s = '{ \n'
-        s += ' id: %s \n' %self.id
-        s += ' name: %s \n' %self.name
-        s += '}'
+        s = "{ \n"
+        s += " id: %s \n" % self.id
+        s += " name: %s \n" % self.name
+        s += "}"
         return s
 
     def __repr__(self):
         return self.__str__()
 
     def __eq__(self, other):
-        return self.id == other.id \
-            and self.name == other.name
+        return self.id == other.id and self.name == other.name
 
 
 class ProcessorState:
@@ -471,6 +521,7 @@ class ProcessorState:
         parameters ((int, float)): All parameter values of the processor.
         binary_data (bytes): Opaque binary data saved by the plugin.
     """
+
     def __init__(self, grpc_ProcessorState):
         try:
             self.program_id = grpc_ProcessorState.program_id.value
@@ -492,7 +543,9 @@ class ProcessorState:
         try:
             self.parameters = []
             for parameter in grpc_ProcessorState.parameters:
-                self.parameters.append((parameter.parameter.parameter_id, parameter.value))
+                self.parameters.append(
+                    (parameter.parameter.parameter_id, parameter.value)
+                )
         except AttributeError:
             self.parameters = []
 
@@ -502,24 +555,26 @@ class ProcessorState:
             self.binary_data = bytes()
 
     def __str__(self):
-        s = '{\n'
-        s += ' program_id: %s \n' %self.program_id
-        s += ' bypassed: %s \n' %self.bypassed
-        s += ' properties: %s \n' %self.properties
-        s += ' parameters: %s \n' %self.parameters
-        s += ' binary_data: %s \n' %self.binary_data
-        s += '}'
+        s = "{\n"
+        s += " program_id: %s \n" % self.program_id
+        s += " bypassed: %s \n" % self.bypassed
+        s += " properties: %s \n" % self.properties
+        s += " parameters: %s \n" % self.parameters
+        s += " binary_data: %s \n" % self.binary_data
+        s += "}"
         return s
 
     def __repr__(self):
         return self.__str__()
 
     def __eq__(self, other):
-        return self.program_id == other.program_id \
-            and self.bypassed == other.bypassed \
-            and self.properties == other.properties \
-            and self.parameters == other.parameters \
-            and self.binary_data  == other.binary_data
+        return (
+            self.program_id == other.program_id
+            and self.bypassed == other.bypassed
+            and self.properties == other.properties
+            and self.parameters == other.parameters
+            and self.binary_data == other.binary_data
+        )
 
 
 class AudioConnection:
@@ -531,6 +586,7 @@ class AudioConnection:
         track_channel (int):
         engine_channel (int):
     """
+
     def __init__(self, grpc_AudioConnection):
         try:
             self.track = grpc_AudioConnection.track.id
@@ -548,17 +604,21 @@ class AudioConnection:
             self.engine_channel = 0
 
     def __str__(self):
-        return f"{{ \n track: {self.track}\n" \
-               f" track_channel: {self.track_channel}\n" \
-               f" engine_channel: {self.engine_channel}\n}}"
+        return (
+            f"{{ \n track: {self.track}\n"
+            f" track_channel: {self.track_channel}\n"
+            f" engine_channel: {self.engine_channel}\n}}"
+        )
 
     def __repr__(self):
         return self.__str__()
 
     def __eq__(self, other):
-        return self.track == other.track \
-               and self.track_channel == other.track_channel \
-               and self.engine_channel == other.engine_channel
+        return (
+            self.track == other.track
+            and self.track_channel == other.track_channel
+            and self.engine_channel == other.engine_channel
+        )
 
 
 class MidiKbdConnection:
@@ -571,6 +631,7 @@ class MidiKbdConnection:
         port (int): a MIDI port number
         raw_midi (bool): is this track a raw MIDI track or not.
     """
+
     def __init__(self, grpc_MidiKbdConnection):
         try:
             self.track = grpc_MidiKbdConnection.track.id
@@ -593,17 +654,23 @@ class MidiKbdConnection:
             self.raw_midi = False
 
     def __str__(self):
-        return f"{{\n track: {self.track}\n" \
-               f" channel: {self.channel}\n" \
-               f" port: {self.port}\n" \
-               f" raw_midi: {self.raw_midi}\n}}"
+        return (
+            f"{{\n track: {self.track}\n"
+            f" channel: {self.channel}\n"
+            f" port: {self.port}\n"
+            f" raw_midi: {self.raw_midi}\n}}"
+        )
 
     def __repr__(self):
         return self.__str__()
 
     def __eq__(self, other):
-        return self.track == other.track and self.channel == other.channel \
-               and self.port == other.port and self.raw_midi == other.raw_midi
+        return (
+            self.track == other.track
+            and self.channel == other.channel
+            and self.port == other.port
+            and self.raw_midi == other.raw_midi
+        )
 
 
 class MidiCCConnection:
@@ -619,6 +686,7 @@ class MidiCCConnection:
         max_range (float)
         relative_mode (bool)
     """
+
     def __init__(self, grpc_MidiCCConnection):
         try:
             self.processor_id = grpc_MidiCCConnection.parameter.processor_id
@@ -661,21 +729,30 @@ class MidiCCConnection:
             self.relative_mode = False
 
     def __str__(self):
-        return f"{{\n parameter: {self.parameter_id}\n" \
-               f" channel: {self.channel}\n" \
-               f" port: {self.port}\n" \
-               f" cc_number: {self.cc_number}\n" \
-               f" min_range: {self.min_range}\n" \
-               f" max_range: {self.max_range}\n" \
-               f" relative_mode: {self.relative_mode}\n}}"
+        return (
+            f"{{\n parameter: {self.parameter_id}\n"
+            f" channel: {self.channel}\n"
+            f" port: {self.port}\n"
+            f" cc_number: {self.cc_number}\n"
+            f" min_range: {self.min_range}\n"
+            f" max_range: {self.max_range}\n"
+            f" relative_mode: {self.relative_mode}\n}}"
+        )
 
     def __repr__(self):
         return self.__str__()
 
     def __eq__(self, other):
-        return self.processor_id == other.processor_id and self.parameter_id == other.parameter_id and self.channel == other.channel and self.port == other.port \
-               and self.cc_number == other.cc_number and self.min_range == other.min_range \
-               and self.max_range == other.max_range and self.relative_mode == other.relative_mode
+        return (
+            self.processor_id == other.processor_id
+            and self.parameter_id == other.parameter_id
+            and self.channel == other.channel
+            and self.port == other.port
+            and self.cc_number == other.cc_number
+            and self.min_range == other.min_range
+            and self.max_range == other.max_range
+            and self.relative_mode == other.relative_mode
+        )
 
 
 class MidiPCConnection:
@@ -687,6 +764,7 @@ class MidiPCConnection:
         channel (_sushi_proto.MidiChannel): a MIDI channel
         port (int): a MIDI port number
     """
+
     def __init__(self, grpc_MidiPCConnection):
         try:
             self.processor = grpc_MidiPCConnection.processor.id
@@ -704,16 +782,21 @@ class MidiPCConnection:
             self.port = 0
 
     def __str__(self):
-        return f"{{\n processor: {self.processor}\n" \
-               f" channel: {self.channel}\n" \
-               f" port: {self.port}\n}}"
+        return (
+            f"{{\n processor: {self.processor}\n"
+            f" channel: {self.channel}\n"
+            f" port: {self.port}\n}}"
+        )
 
     def __repr__(self):
         return self.__str__()
 
     def __eq__(self, other):
-        return self.processor == other.processor and self.channel == other.channel \
-               and self.port == other.port
+        return (
+            self.processor == other.processor
+            and self.channel == other.channel
+            and self.port == other.port
+        )
 
 
 class CvConnection:
@@ -724,6 +807,7 @@ class CvConnection:
         parameter_id (int): The id of the connected parameter
         cv_port_id (int): The id of the connected CV port
     """
+
     def __init__(self, grpc_CvConnection):
         try:
             self.processor_id = grpc_CvConnection.parameter.processor_id
@@ -741,14 +825,19 @@ class CvConnection:
             self.cv_port_id = 0
 
     def __str__(self):
-        return f"{{\n parameter: {self.parameter_id}\n" \
-               f" cv_port_id: {self.cv_port_id}\n}}"
+        return (
+            f"{{\n parameter: {self.parameter_id}\n cv_port_id: {self.cv_port_id}\n}}"
+        )
 
     def __repr__(self):
         return self.__str__()
 
     def __eq__(self, other):
-        return self.processor_id == other.processor_id and self.parameter_id == other.parameter_id and self.cv_port_id == other.cv_port_id
+        return (
+            self.processor_id == other.processor_id
+            and self.parameter_id == other.parameter_id
+            and self.cv_port_id == other.cv_port_id
+        )
 
 
 class GateConnection:
@@ -761,6 +850,7 @@ class GateConnection:
         channel (int): The connected midi channel number
         note_no (int): The midi note number to trigger
     """
+
     def __init__(self, grpc_CvConnection):
         try:
             self.processor_id = grpc_CvConnection.processor.id
@@ -783,14 +873,20 @@ class GateConnection:
             self.note_no = 0
 
     def __str__(self):
-        return f"{{\n processor: {self.processor_id}\n" \
-               f" gate_port_id: {self.gate_port_id}\n" \
-               f" channel: {self.channel}\n" \
-               f" note_no: {self.note_no}\n}}"
+        return (
+            f"{{\n processor: {self.processor_id}\n"
+            f" gate_port_id: {self.gate_port_id}\n"
+            f" channel: {self.channel}\n"
+            f" note_no: {self.note_no}\n}}"
+        )
 
     def __repr__(self):
         return self.__str__()
 
     def __eq__(self, other):
-        return self.processor_id == other.processor_id and self.gate_port_id == other.gate_port_id \
-               and self.channel == other.channel and self.note_no == other.note_no
+        return (
+            self.processor_id == other.processor_id
+            and self.gate_port_id == other.gate_port_id
+            and self.channel == other.channel
+            and self.note_no == other.note_no
+        )

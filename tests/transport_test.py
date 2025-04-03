@@ -25,18 +25,22 @@ import grpc
 from concurrent import futures
 from tests.mockups import transport_service_mock
 from src.elkpy import transportcontroller as tc
+from src.elkpy import sushicontroller as sc
 from src.elkpy import sushi_info_types as info_types
 
 from src.elkpy import grpc_gen
 
-proto_file = os.environ.get('SUSHI_GRPC_ELKPY_PROTO')
+proto_file = os.environ.get("SUSHI_GRPC_ELKPY_PROTO")
 if proto_file is None:
-    print("Environment variable SUSHI_GRPC_ELKPY_PROTO not defined, set it to point the .proto definition")
+    print(
+        "Environment variable SUSHI_GRPC_ELKPY_PROTO not defined, set it to point the .proto definition"
+    )
     sys.exit(-1)
 
 SUSHI_PROTO, SUSHI_GRPC = grpc_gen.modules_from_proto(proto_file)
 
-SUSHI_ADDRESS = ('localhost:51062')
+SUSHI_ADDRESS = "localhost:51062"
+
 
 # Run sushi with arguments: -j --connect-ports --timing-statistics -c ~/work/sushi/example_configs/config_temper.json
 # The config file has andes followed by temper on a single stereo channel called main
@@ -47,49 +51,74 @@ SUSHI_GRPC.add_TransportControllerServicer_to_server(service, mock_server)
 mock_server.add_insecure_port(SUSHI_ADDRESS)
 mock_server.start()
 
+success_command_response = SUSHI_PROTO.CommandResponse(status=SUSHI_PROTO.CommandStatus(status=1), id=42)
+
+
 class TestTransportController(unittest.TestCase):
     def setUp(self):
-        self._tc = tc.TransportController(SUSHI_ADDRESS, proto_file)
+        self._sc = sc.SushiController(address=SUSHI_ADDRESS, sushi_proto_def=proto_file)
+        self._tc = self._sc.transport
 
     def test_get_samplerate(self):
-        self.assertEqual(self._tc.get_samplerate(), transport_service_mock.expected_sample_rate)
+        self.assertEqual(
+            self._tc.get_samplerate(), transport_service_mock.expected_sample_rate
+        )
 
     def test_get_playing_mode(self):
-        self.assertEqual(self._tc.get_playing_mode(), transport_service_mock.expected_playing_mode)
+        self.assertEqual(
+            self._tc.get_playing_mode(), transport_service_mock.expected_playing_mode
+        )
 
     def test_get_sync_mode(self):
-        self.assertEqual(self._tc.get_sync_mode(), transport_service_mock.expected_sync_mode)
+        self.assertEqual(
+            self._tc.get_sync_mode(), transport_service_mock.expected_sync_mode
+        )
 
     def test_get_tempo(self):
         self.assertEqual(self._tc.get_tempo(), transport_service_mock.expected_tempo)
 
     def test_get_time_signature(self):
-        self.assertEqual(self._tc.get_time_signature(), transport_service_mock.expected_time_signature)
+        self.assertEqual(
+            self._tc.get_time_signature(),
+            transport_service_mock.expected_time_signature,
+        )
 
     def test_set_playing_mode_positive(self):
-        self._tc.set_playing_mode(transport_service_mock.expected_playing_mode)
+        r = self._tc.set_playing_mode(transport_service_mock.expected_playing_mode)
         self.assertTrue(service.was_called())
-        expected_result = SUSHI_PROTO.PlayingMode(mode = transport_service_mock.expected_playing_mode)
+        expected_result = SUSHI_PROTO.PlayingMode(
+            mode=transport_service_mock.expected_playing_mode
+        )
         self.assertEqual(expected_result, service.get_recent_request())
+        self.assertEqual(success_command_response, r)
 
     def test_set_sync_mode(self):
-        self._tc.set_sync_mode(transport_service_mock.expected_sync_mode)
+        r = self._tc.set_sync_mode(transport_service_mock.expected_sync_mode)
         self.assertTrue(service.was_called())
-        expected_result = SUSHI_PROTO.SyncMode(mode = transport_service_mock.expected_sync_mode)
+        expected_result = SUSHI_PROTO.SyncMode(
+            mode=transport_service_mock.expected_sync_mode
+        )
         self.assertEqual(expected_result, service.get_recent_request())
+        self.assertEqual(success_command_response, r)
 
     def test_set_tempo(self):
-        self._tc.set_tempo(transport_service_mock.expected_tempo)
+        r = self._tc.set_tempo(transport_service_mock.expected_tempo)
         self.assertTrue(service.was_called())
-        expected_result = SUSHI_PROTO.GenericFloatValue(value = transport_service_mock.expected_tempo)
+        expected_result = SUSHI_PROTO.GenericFloatValue(
+            value=transport_service_mock.expected_tempo
+        )
         self.assertEqual(expected_result, service.get_recent_request())
+        self.assertEqual(success_command_response, r) 
 
     def test_set_time_signature(self):
-        self._tc.set_time_signature(transport_service_mock.expected_time_signature[0],
-                                    transport_service_mock.expected_time_signature[1])
+        r = self._tc.set_time_signature(
+            transport_service_mock.expected_time_signature[0],
+            transport_service_mock.expected_time_signature[1],
+        )
         self.assertTrue(service.was_called())
         expected_result = SUSHI_PROTO.TimeSignature(
-            numerator = transport_service_mock.expected_time_signature[0],
-            denominator = transport_service_mock.expected_time_signature[1]
+            numerator=transport_service_mock.expected_time_signature[0],
+            denominator=transport_service_mock.expected_time_signature[1],
         )
         self.assertEqual(service.get_recent_request(), expected_result)
+        self.assertEqual(success_command_response, r) 

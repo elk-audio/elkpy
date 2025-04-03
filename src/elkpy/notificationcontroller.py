@@ -17,7 +17,14 @@ __copyright__ = """
 __license__ = "GPL-3.0"
 
 
-from elkpy.events import ElkpyEvent, ProcessorCreationEvent, ProcessorDeletionEvent, TrackCreationEvent, TrackDeletionEvent
+from .events import (
+    ElkpyEvent,
+    ProcessorCreationEvent,
+    ProcessorDeletionEvent,
+    SushiCommandResponse,
+    TrackCreationEvent,
+    TrackDeletionEvent,
+)
 import grpc.experimental.aio
 import asyncio
 from threading import Thread
@@ -74,16 +81,14 @@ class NotificationController:
         try:
             self.loop = asyncio.get_running_loop()
             self._async = True
-            self.tasks.append(
-                asyncio.create_task(self.update_command_responses())
-            )
+            self.tasks.append(asyncio.create_task(self.update_command_responses()))
         except RuntimeError:
             self._async = False
             self.loop = asyncio.new_event_loop()
             self.notification_thread = Thread(
                 target=self._run_notification_loop, args=(self.loop,)
             )
-            self.notification_thread.setDaemon(True)
+            self.notification_thread.daemon = True
             self.notification_thread.start()
             self.tasks.append(
                 asyncio.run_coroutine_threadsafe(
@@ -301,9 +306,7 @@ class NotificationController:
                 f"Should be a string containing the IP address and port to Sushi"
             )
 
-    async def process_async_command_response_updates(
-        self, call_back=None
-    ):
+    async def process_async_command_response_updates(self, call_back=None):
         try:
             async with grpc.experimental.aio.insecure_channel(self.address) as channel:
                 stub = self._sushi_grpc.NotificationControllerStub(channel)
@@ -341,8 +344,7 @@ class NotificationController:
         """
         if self._async:
             self.tasks.append(
-                asyncio.create_task(
-                    self.process_transport_change_notifications(cb))
+                asyncio.create_task(self.process_transport_change_notifications(cb))
             )
         else:
             asyncio.run_coroutine_threadsafe(
@@ -358,8 +360,7 @@ class NotificationController:
             cb: a callable that will be called for each notification received from the stream."""
         if self._async:
             self.tasks.append(
-                asyncio.create_task(
-                    self.process_timing_update_notifications(cb))
+                asyncio.create_task(self.process_timing_update_notifications(cb))
             )
         else:
             asyncio.run_coroutine_threadsafe(
@@ -376,8 +377,7 @@ class NotificationController:
         """
         if self._async:
             self.tasks.append(
-                asyncio.create_task(
-                    self.process_track_change_notifications(cb))
+                asyncio.create_task(self.process_track_change_notifications(cb))
             )
         else:
             asyncio.run_coroutine_threadsafe(
@@ -394,8 +394,7 @@ class NotificationController:
         """
         if self._async:
             self.tasks.append(
-                asyncio.create_task(
-                    self.process_processor_change_notifications(cb))
+                asyncio.create_task(self.process_processor_change_notifications(cb))
             )
         else:
             asyncio.run_coroutine_threadsafe(
@@ -424,13 +423,11 @@ class NotificationController:
         """
         if self._async:
             self.tasks.append(
-                asyncio.create_task(
-                    self.process_parameter_update_notifications(cb))
+                asyncio.create_task(self.process_parameter_update_notifications(cb))
             )
         else:
             asyncio.run_coroutine_threadsafe(
-                self.process_parameter_update_notifications(
-                    cb, param_blocklist),
+                self.process_parameter_update_notifications(cb, param_blocklist),
                 self.loop,
             )
 
@@ -452,22 +449,20 @@ class NotificationController:
         if self._async:
             self.tasks.append(
                 asyncio.create_task(
-                    self.process_property_update_notifications(
-                        cb, property_blocklist)
+                    self.process_property_update_notifications(cb, property_blocklist)
                 )
             )
         else:
             asyncio.run_coroutine_threadsafe(
-                self.process_property_update_notifications(
-                    cb, property_blocklist),
+                self.process_property_update_notifications(cb, property_blocklist),
                 self.loop,
             )
 
     def subscribe_to_async_command_response(self, cb: Callable) -> None:
         """
         Subscribes to asynchronous updates to command responses.
-        User may implement their own logic to process these notifications but when it comes to leveraging 
-        this mechanism to wait for a command completion, elkpy includes ElkpyEvents, specifically 
+        User may implement their own logic to process these notifications but when it comes to leveraging
+        this mechanism to wait for a command completion, elkpy includes ElkpyEvents, specifically
         designed for that purpose.
 
         Parameters:
@@ -475,24 +470,19 @@ class NotificationController:
         """
         if self._async:
             self.tasks.append(
-                asyncio.create_task(
-                    self.process_async_command_response_updates(
-                        cb)
-                )
+                asyncio.create_task(self.process_async_command_response_updates(cb))
             )
         else:
             asyncio.run_coroutine_threadsafe(
-                self.process_async_command_response_updates(
-                    cb),
+                self.process_async_command_response_updates(cb),
                 self.loop,
             )
-        
 
     #################################################
     # Internal event<->notificaton matching methods #
     #################################################
     async def update_command_responses(self) -> None:
-        """ Matches incoming notifications for command response updates with ElkpyEvents """
+        """Matches incoming notifications for command response updates with ElkpyEvents"""
         try:
             async with grpc.experimental.aio.insecure_channel(self.address) as channel:
                 stub = self._sushi_grpc.NotificationControllerStub(channel)
@@ -506,7 +496,7 @@ class NotificationController:
         except Exception:
             pass
 
-    def update_event(self, event: ElkpyEvent) -> None:
+    def update_event(self, event: ElkpyEvent | SushiCommandResponse) -> None:
         match event:
             case TrackCreationEvent():
                 track_id = self._parent.audio_graph.get_track_id(event.name)
@@ -524,6 +514,7 @@ class NotificationController:
                 event.set()
             case ProcessorDeletionEvent():
                 event.set()
+            case SushiCommandResponse():
+                event.set()
             case _:
                 pass
-

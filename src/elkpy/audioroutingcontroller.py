@@ -37,8 +37,10 @@ class AudioRoutingController(object):
         _stub (AudioRoutingControllerStub): connection stub to the gRPC audio routing interface in sushi
     """
     def __init__(self,
+                 parent,
                  address: str='localhost:51051',
-                 sushi_proto_def: str='/usr/share/sushi/sushi_rpc.proto') -> None:
+                 sushi_proto_def: str='/usr/share/sushi/sushi_rpc.proto',
+                 sushi_proto = None, sushi_grpc = None) -> None:
         """
         The constructor for the AudioRoutingController class setting up the gRPC connection with sushi.
 
@@ -51,9 +53,15 @@ class AudioRoutingController(object):
         except AttributeError as e:
             raise TypeError(f"Parameter address = {address}. Should be a string containing the ip-address and port "
                             f"to Sushi") from e
-
-        self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
+        
+        if sushi_proto and sushi_grpc:
+            self._sushi_proto = sushi_proto
+            self._sushi_grpc = sushi_grpc
+        else:
+            self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
         self._stub = self._sushi_grpc.AudioRoutingControllerStub(channel)
+        
+        self._parent = parent
 
     def get_all_input_connections(self) -> List[info_types.AudioConnection]:
         """

@@ -18,6 +18,10 @@ __license__ = "GPL-3.0"
 
 import grpc
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from elkpy.sushicontroller import SushiController
+
 from . import sushierrors
 from . import grpc_gen
 
@@ -35,8 +39,10 @@ class TimingController:
         _stub (TimingControllerStub): Connection stubs to the gRPC timing interface implemented in sushi.
     """
     def __init__(self,
+                 parent,
                  address = 'localhost:51051',
-                 sushi_proto_def = '/usr/share/sushi/sushi_rpc.proto'):
+                 sushi_proto_def = '/usr/share/sushi/sushi_rpc.proto',
+                 sushi_proto = None, sushi_grpc = None):
         """
         The constructor for the TimingController class setting up the gRPC connection with sushi.
 
@@ -49,8 +55,14 @@ class TimingController:
         except AttributeError as e:
             raise TypeError("Parameter address = {}. Should be a string containing the ip-address and port of sushi ('ip-address:port')".format(address)) from e
 
-        self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
+        if sushi_proto and sushi_grpc:
+            self._sushi_proto = sushi_proto
+            self._sushi_grpc = sushi_grpc
+        else:
+            self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
+
         self._stub = self._sushi_grpc.TimingControllerStub(channel)
+        self._parent: "SushiController" = parent
 
     def get_timings_enabled(self) -> bool | None:
         """
@@ -74,23 +86,28 @@ class TimingController:
             bool: True if statistics is enabled, False if not.
         """
         try:
-            self._stub.SetTimingsEnabled(self._sushi_proto.GenericBoolValue(value = enabled))
+            cr = self._stub.SetTimingsEnabled(self._sushi_proto.GenericBoolValue(value = enabled))
+            return self._parent.validate_command_response(cr, context_info=f"Setting timings_enabled to {enabled}")
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def get_engine_timings(self) -> tuple[float, float, float] | None:
+    def get_engine_timings(self) -> tuple | None:
         """
         Get the average, min and max timings of the engine.
+        When Sushi multiprocessor mode is active, gets timings for each thread.
 
-        Returns:
+        Timings:
             float: The average engine processing time in ms.
             float: The minimum engine processing time in ms.
             float: The maximum engine processing time in ms.
+
+        Returns:
+            a tuple of (main: Timing, threads: list of Timings)
         """
         try:
             response = self._stub.GetEngineTimings(self._sushi_proto.GenericVoidValue())
-            return response.average, response.min, response.max
+            return response.main, response.threads
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
@@ -108,10 +125,11 @@ class TimingController:
             float: The maximum track processing time in ms.
         """
         try:
-            response = self._stub.GetTrackTimings(self._sushi_proto.TrackIdentifier(
+            cr = self._stub.GetTrackTimings(self._sushi_proto.TrackIdentifier(
                 id = track_identifier
             ))
-            return response.average, response.min, response.max
+            response = self._parent.validate_command_response(cr, f"Getting timings for track {track_identifier}")
+            return response.timings.average, response.timings.max, response.timings.min
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With track id: {}".format(track_identifier))
@@ -129,25 +147,27 @@ class TimingController:
             float: The maximum processor processing time in ms.
         """
         try:
-            response = self._stub.GetProcessorTimings(self._sushi_proto.ProcessorIdentifier(
+            cr = self._stub.GetProcessorTimings(self._sushi_proto.ProcessorIdentifier(
                 id = processor_identifier
             ))
-            return response.average, response.min, response.max
+            response = self._parent.validate_command_response(cr, f"Getting timings for processor {processor_identifier}")
+            return response.timings.average, response.timings.max, response.timings.min
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With processor id: {}".format(processor_identifier))
 
-    def reset_all_timings(self) -> None:
+    def reset_all_timings(self):
         """
         Reset all the timings.
         """
         try:
-            self._stub.ResetAllTimings(self._sushi_proto.GenericVoidValue())
+            cr = self._stub.ResetAllTimings(self._sushi_proto.GenericVoidValue())
+            return self._parent.validate_command_response(cr, "Resetting all timings.")
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def reset_track_timings(self, track_identifier: int) -> None:
+    def reset_track_timings(self, track_identifier: int):
         """
         Reset the timings of the specified track.
 
@@ -155,14 +175,15 @@ class TimingController:
             track_identifier (int): The id of the track to reset the timings of.
         """
         try:
-            self._stub.ResetTrackTimings(self._sushi_proto.TrackIdentifier(
+            cr = self._stub.ResetTrackTimings(self._sushi_proto.TrackIdentifier(
                 id = track_identifier
             ))
+            return self._parent.validate_command_response(cr, f"Resetting timings for track {track_identifier}")
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With track id: {}".format(track_identifier))
 
-    def reset_processor_timings(self, processor_identifier: int) -> None:
+    def reset_processor_timings(self, processor_identifier: int):
         """
         Reset the timings of the specified processor.
 
@@ -170,9 +191,10 @@ class TimingController:
             processor_identifier (int): The id of the processor to reset the timings of.
         """
         try:
-            self._stub.ResetProcessorTimings(self._sushi_proto.ProcessorIdentifier(
+            cr = self._stub.ResetProcessorTimings(self._sushi_proto.ProcessorIdentifier(
                 id = processor_identifier
             ))
+            return self._parent.validate_command_response(cr, f"Resetting timnigs for processor {processor_identifier}")
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With processor id: {}".format(processor_identifier))

@@ -22,6 +22,7 @@ import unittest
 import grpc
 from src.elkpy import grpc_gen
 from src.elkpy import sushierrors
+from src.elkpy import sushicontroller as sc
 
 proto_file = os.environ.get("SUSHI_GRPC_ELKPY_PROTO")
 if proto_file is None:
@@ -50,8 +51,10 @@ mock_server.start()
 class TestAudioGraphController(unittest.TestCase):
     def setUp(self):
         print("in setUp")
+        self._sc = sc.SushiController(address=SUSHI_ADDRESS, sushi_proto_def=proto_file)
         self.command_responses = {}
-        self._agc = agc.AudioGraphController(parent=self, address=SUSHI_ADDRESS, sushi_proto_def=proto_file)
+        self._agc = self._sc.audio_graph
+        # self._agc = agc.AudioGraphController(parent=self, address=SUSHI_ADDRESS, sushi_proto_def=proto_file)
 
     def test_get_all_processors(self):
         self.assertEqual(
@@ -168,6 +171,21 @@ class TestAudioGraphController(unittest.TestCase):
             ),
             audiograph_service_mock.expected_result_processor_state,
         )
+
+    def test_set_processor_bypass_state(self):
+        self.assertEqual(
+            self._agc.set_processor_bypass_state(
+                audiograph_service_mock.expected_processor_1.id, True
+            ).is_set(),
+            True
+        )
+        self.assertEqual(
+            self._agc.set_processor_bypass_state(
+                audiograph_service_mock.expected_processor_2.id, True
+            ).is_set(),
+            False
+        )
+
 
     def test_set_processor_state(self):
         self._agc.set_processor_state(

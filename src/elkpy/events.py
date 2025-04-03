@@ -3,6 +3,24 @@ from .sushierrors import SushiUnkownError
 from .sushi_info_types import TrackInfo, ProcessorInfo
 
 
+class SushiCommandResponse(asyncio.Event):
+    command_id: int
+    error: bool = False
+
+    def __init__(self, id: int, result=None) -> None:
+        self.id = id
+        self.result = result
+        super().__init__()
+
+    def __bool__(self) -> bool:
+        return self.is_set()
+
+    async def wait(self):
+        if self.error:
+            raise SushiUnkownError
+        return await super().wait()
+
+
 class ElkpyEvent(asyncio.Event):
     error: bool = False
     action: int

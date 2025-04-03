@@ -27,6 +27,9 @@ expected_sync_mode = info.SyncMode.INTERNAL
 expected_time_signature = (4, 4)
 expected_tempo = 120.0
 
+success_command_response = proto.CommandResponse(status=proto.CommandStatus(status=1), id=42)
+
+
 class TransportControllerServiceMockup(sushi_rpc_pb2_grpc.TransportControllerServicer):
 
     def __init__(self):
@@ -65,22 +68,22 @@ class TransportControllerServiceMockup(sushi_rpc_pb2_grpc.TransportControllerSer
     def SetTempo(self, request, context):
         self.called = True
         self.recent_request = request
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=1), id=42)
 
     def SetPlayingMode(self, request, context):
         self.called = True
         self.recent_request = request
-        return proto.GenericVoidValue()
+        return success_command_response
 
     def SetSyncMode(self, request, context):
         self.called = True
         self.recent_request = request
-        return proto.GenericVoidValue()
+        return success_command_response
 
     def SetTimeSignature(self, request, context):
         self.called = True
         self.recent_request = request
-        return proto.GenericVoidValue()
+        return success_command_response
 
     def was_called(self):
         temp = self.called

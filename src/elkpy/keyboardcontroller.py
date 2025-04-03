@@ -36,8 +36,10 @@ class KeyboardController(object):
         _stub (KeyboardControllerStub): Connection stubs to the gRPC keyboard interface implemented in sushi.
     """
     def __init__(self,
+                 parent,
                  address = 'localhost:51051',
-                 sushi_proto_def = '/usr/share/sushi/sushi_rpc.proto'):
+                 sushi_proto_def = '/usr/share/sushi/sushi_rpc.proto',
+                 sushi_proto = None, sushi_grpc = None):
         """
         The constructor for the KeyboardController class setting up the gRPC connection with sushi.
 
@@ -50,8 +52,13 @@ class KeyboardController(object):
         except AttributeError as e:
             raise TypeError("Parameter address = {}. Should be a string containing the ip-address and port of sushi ('ip-address:port')".format(address)) from e
 
-        self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
+        if sushi_proto and sushi_grpc:
+            self._sushi_proto = sushi_proto
+            self._sushi_grpc = sushi_grpc
+        else:
+            self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
         self._stub = self._sushi_grpc.KeyboardControllerStub(channel)
+        self._parent = parent
 
     #######################
     # // Keyboard control #
@@ -68,12 +75,13 @@ class KeyboardController(object):
             velocity (float): The velocity of the note. Should be in range (0.0-1.0).
         """
         try:
-            self._stub.SendNoteOn(self._sushi_proto.NoteOnRequest(
+            cr = self._stub.SendNoteOn(self._sushi_proto.NoteOnRequest(
                 track = self._sushi_proto.TrackIdentifier(id = track_identifier),
                 channel = channel,
                 note = note,
                 velocity = velocity
             ))
+            return self._parent.validate_command_response(cr, "Sending NoteOn")
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, " With track id: {}, channel: {}, note: {}, velocity: {}".format(track_identifier, channel, note, velocity))
@@ -89,12 +97,13 @@ class KeyboardController(object):
             velocity (float): The velocity of the note. Should be in range (0.0-1.0).
         """
         try:
-            self._stub.SendNoteOff(self._sushi_proto.NoteOffRequest(
+            cr = self._stub.SendNoteOff(self._sushi_proto.NoteOffRequest(
                 track = self._sushi_proto.TrackIdentifier(id = track_identifier),
                 channel = channel,
                 note = note,
                 velocity = velocity
             ))
+            return self._parent.validate_command_response(cr, "Sending NoteOff")
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, " With track id: {}, channel: {}, note: {}, velocity: {}".format(track_identifier, channel, note, velocity))
@@ -110,12 +119,13 @@ class KeyboardController(object):
             value (float): The aftertouch value of the note. Should be in range (0.0-1.0).
         """
         try:
-            self._stub.SendNoteAftertouch(self._sushi_proto.NoteAftertouchRequest(
+            cr = self._stub.SendNoteAftertouch(self._sushi_proto.NoteAftertouchRequest(
                 track = self._sushi_proto.TrackIdentifier(id = track_identifier),
                 channel = channel,
                 note = note,
                 value = value
             ))
+            return self._parent.validate_command_response(cr, "Sending NoteAfterTouch")
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, " With track id: {}, channel: {}, note: {}, value: {}".format(track_identifier, channel, note, value))
@@ -130,11 +140,12 @@ class KeyboardController(object):
             value (float): The aftertouch value. Should be in range (0.0-1.0).
         """
         try:
-            self._stub.SendAftertouch(self._sushi_proto.NoteModulationRequest(
+            cr = self._stub.SendAftertouch(self._sushi_proto.NoteModulationRequest(
                 track = self._sushi_proto.TrackIdentifier(id = track_identifier),
                 channel = channel,
                 value = value
             ))
+            return self._parent.validate_command_response(cr, "Sending AfterTouch")
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, " With track id: {}, channel: {}, value: {}".format(track_identifier, channel, value))
@@ -149,11 +160,12 @@ class KeyboardController(object):
             value (float): The pitch bend value. Should be in range (0.0-1.0).
         """
         try:
-            self._stub.SendPitchBend(self._sushi_proto.NoteModulationRequest(
+            cr = self._stub.SendPitchBend(self._sushi_proto.NoteModulationRequest(
                 track = self._sushi_proto.TrackIdentifier(id = track_identifier),
                 channel = channel,
                 value = value
             ))
+            return self._parent.validate_command_response(cr, "Sending Pitchbend")
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, " With track id: {}, channel: {}, value: {}".format(track_identifier, channel, value))
@@ -168,11 +180,12 @@ class KeyboardController(object):
             value (float): The modulation value. Should be in range (0.0-1.0).
         """
         try:
-            self._stub.SendModulation(self._sushi_proto.NoteModulationRequest(
+            cr = self._stub.SendModulation(self._sushi_proto.NoteModulationRequest(
                 track = self._sushi_proto.TrackIdentifier(id = track_identifier),
                 channel = channel,
                 value = value
             ))
+            return self._parent.validate_command_response(cr, "Sending Modulation")
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, " With track id: {}, channel: {}, value: {}".format(track_identifier, channel, value))

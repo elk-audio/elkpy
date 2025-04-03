@@ -38,7 +38,8 @@ class ParameterController:
     """
     def __init__(self,
                  address = 'localhost:51051',
-                 sushi_proto_def = '/usr/share/sushi/sushi_rpc.proto'):
+                 sushi_proto_def = '/usr/share/sushi/sushi_rpc.proto',
+                 sushi_proto = None, sushi_grpc = None):
         """
         The constructor for the ParameterController class setting up the gRPC connection with sushi.
 
@@ -51,7 +52,12 @@ class ParameterController:
         except AttributeError as e:
             raise TypeError("Parameter address = {}. Should be a string containing the ip-address and port of sushi ('ip-address:port')".format(address)) from e
 
-        self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
+        if sushi_proto and sushi_grpc:
+            self._sushi_proto = sushi_proto
+            self._sushi_grpc = sushi_grpc
+        else:
+            self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
+
         self._stub = self._sushi_grpc.ParameterControllerStub(channel)
 
 

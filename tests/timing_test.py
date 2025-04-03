@@ -25,6 +25,7 @@ import grpc
 from concurrent import futures
 from tests.mockups import timing_service_mock
 from src.elkpy import timingcontroller as tc
+from src.elkpy import sushicontroller as sc
 from src.elkpy import sushi_info_types as info_types
 
 from src.elkpy import grpc_gen
@@ -49,7 +50,8 @@ mock_server.start()
 
 class TestTimingController(unittest.TestCase):
     def setUp(self):
-        self._tc = tc.TimingController(SUSHI_ADDRESS, proto_file)
+        self._sc = sc.SushiController(address=SUSHI_ADDRESS, sushi_proto_def=proto_file)
+        self._tc = self._sc.timings
 
     def test_get_timings_enabled(self):
         self.assertEqual(self._tc.get_timings_enabled(), timing_service_mock.expected_timings_set)
@@ -61,12 +63,13 @@ class TestTimingController(unittest.TestCase):
         self.assertEqual(service.get_recent_request(), expected_request)
 
     def test_get_engine_timings(self):
+        r = self._tc.get_engine_timings()
         self.assertEqual(self._tc.get_engine_timings(),
-                         timing_service_mock.expected_cpu_timings)
+                         ( timing_service_mock.expected_cpu_timings.main, timing_service_mock.expected_cpu_timings.threads ))
 
     def test_get_track_timings(self):
         self.assertEqual(self._tc.get_track_timings(timing_service_mock.expected_id),
-                         timing_service_mock.expected_cpu_timings)
+                         ( timing_service_mock.expected_processor_timings.average, timing_service_mock.expected_processor_timings.max, timing_service_mock.expected_processor_timings.min ))
 
         expected_request = SUSHI_PROTO.TrackIdentifier(id = timing_service_mock.expected_id)
         self.assertTrue(service.was_called())
@@ -74,7 +77,7 @@ class TestTimingController(unittest.TestCase):
 
     def test_get_processor_timings(self):
         self.assertEqual(self._tc.get_processor_timings(timing_service_mock.expected_id),
-                         timing_service_mock.expected_cpu_timings)
+                         ( timing_service_mock.expected_processor_timings.average, timing_service_mock.expected_processor_timings.max, timing_service_mock.expected_processor_timings.min ))
 
         expected_request = SUSHI_PROTO.ProcessorIdentifier(id = timing_service_mock.expected_id)
         self.assertTrue(service.was_called())
