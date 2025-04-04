@@ -24,9 +24,7 @@ import grpc
 
 from concurrent import futures
 from tests.mockups import timing_service_mock
-from src.elkpy import timingcontroller as tc
 from src.elkpy import sushicontroller as sc
-from src.elkpy import sushi_info_types as info_types
 
 from src.elkpy import grpc_gen
 

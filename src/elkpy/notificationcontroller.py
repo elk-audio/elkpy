@@ -491,7 +491,8 @@ class NotificationController:
                 )
                 async for notification in stream:
                     # match with events and set them.
-                    if ev := self._parent.command_responses.get(notification.id):
+                    if ev := self._parent.command_responses.get(notification.request_id):
+                        print(ev)
                         self.update_event(ev)
         except Exception:
             pass
@@ -517,4 +518,4 @@ class NotificationController:
             case SushiCommandResponse():
                 event.set()
             case _:
-                pass
+                event.set()

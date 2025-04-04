@@ -12,9 +12,6 @@ class SushiCommandResponse(asyncio.Event):
         self.result = result
         super().__init__()
 
-    def __bool__(self) -> bool:
-        return self.is_set()
-
     async def wait(self):
         if self.error:
             raise SushiUnkownError

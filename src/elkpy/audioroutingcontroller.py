@@ -17,6 +17,10 @@ __copyright__ = """
 __license__ = "GPL-3.0"
 
 import grpc
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from elkpy.sushicontroller import SushiController
 
 from . import sushierrors
 from . import sushi_info_types as info_types
@@ -37,7 +41,7 @@ class AudioRoutingController(object):
         _stub (AudioRoutingControllerStub): connection stub to the gRPC audio routing interface in sushi
     """
     def __init__(self,
-                 parent,
+                 parent: 'SushiController',
                  address: str='localhost:51051',
                  sushi_proto_def: str='/usr/share/sushi/sushi_rpc.proto',
                  sushi_proto = None, sushi_grpc = None) -> None:

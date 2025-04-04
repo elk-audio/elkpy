@@ -19,16 +19,13 @@ __license__ = "GPL-3.0"
 import os
 import sys
 import unittest
-import time
 import grpc
 
 from concurrent import futures
 from tests.mockups import audiorouting_service_mock
-from src.elkpy import audioroutingcontroller as arc
-from src.elkpy import sushi_info_types as info_types
 
 from src.elkpy import grpc_gen
-from src.elkpy import sushierrors
+from src.elkpy import sushicontroller as sc
 
 proto_file = os.environ.get("SUSHI_GRPC_ELKPY_PROTO")
 if proto_file is None:
@@ -50,7 +47,8 @@ mock_server.start()
 
 class TestAudioRoutingController(unittest.TestCase):
     def setUp(self):
-        self._arc = arc.AudioRoutingController(SUSHI_ADDRESS, proto_file)
+        self._sc = sc.SushiController(address=SUSHI_ADDRESS, sushi_proto_def=proto_file)
+        self._arc = self._sc.audio_routing
 
     def test_get_all_input_connections(self):
         self.assertEqual(

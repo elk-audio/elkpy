@@ -184,8 +184,7 @@ class TransportController(object):
         """
         try:
             cr = self._stub.SetTempo(self._sushi_proto.GenericFloatValue(value=tempo))
-            # return self._parent.validate_command_response(cr, context_info=f"Setting tempo to {tempo}")
-            return cr
+            return self._parent.validate_command_response(cr, context_info=f"Setting tempo to {tempo}")
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, " With tempo: {}".format(tempo))
