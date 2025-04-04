@@ -16,6 +16,11 @@ __copyright__ = """
 """
 __license__ = "GPL-3.0"
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from elkpy.sushicontroller import SushiController
+
+from .events import SushiCommandResponse
 import grpc
 
 from . import sushierrors
@@ -37,6 +42,7 @@ class ParameterController:
         _stub (ParameterControllerStub): Connection stubs to the gRPC parameter interface implemented in sushi.
     """
     def __init__(self,
+                 parent: 'SushiController',
                  address = 'localhost:51051',
                  sushi_proto_def = '/usr/share/sushi/sushi_rpc.proto',
                  sushi_proto = None, sushi_grpc = None):
@@ -59,7 +65,7 @@ class ParameterController:
             self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
 
         self._stub = self._sushi_grpc.ParameterControllerStub(channel)
-
+        self._parent = parent
 
     def get_track_parameters(self, track_identifier: int) -> List[info_types.ParameterInfo]:
         """
@@ -72,10 +78,11 @@ class ParameterController:
             List[info_types.ParameterInfo]: A list of the info of the parameters assigned to the track matching the id.
         """
         try:
-            response = self._stub.GetTrackParameters(self._sushi_proto.TrackIdentifier(
+            cr = self._stub.GetTrackParameters(self._sushi_proto.TrackIdentifier(
                 id = track_identifier
             ))
 
+            response = self._parent.validate_command_response(cr, f"Get parameters for track {track_identifier}")
             parameter_info_list = []
             for parameter_info in response.parameters:
                 parameter_info_list.append(info_types.ParameterInfo(parameter_info))
@@ -96,9 +103,10 @@ class ParameterController:
             List[info_types.ParameterInfo]: A list of the parameters available to the processor matching the id.
         """
         try:
-            response = self._stub.GetProcessorParameters(self._sushi_proto.ProcessorIdentifier(
+            cr = self._stub.GetProcessorParameters(self._sushi_proto.ProcessorIdentifier(
                 id = processor_identifier
             ))
+            response = self._parent.validate_command_response(cr, f"Get parameters for processor {processor_identifier}")
 
             parameter_info_list = []
             for parameter_info in response.parameters:
@@ -121,11 +129,12 @@ class ParameterController:
             int: The id of the parameter matching the parameter name.
         """
         try:
-            response = self._stub.GetParameterId(self._sushi_proto.ParameterIdRequest(
+            cr = self._stub.GetParameterId(self._sushi_proto.ParameterIdRequest(
                 processor = self._sushi_proto.ProcessorIdentifier(id = processor_identifier),
                 ParameterName = parameter_name
             ))
-            return response.parameter_id
+            response = self._parent.validate_command_response(cr, f"Get parameters for processor {processor_identifier}")
+            return response.id.parameter_id
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With processor id: {}, parameter name: {}".format(processor_identifier, parameter_name))
@@ -142,11 +151,12 @@ class ParameterController:
             info_types.ParameterInfo: Info of the parameter matching the id.
         """
         try:
-            response = self._stub.GetParameterInfo(self._sushi_proto.ParameterIdentifier(
+            cr = self._stub.GetParameterInfo(self._sushi_proto.ParameterIdentifier(
                 processor_id = processor_identifier,
                 parameter_id = parameter_identifier
             ))
-            return info_types.ParameterInfo(response)
+            response = self._parent.validate_command_response(cr, f"Get info for parameter {parameter_identifier}")
+            return info_types.ParameterInfo(response.info)
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With processor id: {}, parameter id: {}".format(processor_identifier, parameter_identifier))
@@ -163,10 +173,11 @@ class ParameterController:
             float: The value of the parameter matching the id.
         """
         try:
-            response = self._stub.GetParameterValue(self._sushi_proto.ParameterIdentifier(
+            cr = self._stub.GetParameterValue(self._sushi_proto.ParameterIdentifier(
                 processor_id = processor_identifier,
                 parameter_id = parameter_identifier
             ))
+            response = self._parent.validate_command_response(cr, f"Get value of parameter {parameter_identifier}")
             return response.value
 
         except grpc.RpcError as e:
@@ -184,10 +195,11 @@ class ParameterController:
             float: The normalised value of the parameter matching the id.
         """
         try:
-            response = self._stub.GetParameterValueInDomain(self._sushi_proto.ParameterIdentifier(
+            cr = self._stub.GetParameterValueInDomain(self._sushi_proto.ParameterIdentifier(
                 processor_id = processor_identifier,
                 parameter_id = parameter_identifier
             ))
+            response = self._parent.validate_command_response(cr, f"Get value of parameter {parameter_identifier} in domain")
             return response.value
 
         except grpc.RpcError as e:
@@ -205,16 +217,17 @@ class ParameterController:
             str: The value as a string of the parameter matching the id.
         """
         try:
-            response = self._stub.GetParameterValueAsString(self._sushi_proto.ParameterIdentifier(
+            cr = self._stub.GetParameterValueAsString(self._sushi_proto.ParameterIdentifier(
                 processor_id = processor_identifier,
                 parameter_id = parameter_identifier
             ))
+            response = self._parent.validate_command_response(cr, f"Get value of parameter {parameter_identifier} as string")
             return response.value
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With processor id: {}, parameter id: {}".format(processor_identifier, parameter_identifier))
 
-    def set_parameter_value(self, processor_identifier: int, parameter_identifier: int, value: float) -> None:
+    def set_parameter_value(self, processor_identifier: int, parameter_identifier: int, value: float) -> SushiCommandResponse:
         """
         Set the value of the specified parameter on the specified processor.
 
@@ -223,13 +236,14 @@ class ParameterController:
             parameter_identifier (int): The id of the property to set the value of.
         """
         try:
-            self._stub.SetParameterValue(self._sushi_proto.ParameterValue(
+            cr = self._stub.SetParameterValue(self._sushi_proto.ParameterValue(
                 parameter = self._sushi_proto.ParameterIdentifier(
                     processor_id = processor_identifier,
                     parameter_id = parameter_identifier
                     ),
                 value = value
             ))
+            return self._parent.validate_command_response(cr, f"Get value of parameter {parameter_identifier} as string")
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With processor id: {}, property id: {}, value: {}".format(processor_identifier, parameter_identifier, value))
@@ -245,9 +259,10 @@ class ParameterController:
             List[info_types.PropertyInfo]: A list of the info of the properties assigned to the track matching the id.
         """
         try:
-            response = self._stub.GetTrackProperties(self._sushi_proto.TrackIdentifier(
+            cr = self._stub.GetTrackProperties(self._sushi_proto.TrackIdentifier(
                 id = track_identifier
             ))
+            response = self._parent.validate_command_response(cr, f"Get properties for track {track_identifier}")
 
             property_info_list = []
             for property_info in response.properties:
@@ -269,9 +284,10 @@ class ParameterController:
             List[info_types.PropertyInfo]: A list of the properties available to the processor matching the id.
         """
         try:
-            response = self._stub.GetProcessorProperties(self._sushi_proto.ProcessorIdentifier(
+            cr = self._stub.GetProcessorProperties(self._sushi_proto.ProcessorIdentifier(
                 id = processor_identifier
             ))
+            response = self._parent.validate_command_response(cr, f"Get properties for processor {processor_identifier}")
 
             property_info_list = []
             for property_info in response.properties:
@@ -294,11 +310,12 @@ class ParameterController:
             int: The id of the property matching the property name.
         """
         try:
-            response = self._stub.GetPropertyId(self._sushi_proto.PropertyIdRequest(
+            cr = self._stub.GetPropertyId(self._sushi_proto.PropertyIdRequest(
                 processor = self._sushi_proto.ProcessorIdentifier(id = processor_identifier),
                 property_name = property_name
             ))
-            return response.property_id
+            response = self._parent.validate_command_response(cr, f"Get id for property {property_name}")
+            return response.id.property_id
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With processor id: {}, string property name: {}".format(processor_identifier, property_name))
@@ -315,11 +332,12 @@ class ParameterController:
             info_types.PropertyInfo: Info of the property matching the id.
         """
         try:
-            response = self._stub.GetPropertyInfo(self._sushi_proto.PropertyIdentifier(
+            cr = self._stub.GetPropertyInfo(self._sushi_proto.PropertyIdentifier(
                 processor_id = processor_identifier,
                 property_id = property_identifier
             ))
-            return info_types.PropertyInfo(response)
+            response = self._parent.validate_command_response(cr, f"Get info for property {processor_identifier}")
+            return info_types.PropertyInfo(response.info)
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With processor id: {}, property id: {}".format(processor_identifier, property_identifier))
@@ -336,16 +354,17 @@ class ParameterController:
             str: The value of the property matching the id.
         """
         try:
-            response = self._stub.GetPropertyValue(self._sushi_proto.PropertyIdentifier(
+            cr = self._stub.GetPropertyValue(self._sushi_proto.PropertyIdentifier(
                 processor_id = processor_identifier,
                 property_id = property_identifier
             ))
+            response = self._parent.validate_command_response(cr, f"Get value of property {property_identifier}")
             return response.value
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With processor id: {}, property id: {}".format(processor_identifier, property_identifier))
 
-    def set_property_value(self, processor_identifier: int, property_identifier: int, value: float) -> None:
+    def set_property_value(self, processor_identifier: int, property_identifier: int, value: float) -> SushiCommandResponse:
         """
         Set the value of the specified property on the specified processor.
 
@@ -355,13 +374,14 @@ class ParameterController:
             value (string) : The new value to assign to the property
         """
         try:
-            self._stub.SetPropertyValue(self._sushi_proto.PropertyValue(
+            cr = self._stub.SetPropertyValue(self._sushi_proto.PropertyValue(
                 property = self._sushi_proto.PropertyIdentifier(
                     processor_id = processor_identifier,
                     property_id = property_identifier
                     ),
                 value = value
             ))
+            return self._parent.validate_command_response(cr, f"Set value of property {property_identifier}")
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With processor id: {}, property id: {}, value: {}".format(processor_identifier, property_identifier, value))

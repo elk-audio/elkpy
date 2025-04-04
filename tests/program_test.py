@@ -24,8 +24,7 @@ import grpc
 
 from concurrent import futures
 from tests.mockups import program_service_mock
-from src.elkpy import programcontroller as pc
-from src.elkpy import sushi_info_types as info_types
+from src.elkpy import sushicontroller as sc
 
 from src.elkpy import grpc_gen
 from src.elkpy import sushierrors
@@ -47,7 +46,8 @@ mock_server.start()
 
 class TestProgramController(unittest.TestCase):
     def setUp(self):
-        self._pc = pc.ProgramController(SUSHI_ADDRESS, proto_file)
+        self._sc = sc.SushiController(address=SUSHI_ADDRESS, sushi_proto_def=proto_file)
+        self._pc = self._sc.programs
 
     def test_get_processor_current_program(self):
         self.assertEqual(self._pc.get_processor_current_program(program_service_mock.expected_processor_identifier.id),

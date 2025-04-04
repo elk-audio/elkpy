@@ -57,22 +57,22 @@ class ProgramControllerServiceMockup(sushi_rpc_pb2_grpc.ProgramControllerService
 
     def GetProcessorCurrentProgram(self, request, context):
         if request.id == expected_processor_identifier.id:
-            return proto.GenericIntValue(value = expected_program_1.id)
+            return proto.ProgramIdentifierResponse(status=proto.CommandStatus(status=1), program=expected_program_1.id)
         else:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, "No processor with id {}".format(request.id))
 
     def GetProcessorCurrentProgramName(self, request, context):
         if request.id == expected_processor_identifier.id:
-            return proto.GenericStringValue(value = expected_program_1.name)
+            return proto.StringResponse(status=proto.CommandStatus(status=1), value=expected_program_1.name)
         else:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, "No processor with id {}".format(request.id))
 
     def GetProcessorProgramName(self, request, context):
         if request.processor.id == expected_processor_identifier.id:
             if request.program == expected_program_1.id:
-                return proto.GenericStringValue(value = expected_program_1.name)
+                return proto.StringResponse(status=proto.CommandStatus(status=1), value=expected_program_1.name)
             elif request.program == expected_program_2.id:
-                return proto.GenericStringValue(value = expected_program_2.name)
+                return proto.StringResponse(status=proto.CommandStatus(status=1), value=expected_program_2.name)
             else:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, "No program with id {}".format(request.program))
         else:
@@ -80,7 +80,7 @@ class ProgramControllerServiceMockup(sushi_rpc_pb2_grpc.ProgramControllerService
 
     def GetProcessorPrograms(self, request, context):
         if request.id == expected_processor_identifier.id:
-            return proto.ProgramInfoList(programs = [grpc_program_1, grpc_program_2])
+            return proto.ProgramInfoListResponse(status=proto.CommandStatus(status=1), programs = [grpc_program_1, grpc_program_2])
         else:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, "No processor with id {}".format(request.id))
 

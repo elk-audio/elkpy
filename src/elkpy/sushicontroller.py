@@ -147,9 +147,9 @@ class SushiController:
         )
         self.keyboard = keyboardcontroller.KeyboardController(self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc)
         self.parameters = parametercontroller.ParameterController(
-            address, sushi_proto_def, self._sushi_proto, self._sushi_grpc
+            self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc
         )
-        self.programs = programcontroller.ProgramController(address, sushi_proto_def)
+        self.programs = programcontroller.ProgramController(self, address, sushi_proto_def)
         self.timings = timingcontroller.TimingController(self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc)
         self.transport = transportcontroller.TransportController(
             self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc
