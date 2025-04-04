@@ -173,18 +173,11 @@ class SushiController:
 
     def validate_command_response(self, cr, context_info: str = ""):
         match CommandResponseStatus(cr.status.status):
-            case CommandResponseStatus.SUCCESS:
-                print('Got success', context_info)
-                event = SushiCommandResponse(id=0)
-                event.set()
-                event.result = cr
-                return event
             case CommandResponseStatus.ERROR:
                 raise SushiUnkownError()
             case CommandResponseStatus.NOT_FOUND:
                 raise SushiNotFoundError(context_info)
             case CommandResponseStatus.ASYNC_RESPONSE:
-                print('got ASYNC_RESPONSE')
                 event = SushiCommandResponse(id=cr.id)
                 self.command_responses[cr.id] = event
                 return event

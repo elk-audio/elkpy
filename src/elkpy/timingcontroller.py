@@ -129,7 +129,7 @@ class TimingController:
                 id = track_identifier
             ))
             response = self._parent.validate_command_response(cr, f"Getting timings for track {track_identifier}")
-            return response.result.timings.average, response.result.timings.max, response.result.timings.min
+            return response.timings.average, response.timings.max, response.timings.min
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With track id: {}".format(track_identifier))
@@ -151,7 +151,7 @@ class TimingController:
                 id = processor_identifier
             ))
             response = self._parent.validate_command_response(cr, f"Getting timings for processor {processor_identifier}")
-            return response.result.timings.average, response.result.timings.max, response.result.timings.min
+            return response.timings.average, response.timings.max, response.timings.min
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With processor id: {}".format(processor_identifier))

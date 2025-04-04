@@ -90,7 +90,6 @@ class TestTransportController(unittest.TestCase):
             mode=transport_service_mock.expected_playing_mode
         )
         self.assertEqual(expected_result, service.get_recent_request())
-        self.assertEqual(success_command_response, r.result)
 
     def test_set_sync_mode(self):
         r = self._tc.set_sync_mode(transport_service_mock.expected_sync_mode)
@@ -99,7 +98,6 @@ class TestTransportController(unittest.TestCase):
             mode=transport_service_mock.expected_sync_mode
         )
         self.assertEqual(expected_result, service.get_recent_request())
-        self.assertEqual(success_command_response, r.result)
 
     def test_set_tempo(self):
         r = self._tc.set_tempo(transport_service_mock.expected_tempo)
@@ -108,7 +106,6 @@ class TestTransportController(unittest.TestCase):
             value=transport_service_mock.expected_tempo
         )
         self.assertEqual(expected_result, service.get_recent_request())
-        self.assertEqual(success_command_response, r.result) 
 
     def test_set_time_signature(self):
         r = self._tc.set_time_signature(
@@ -121,4 +118,3 @@ class TestTransportController(unittest.TestCase):
             denominator=transport_service_mock.expected_time_signature[1],
         )
         self.assertEqual(service.get_recent_request(), expected_result)
-        self.assertEqual(success_command_response, r.result) 

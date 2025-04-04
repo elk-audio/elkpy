@@ -26,13 +26,8 @@ import grpc
 from . import sushierrors
 from . import grpc_gen
 from . import sushi_info_types as info_types
-from .events import (
-    ProcessorCreationEvent,
-    ProcessorDeletionEvent,
-    SushiCommandResponse,
-    TrackCreationEvent,
-    TrackDeletionEvent,
-)
+from .events import SushiCommandResponse
+
 from typing import List
 
 ####################################
@@ -142,15 +137,12 @@ class AudioGraphController:
                 self._sushi_proto.GenericStringValue(value=track_name)
             )
             response = self._parent.validate_command_response(cr, context_info=f"Getting id for track {track_name}")
-            if response.is_set():
-                return response.result.id
-            else:
-                return response
+            return response.id
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With track name: {}".format(track_name))
 
-    def get_track_info(self, track_identifier: int) -> SushiCommandResponse:
+    def get_track_info(self, track_identifier: int) -> SushiCommandResponse | info_types.TrackInfo:
         """
         Get the info of a track from its id.
 
@@ -165,10 +157,7 @@ class AudioGraphController:
                 self._sushi_proto.TrackIdentifier(id=track_identifier)
             )
             response = self._parent.validate_command_response(cr, context_info=f"Getting track info for track {track_identifier}")
-            if response.is_set():
-                return info_types.TrackInfo(response.result.info)
-            else:
-                return response
+            return info_types.TrackInfo(response.info)
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(
@@ -192,14 +181,11 @@ class AudioGraphController:
                 self._sushi_proto.TrackIdentifier(id=track_identifier)
             )
             response = self._parent.validate_command_response(cr, f"Getting track processors for track {track_identifier}")
-            if response.is_set():
-                processor_info_list = []
-                for processor_info in response.result.processors:
-                    processor_info_list.append(info_types.ProcessorInfo(processor_info))
+            processor_info_list = []
+            for processor_info in response.processors:
+                processor_info_list.append(info_types.ProcessorInfo(processor_info))
 
-                return processor_info_list
-            else:
-                return response
+            return processor_info_list
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(
@@ -220,10 +206,8 @@ class AudioGraphController:
             cr = self._stub.GetProcessorId(
                 self._sushi_proto.GenericStringValue(value=processor_name)
             )
-            if response := self._parent.validate_command_response(cr, f"Getting id for processor {processor_name}"):
-                return response.result.id
-            else:
-                return response
+            response = self._parent.validate_command_response(cr, f"Getting id for processor {processor_name}")
+            return response.id
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(
@@ -245,10 +229,7 @@ class AudioGraphController:
                 self._sushi_proto.ProcessorIdentifier(id=processor_identifier)
             )
             response = self._parent.validate_command_response(cr, f"Getting processor info for processor {processor_identifier}")
-            if response.is_set():
-                return info_types.ProcessorInfo(response.result.processor)
-            else:
-                return response
+            return info_types.ProcessorInfo(response.processor)
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(
@@ -270,10 +251,7 @@ class AudioGraphController:
                 self._sushi_proto.ProcessorIdentifier(id=processor_identifier)
             )
             response = self._parent.validate_command_response(cr, f"Getting bypass state for processor {processor_identifier}")
-            if response.is_set():
-                return response.result.value
-            else:
-                return response
+            return response.value
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(
@@ -297,10 +275,7 @@ class AudioGraphController:
                 self._sushi_proto.ProcessorIdentifier(id=processor_identifier)
             )
             response = self._parent.validate_command_response(cr, f"Getting the state of processor {processor_identifier}")
-            if response.is_set():
-                return response.result.state
-            else:
-                return response
+            return response.state
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(
@@ -562,7 +537,7 @@ class AudioGraphController:
         destination_track: int,
         before_processor: int,
         add_to_back: bool,
-    ) -> None:
+    ) -> SushiCommandResponse:
         """
         Move an existing processor.
 
@@ -574,7 +549,7 @@ class AudioGraphController:
             add_to_back (bool): Set to true to add the processor to the back of the processing chain on the track.
         """
         try:
-            self._stub.MoveProcessorOnTrack(
+            cr = self._stub.MoveProcessorOnTrack(
                 self._sushi_proto.MoveProcessorRequest(
                     processor=self._sushi_proto.ProcessorIdentifier(id=processor),
                     source_track=self._sushi_proto.TrackIdentifier(id=source_track),
@@ -587,6 +562,7 @@ class AudioGraphController:
                     ),
                 )
             )
+            return self._parent.validate_command_response(cr, f"Moving processor {processor} from track {source_track} to track {destination_track}")
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(
