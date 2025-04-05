@@ -19,16 +19,13 @@ __license__ = "GPL-3.0"
 import os
 import sys
 import unittest
-import time
 import grpc
 
 from concurrent import futures
 from tests.mockups import session_service_mock
-from src.elkpy import sessioncontroller as sc
-from src.elkpy import sushi_info_types as info_types
+from src.elkpy import sushicontroller as sc
 
 from src.elkpy import grpc_gen
-from src.elkpy import sushierrors
 
 proto_file = os.environ.get("SUSHI_GRPC_ELKPY_PROTO")
 if proto_file is None:
@@ -50,7 +47,8 @@ mock_server.start()
 
 class TestSessionController(unittest.TestCase):
     def setUp(self):
-        self._sc = sc.SessionController(SUSHI_ADDRESS, proto_file)
+        self._sushic = sc.SushiController(address=SUSHI_ADDRESS, sushi_proto_def=proto_file)
+        self._sc = self._sushic.session 
 
     def test_save_session(self):
         self.assertEqual(
@@ -61,6 +59,6 @@ class TestSessionController(unittest.TestCase):
         self.assertEqual(
             self._sc.restore_binary_session(
                 session_service_mock.expected_binary_session
-            ),
-            None,
+            ).is_set(),
+            False,
         )

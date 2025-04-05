@@ -19,16 +19,13 @@ __license__ = "GPL-3.0"
 import os
 import sys
 import unittest
-import time
 import grpc
 
 from concurrent import futures
 from tests.mockups import osc_service_mock
-from src.elkpy import osccontroller as oc
-from src.elkpy import sushi_info_types as info_types
+from src.elkpy import sushicontroller as sc
 
 from src.elkpy import grpc_gen
-from src.elkpy import sushierrors
 
 proto_file = os.environ.get("SUSHI_GRPC_ELKPY_PROTO")
 if proto_file is None:
@@ -50,7 +47,8 @@ mock_server.start()
 
 class TestOscController(unittest.TestCase):
     def setUp(self):
-        self._oc = oc.OscController(SUSHI_ADDRESS, proto_file)
+        self._sc = sc.SushiController(address=SUSHI_ADDRESS, sushi_proto_def=proto_file)
+        self._oc = self._sc.osc_controller
 
     def test_get_send_port(self):
         self.assertEqual(

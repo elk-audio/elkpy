@@ -16,11 +16,13 @@ __copyright__ = """
 """
 __license__ = "GPL-3.0"
 
+from typing import List, TYPE_CHECKING
+if TYPE_CHECKING:
+    from elkpy.sushicontroller import SushiController
+from .events import SushiCommandResponse
 import grpc
-
 from . import sushierrors
 from . import grpc_gen
-from typing import List
 
 ##################################
 #   Sushi OSC Controller class   #
@@ -33,8 +35,10 @@ class OscController:
     OSC output for particular parameters
     """
     def __init__(self,
+                 parent: 'SushiController',
                  address: str = 'localhost:51051',
-                 sushi_proto_def: str = '/usr/share/sushi/sushi_rpc.proto') -> None:
+                 sushi_proto_def='/usr/share/sushi/sushi_rpc.proto',
+                 sushi_proto = None, sushi_grpc = None) -> None:
         """
         The constructor for the MidiController class setting up the gRPC connection with sushi.
 
@@ -48,8 +52,13 @@ class OscController:
             raise TypeError(f"Parameter address = {address}. Should be a string containing the ip-address and port "
                             f"to Sushi") from e
 
-        self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
+        if sushi_proto and sushi_grpc:
+            self._sushi_proto = sushi_proto
+            self._sushi_grpc = sushi_grpc
+        else:
+            self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
         self._stub = self._sushi_grpc.OscControllerStub(channel)
+        self._parent = parent
 
     def get_send_port(self) -> int:
         """
@@ -90,7 +99,7 @@ class OscController:
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def enable_output_for_parameter(self, processor_id: int, parameter_id: int) -> None:
+    def enable_output_for_parameter(self, processor_id: int, parameter_id: int) -> SushiCommandResponse:
         """
         Enable OSC for a parameter
 
@@ -99,11 +108,12 @@ class OscController:
             parameter_id (int): The id of the parameter to enable OSC for
         """
         try:
-            self._stub.EnableOutputForParameter(self._sushi_proto.ParameterIdentifier(processor_id=processor_id, parameter_id=parameter_id))
+            cr = self._stub.EnableOutputForParameter(self._sushi_proto.ParameterIdentifier(processor_id=processor_id, parameter_id=parameter_id))
+            return self._parent.validate_command_response(cr, f"Enable output for parameter {parameter_id}")
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def disable_output_for_parameter(self, processor_id: int, parameter_id: int) -> None:
+    def disable_output_for_parameter(self, processor_id: int, parameter_id: int) -> SushiCommandResponse:
         """
         Disable OSC for a parameter
 
@@ -112,24 +122,27 @@ class OscController:
             parameter_id (int): The id of the parameter to disble OSC for
         """
         try:
-            self._stub.DisableOutputForParameter(self._sushi_proto.ParameterIdentifier(processor_id=processor_id, parameter_id=parameter_id))
+            cr = self._stub.DisableOutputForParameter(self._sushi_proto.ParameterIdentifier(processor_id=processor_id, parameter_id=parameter_id))
+            return self._parent.validate_command_response(cr, f"Disable output for parameter {parameter_id}")
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def enable_all_output(self) -> None:
+    def enable_all_output(self) -> SushiCommandResponse:
         """
         Enable OSC output for all parameters
         """
         try:
-            self._stub.EnableAllOutput(self._sushi_proto.GenericVoidValue())
+            cr = self._stub.EnableAllOutput(self._sushi_proto.GenericVoidValue())
+            return self._parent.validate_command_response(cr, "Enable all outputs")
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def disable_all_output(self) -> None:
+    def disable_all_output(self) -> SushiCommandResponse:
         """
         Disable OSC output for all parameters
         """
         try:
-            self._stub.DisableAllOutput(self._sushi_proto.GenericVoidValue())
+            cr = self._stub.DisableAllOutput(self._sushi_proto.GenericVoidValue())
+            return self._parent.validate_command_response(cr, "Disable all outputs")
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)

@@ -16,7 +16,7 @@ __copyright__ = """
 """
 __license__ = "GPL-3.0"
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 if TYPE_CHECKING:
     from elkpy.sushicontroller import SushiController
 
@@ -26,7 +26,6 @@ import grpc
 from . import sushierrors
 from . import sushi_info_types as info_types
 from . import grpc_gen
-from typing import List
 
 ############################################
 #   Sushi MIDI Controller class   #

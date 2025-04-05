@@ -162,9 +162,9 @@ class SushiController:
         self.cv_gate_controller = cvgatecontroller.CvGateController(
             self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc
         )
-        self.osc_controller = osccontroller.OscController(address, sushi_proto_def)
+        self.osc_controller = osccontroller.OscController(self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc)
         self.system = systemcontroller.SystemController(address, sushi_proto_def)
-        self.session = sessioncontroller.SessionController(address, sushi_proto_def)
+        self.session = sessioncontroller.SessionController(self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc)
         self.notifications = notificationcontroller.NotificationController(
             self, address, sushi_proto_def
         )

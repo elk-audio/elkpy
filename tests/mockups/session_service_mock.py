@@ -33,4 +33,4 @@ class SessionControllerServiceMockup(sushi_rpc_pb2_grpc.SessionControllerService
         return proto.SessionState()
 
     def RestoreSession(self, request, context):
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=45)
