@@ -16,7 +16,6 @@ __copyright__ = """
 """
 __license__ = "GPL-3.0"
 
-import grpc
 import sushi_rpc_pb2 as proto
 import sushi_rpc_pb2_grpc
 from src.elkpy import sushi_info_types as info

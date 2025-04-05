@@ -157,9 +157,10 @@ class SushiController:
         self.audio_routing = audioroutingcontroller.AudioRoutingController(
             self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc
         )
-        self.midi_controller = midicontroller.MidiController(address, sushi_proto_def)
+        self.midi_controller = midicontroller.MidiController(
+            self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc)
         self.cv_gate_controller = cvgatecontroller.CvGateController(
-            address, sushi_proto_def
+            self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc
         )
         self.osc_controller = osccontroller.OscController(address, sushi_proto_def)
         self.system = systemcontroller.SystemController(address, sushi_proto_def)

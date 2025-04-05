@@ -37,7 +37,7 @@ grpc_input_cv_connection = proto.CvConnection(cv_port_id=expected_input_cv_conne
                                                   processor_id=expected_input_cv_connection.processor_id
                                               ))
 
-grpc_input_cv_connections = proto.CvConnectionList(connections=[grpc_input_cv_connection, grpc_input_cv_connection])
+grpc_input_cv_connections = [grpc_input_cv_connection, grpc_input_cv_connection]
 
 expected_output_cv_connection = info.CvConnection({})
 expected_output_cv_connection.cv_port_id = 4
@@ -52,7 +52,7 @@ grpc_output_cv_connection = proto.CvConnection(cv_port_id=expected_output_cv_con
                                                    processor_id=expected_output_cv_connection.processor_id
                                                ))
 
-grpc_output_cv_connections = proto.CvConnectionList(connections=[grpc_output_cv_connection, grpc_output_cv_connection])
+grpc_output_cv_connections = [grpc_output_cv_connection, grpc_output_cv_connection]
 
 expected_input_gate_connection = info.GateConnection({})
 expected_input_gate_connection.channel = 3
@@ -68,7 +68,7 @@ grpc_input_gate_connection = proto.GateConnection(channel=expected_input_gate_co
                                                   processor=proto.ProcessorIdentifier(id=expected_input_gate_connection.processor_id)
                                                  )
 
-grpc_input_gate_connections = proto.GateConnectionList(connections=[grpc_input_gate_connection, grpc_input_gate_connection])
+grpc_input_gate_connections = [grpc_input_gate_connection, grpc_input_gate_connection]
 
 expected_output_gate_connection = info.GateConnection({})
 expected_output_gate_connection.channel = 9
@@ -84,7 +84,7 @@ grpc_output_gate_connection = proto.GateConnection(channel=expected_output_gate_
                                                    processor=proto.ProcessorIdentifier(id=expected_output_gate_connection.processor_id)
                                                    )
 
-grpc_output_gate_connections = proto.GateConnectionList(connections=[grpc_output_gate_connection, grpc_output_gate_connection])
+grpc_output_gate_connections = [grpc_output_gate_connection, grpc_output_gate_connection]
 
 class CvGateControllerServiceMockup(sushi_rpc_pb2_grpc.CvGateControllerServicer):
 
@@ -99,32 +99,38 @@ class CvGateControllerServiceMockup(sushi_rpc_pb2_grpc.CvGateControllerServicer)
         return proto.GenericIntValue(value=expected_cv_output_channel_count)
 
     def GetAllCvInputConnections(self, request, context):
-        return grpc_input_cv_connections
+        return proto.CvConnectionList(connections=grpc_input_cv_connections)
 
     def GetAllCvOutputConnections(self, request, context):
-        return grpc_output_cv_connections
+        return proto.CvConnectionList(connections=grpc_input_cv_connections)
 
     def GetAllGateInputConnections(self, request, context):
-        return grpc_input_gate_connections
+        return proto.GateConnectionList(connections=grpc_input_gate_connections)
 
     def GetAllGateOutputConnections(self, request, context):
+        return proto.GateConnectionList(connections=grpc_output_gate_connections)
         return grpc_output_gate_connections
 
     def GetCvInputConnectionsForProcessor(self, request, context):
         if request.id == expected_input_cv_connection.processor_id:
-            return grpc_input_cv_connections
+            return proto.CvConnectionListResponse(status=proto.CommandStatus(status=1),
+                                                  connections=grpc_input_cv_connections)
 
     def GetCvOutputConnectionsForProcessor(self, request, context):
         if request.id == expected_output_cv_connection.processor_id:
-            return grpc_output_cv_connections
+            return proto.CvConnectionListResponse(status=proto.CommandStatus(status=1),
+                                                  connections=grpc_output_cv_connections)
 
     def GetGateInputConnectionsForProcessor(self, request, context):
         if request.id == expected_input_gate_connection.processor_id:
+            return proto.GateConnectionListResponse(status=proto.CommandStatus(status=1),
+                                                  connections=grpc_input_gate_connections)
             return grpc_input_gate_connections
 
     def GetGateOutputConnectionsForProcessor(self, request, context):
         if request.id == expected_output_gate_connection.processor_id:
-            return grpc_output_gate_connections
+            return proto.GateConnectionListResponse(status=proto.CommandStatus(status=1),
+                                                  connections=grpc_output_gate_connections)
 
     def ConnectCvInputToParameter(self, request, context):
         if request.parameter.processor_id == expected_input_cv_connection.processor_id \

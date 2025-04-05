@@ -74,7 +74,7 @@ grpc_input_cc_connection = proto.MidiCCConnection(port=expected_input_cc_connect
                                                   parameter=proto.ParameterIdentifier(processor_id=expected_input_cc_connection.processor_id,
                                                                                       parameter_id=expected_input_cc_connection.parameter_id))
 
-grpc_input_cc_connections = proto.MidiCCConnectionList(connections=[grpc_input_cc_connection, grpc_input_cc_connection])
+grpc_input_cc_connections = [grpc_input_cc_connection, grpc_input_cc_connection]
 
 expected_input_pc_connection = info.MidiPCConnection({})
 expected_input_pc_connection.channel = 64
@@ -87,7 +87,7 @@ grpc_input_pc_connection = proto.MidiPCConnection(channel=proto.MidiChannel(chan
                                                   port=expected_input_pc_connection.port,
                                                   processor=proto.ProcessorIdentifier(id=expected_input_pc_connection.processor))
 
-grpc_input_pc_connections = proto.MidiPCConnectionList(connections=[grpc_input_pc_connection, grpc_input_pc_connection])
+grpc_input_pc_connections = [grpc_input_pc_connection, grpc_input_pc_connection]
 
 class MidiControllerServiceMockup(sushi_rpc_pb2_grpc.MidiControllerServicer):
 
@@ -108,18 +108,20 @@ class MidiControllerServiceMockup(sushi_rpc_pb2_grpc.MidiControllerServicer):
         return grpc_output_kbd_connections
 
     def GetAllCCInputConnections(self, request, context):
-        return grpc_input_cc_connections
+        return proto.MidiCCConnectionList(connections=grpc_input_cc_connections)
 
     def GetAllPCInputConnections(self, request, context):
-        return grpc_input_pc_connections
+        return proto.MidiPCConnectionList(connections=grpc_input_pc_connections)
 
     def GetCCInputConnectionsForProcessor(self, request, context):
         if request.id == expected_input_cc_connection.processor_id:
-            return grpc_input_cc_connections
+            return proto.MidiCCConnectionListResponse(status=proto.CommandStatus(status=1),
+                                                      connections=grpc_input_cc_connections)
 
     def GetPCInputConnectionsForProcessor(self, request, context):
         if request.id == expected_input_pc_connection.processor:
-            return grpc_input_pc_connections
+            return proto.MidiPCConnectionListResponse(status=proto.CommandStatus(status=1),
+                                                      connections=grpc_input_pc_connections)
 
     def GetMidiClockOutputEnabled(self, request, context):
         return proto.GenericBoolValue(value = (request.value == expected_midi_clock_port))
