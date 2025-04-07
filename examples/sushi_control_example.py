@@ -112,6 +112,10 @@ class ArpeggiatedSynthExample(SushiController):
     def _set_parameters_for_theme_tune(self):
         """
         Sets the parameters for the processors, to play a familiar theme tune.
+        While set_parameter_value would return a SushiCommandResponse (aka an asyncio.Event)
+        that we could wait to guarantee that the parameter has been set, this usecase 
+        does not warrant such a level of strictness. 
+        Therefore we simply ignore the return values.
         """
 
         # Synth parameters:
