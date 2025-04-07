@@ -52,6 +52,7 @@ def read_args():
     args = parser.parse_args()
     config = vars(args)
 
+    print(config)
     if not config['protofile']:
         print("No proto file is found, probably the environment variable SUSHI_GRPC_ELKPY_PROTO is not defined.")
         sys.exit(-1)
@@ -125,6 +126,7 @@ class Listener(SushiController):
         track = self._processors[notif.parent_track.id]['info']
 
         if notif.action == 1:  # PROCESSOR_ADDED
+            info = self.audio_graph.get_processor_info(notif.processor.id)
             self._add_processor(info)
             print(f"Processor \"{info.name}\" ({info.id}) added to track \"{track.name}\" ({track.id})")
 
