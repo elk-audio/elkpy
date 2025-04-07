@@ -26,7 +26,7 @@ from . import grpc_gen
 from typing import TYPE_CHECKING, Callable
 
 if TYPE_CHECKING:
-    from .sushicontroller import SushiController
+    from .sushicontroller import SushiController, SushiCommandResponse
 
 
 ###########################################
@@ -485,8 +485,10 @@ class NotificationController:
                     # match with events and set them.
                     if ev := self._parent.command_responses.get(notification.request_id):
                         self.update_event(ev)
+                        self._parent.command_responses.pop(notification.request_id)
         except Exception:
             pass
 
-    def update_event(self, event: SushiCommandResponse) -> None:
+    def update_event(self, event: 'SushiCommandResponse') -> None:
+        print(f"Got: {event}")
         event.set()

@@ -501,7 +501,7 @@ class AudioGraphController:
 
     def create_post_track(self, name: str) -> SushiCommandResponse:
         """
-        Create a new post track in sushi.
+        Create a new POST track in sushi.
 
         Parameters:
             name (str): The name of the new track.

@@ -19,7 +19,7 @@ __license__ = "GPL-3.0"
 from .sushicontroller import SushiController
 from typing import List
 
-class SushiProcessor(object):
+class SushiProcessor:
     """
     A Class to provide control of a specific processor in sushi.
 

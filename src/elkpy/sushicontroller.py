@@ -33,7 +33,7 @@ from . import sessioncontroller
 from . import notificationcontroller
 from . import grpc_gen
 
-from .sushi_info_types import CommandResponseStatus, TrackInfo
+from .sushi_info_types import CommandResponseStatus
 
 ############################
 # Error handling functions #

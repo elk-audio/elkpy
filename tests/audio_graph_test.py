@@ -35,8 +35,6 @@ SUSHI_PROTO, SUSHI_GRPC = grpc_gen.modules_from_proto(proto_file)
 
 from concurrent import futures
 from tests.mockups import audiograph_service_mock
-from src.elkpy import audiographcontroller as agc
-from src.elkpy import sushi_info_types as info_types
 
 
 SUSHI_ADDRESS = "localhost:51051"
@@ -54,7 +52,6 @@ class TestAudioGraphController(unittest.TestCase):
         self._sc = sc.SushiController(address=SUSHI_ADDRESS, sushi_proto_def=proto_file)
         self.command_responses = {}
         self._agc = self._sc.audio_graph
-        # self._agc = agc.AudioGraphController(parent=self, address=SUSHI_ADDRESS, sushi_proto_def=proto_file)
 
     def test_get_all_processors(self):
         self.assertEqual(
