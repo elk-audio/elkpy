@@ -234,6 +234,12 @@ class ParameterController:
         Parameters:
             processor_identifier (int): The id of the processor that has the parameter to be changed.
             parameter_identifier (int): The id of the property to set the value of.
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.SetParameterValue(self._sushi_proto.ParameterValue(
@@ -372,6 +378,12 @@ class ParameterController:
             processor_identifier (int): The id of the processor that has the property to be changed.
             property_identifier (int): The id of the property to set the value of.
             value (string) : The new value to assign to the property
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.SetPropertyValue(self._sushi_proto.PropertyValue(

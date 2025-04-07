@@ -106,6 +106,12 @@ class OscController:
         Parameters:
             processor_id (int): The id of the processor the parameter belongs to
             parameter_id (int): The id of the parameter to enable OSC for
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.EnableOutputForParameter(self._sushi_proto.ParameterIdentifier(processor_id=processor_id, parameter_id=parameter_id))
@@ -120,6 +126,12 @@ class OscController:
         Parameters:
             processor_id (int): The id of the processor the parameter belongs to
             parameter_id (int): The id of the parameter to disble OSC for
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.DisableOutputForParameter(self._sushi_proto.ParameterIdentifier(processor_id=processor_id, parameter_id=parameter_id))
@@ -130,6 +142,12 @@ class OscController:
     def enable_all_output(self) -> SushiCommandResponse:
         """
         Enable OSC output for all parameters
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.EnableAllOutput(self._sushi_proto.GenericVoidValue())
@@ -140,6 +158,12 @@ class OscController:
     def disable_all_output(self) -> SushiCommandResponse:
         """
         Disable OSC output for all parameters
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.DisableAllOutput(self._sushi_proto.GenericVoidValue())

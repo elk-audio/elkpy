@@ -153,6 +153,12 @@ class ProgramController:
         Parameters:
             processor_identifier (int): The id of the processor to set the program of.
             program_identifier (int): The id of the program to set.
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.SetProcessorProgram(self._sushi_proto.ProcessorProgramSetRequest(

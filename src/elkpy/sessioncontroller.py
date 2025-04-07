@@ -88,6 +88,12 @@ class SessionController:
     def restore_binary_session(self, binary_session: bytes) -> SushiCommandResponse:
         """
         Restore the sushi session from a previously save session state. This will clear all track and loaded plugins
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             grpc_state = self._sushi_proto.SessionState()

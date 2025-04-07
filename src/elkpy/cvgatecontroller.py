@@ -207,6 +207,12 @@ class CvGateController:
             processor_id (int): The id of the processor to parameter belongs to
             parameter_id (int): The id of parameter to connect to
             cv_port_id (int): The id of the CV port to connect to
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.ConnectCvInputToParameter(self._sushi_proto.CvConnection(parameter=self._sushi_proto.ParameterIdentifier(processor_id=processor_id, parameter_id=parameter_id),
@@ -223,6 +229,12 @@ class CvGateController:
             processor_id (int): The id of the processor to parameter belongs to
             parameter_id (int): The id of parameter to connect to
             cv_port_id (int): The id of the CV port to connect to
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.ConnectCvOutputFromParameter(self._sushi_proto.CvConnection(parameter=self._sushi_proto.ParameterIdentifier(processor_id=processor_id, parameter_id=parameter_id),
@@ -240,6 +252,12 @@ class CvGateController:
             gate_port_id (int): The id of the gate port being connected
             channel (int): The midi channel number
             note_no (int): The note number to trigger
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.ConnectGateInputToProcessor(self._sushi_proto.GateConnection(processor=self._sushi_proto.ProcessorIdentifier(id=processor),
@@ -259,6 +277,12 @@ class CvGateController:
             gate_port_id (int): The id of the gate port being connected
             channel (int): The midi channel number
             note_no (int): The note number to trigger
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.ConnectGateOutputFromProcessor(self._sushi_proto.GateConnection(processor=self._sushi_proto.ProcessorIdentifier(id=processor),
@@ -277,6 +301,12 @@ class CvGateController:
             procsessor_id (int): The id of the processor the parameter belongs to
             parameter_id (int): The id of the parameter to disconnect
             cv_port_id (int): The id of the CV port to disconnect
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.DisconnectCvInput(self._sushi_proto.CvConnection(parameter=self._sushi_proto.ParameterIdentifier(processor_id=processor_id, parameter_id=parameter_id),
@@ -293,6 +323,12 @@ class CvGateController:
             procsessor_id (int): The id of the processor the parameter belongs to
             parameter_id (int): The id of the parameter to disconnect
             cv_port_id (int): The id of the CV port to disconnect
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.DisconnectCvOutput(self._sushi_proto.CvConnection(parameter=self._sushi_proto.ParameterIdentifier(processor_id=processor_id, parameter_id=parameter_id),
@@ -310,6 +346,12 @@ class CvGateController:
             gate_port_id (int): The id of the gate port being connected
             channel (int): The midi channel number
             note_no (int): The note number to trigger
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.DisconnectGateInput(self._sushi_proto.GateConnection(processor=self._sushi_proto.ProcessorIdentifier(id=processor),
@@ -329,6 +371,12 @@ class CvGateController:
             gate_port_id (int): The id of the gate port being connected
             channel (int): The midi channel number
             note_no (int): The note number to trigger
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.DisconnectGateOutput(self._sushi_proto.GateConnection(processor=self._sushi_proto.ProcessorIdentifier(id=processor),
@@ -345,6 +393,12 @@ class CvGateController:
 
         Parameters:
             processor (int): the processor ID from which to disconnect CV inputs
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.DisconnectAllCvInputsFromProcessor(self._sushi_proto.ProcessorIdentifier(id=processor))
@@ -358,6 +412,12 @@ class CvGateController:
 
         Parameters:
             processor (int): the processor ID from which to disconnect CV outputs
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.DisconnectAllCvOutputsFromProcessor(self._sushi_proto.ProcessorIdentifier(id=processor))
@@ -371,6 +431,12 @@ class CvGateController:
 
         Parameters:
             processor (int): the processor ID from which to disconnect Gate inputs
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.DisconnectAllGateInputsFromProcessor(self._sushi_proto.ProcessorIdentifier(id=processor))
@@ -384,6 +450,12 @@ class CvGateController:
 
         Parameters:
             processor (int): the processor ID from which to disconnect Gate outputs
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.DisconnectAllGateOutputsFromProcessor(self._sushi_proto.ProcessorIdentifier(id=processor))

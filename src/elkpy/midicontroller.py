@@ -200,6 +200,12 @@ class MidiController(object):
         Parameters:
             port (int): The id of the output port to toggle
             enabled (bool): True to turn on clock output, False to turn off
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.SetMidiClockOutputEnabled(
@@ -217,6 +223,12 @@ class MidiController(object):
             channel (int): The id of the channel to connect to
             port (int): The id of the port to connect to
             raw_midi (bool): Enable raw MIDI
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.ConnectKbdInputToTrack(self._sushi_proto.MidiKbdConnection(track=self._sushi_proto.TrackIdentifier(id=track),
@@ -237,6 +249,12 @@ class MidiController(object):
             channel (int): The id of the channel to connect to
             port (int): The id of the port to connect to
             raw_midi (bool): Enable raw MIDI
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.ConnectKbdOutputFromTrack(self._sushi_proto.MidiKbdConnection(track=self._sushi_proto.TrackIdentifier(id=track),
@@ -262,6 +280,12 @@ class MidiController(object):
             min_range (float): The minimum parameter value used for the connection
             max_range (float): The maximum parameter value used for the connection
             relative_mode (bool): Whether the parameter changes relative to a previous value
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.ConnectCCToParameter(self._sushi_proto.MidiCCConnection(parameter=self._sushi_proto.ParameterIdentifier(processor_id=processor_id, parameter_id=parameter_id),
@@ -285,6 +309,12 @@ class MidiController(object):
             processor (int): The id of the processor to connect
             channel (int): The MIDI channel to use for the connection
             port (int): The MIDI port to use for the connection
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.ConnectPCToProcessor(self._sushi_proto.MidiPCConnection(processor=self._sushi_proto.ProcessorIdentifier(id=processor),
@@ -304,6 +334,12 @@ class MidiController(object):
             channel (int): The MIDI channel to disconnect
             port (int): The MIDI port to disconnect
             raw_midi (bool): Disconnect raw MIDI
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.DisconnectKbdInput(self._sushi_proto.MidiKbdConnection(track=self._sushi_proto.TrackIdentifier(id=track),
@@ -324,6 +360,12 @@ class MidiController(object):
             channel (int): The MIDI channel to disconnect
             port (int): The MIDI port to disconnect
             raw_midi (bool): Disconnect raw MIDI
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.DisconnectKbdOutput(self._sushi_proto.MidiKbdConnection(track=self._sushi_proto.TrackIdentifier(id=track),
@@ -349,6 +391,12 @@ class MidiController(object):
             min_range (float): The minimum parameter value used for the connection
             max_range (float): The maximum parameter value used for the connection
             relative_mode (bool): Whether the parameter changes relative to a previous value
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.DisconnectCC(self._sushi_proto.MidiCCConnection(parameter=self._sushi_proto.ParameterIdentifier(processor_id=processor_id, parameter_id=parameter_id),
@@ -372,6 +420,12 @@ class MidiController(object):
             processor (int): The id of the processor to connect
             channel (int): The MIDI channel to use for the connection
             port (int): The MIDI port to use for the connection
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.DisconnectPC(self._sushi_proto.MidiPCConnection(processor=self._sushi_proto.ProcessorIdentifier(id=processor),
@@ -388,6 +442,12 @@ class MidiController(object):
 
         Parameters:
             processor_id (int): The id of the processor to disconnect
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.DisconnectAllCCFromProcessor(self._sushi_proto.ProcessorIdentifier(id=processor_id))
@@ -401,6 +461,12 @@ class MidiController(object):
 
         Parameters:
             processor_id (int): The id of processor to disconnect
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.DisconnectAllPCFromProcessor(self._sushi_proto.ProcessorIdentifier(id=processor_id))

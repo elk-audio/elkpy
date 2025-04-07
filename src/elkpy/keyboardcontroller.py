@@ -20,8 +20,6 @@ import grpc
 
 from . import sushierrors
 from . import grpc_gen
-from . import sushi_info_types as info_types
-from typing import List
 
 ####################################
 # Sushi keyboard controller class #

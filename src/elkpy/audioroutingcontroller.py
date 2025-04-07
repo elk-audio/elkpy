@@ -137,6 +137,12 @@ class AudioRoutingController(object):
             track (int): The index of the track to connect to
             track_channel (int): The index of the channel on the track to connect
             engine_channel (int): The index of the channel on the engine to connect
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.ConnectInputChannelToTrack(self._sushi_proto.AudioConnection(track=self._sushi_proto.TrackIdentifier(id=track),
@@ -156,6 +162,12 @@ class AudioRoutingController(object):
             track (int): The index of the track to connect to
             track_channel (int): The index of the channel on the track to connect
             engine_channel (int): The index of the channel on the engine to connect
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.ConnectOutputChannelFromTrack(
@@ -176,6 +188,12 @@ class AudioRoutingController(object):
             track (int): The index of the track to disconnect to
             track_channel (int): The index of the channel on the track to disconnect
             engine_channel (int): The index of the channel on the engine to disconnect
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.DisconnectInput(
@@ -196,6 +214,12 @@ class AudioRoutingController(object):
             track (int): The index of the track to disconnect to
             track_channel (int): The index of the channel on the track to disconnect
             engine_channel (int): The index of the channel on the engine to disconnect
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.DisconnectOutput(
@@ -214,6 +238,12 @@ class AudioRoutingController(object):
 
         Parameters:
             track_id (int): a track ID for which all inputs will be disconnected
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
          """
         try:
             cr = self._stub.DisconnectAllInputsFromTrack(self._sushi_proto.TrackIdentifier(id=track_id))
@@ -227,6 +257,12 @@ class AudioRoutingController(object):
 
         Parameters:
             track_id (int): a track ID for which all inputs will be disconnected
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
           """
         try:
             cr = self._stub.DisconnectAllOutputsFromTrack(self._sushi_proto.TrackIdentifier(id=track_id))
