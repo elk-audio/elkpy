@@ -176,8 +176,6 @@ class SushiController:
         match CommandResponseStatus(cr.status.status):
             case CommandResponseStatus.SUCCESS:
                 return cr
-            case CommandResponseStatus.DUMMY:
-                return cr
             case CommandResponseStatus.ERROR:
                 raise SushiUnkownError(context_info)
             case CommandResponseStatus.UNSUPPORTED_OPERATION:

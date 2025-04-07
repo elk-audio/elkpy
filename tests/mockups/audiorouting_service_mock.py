@@ -77,32 +77,32 @@ class AudioRoutingControllerServiceMockup(sushi_rpc_pb2_grpc.AudioRoutingControl
     def ConnectInputChannelToTrack(self, request, context):
         if request == grpc_input_connection:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def ConnectOutputChannelFromTrack(self, request, context):
         if request == grpc_output_connection:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def DisconnectInput(self, request, context):
         if request == grpc_input_connection:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def DisconnectOutput(self, request, context):
         if request == grpc_output_connection:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def DisconnectAllInputsFromTrack(self, request, context):
         if request.id == expected_input_connection.track:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def DisconnectAllOutputsFromTrack(self, request, context):
         if request.id == expected_output_connection.track:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def was_called(self):
         result = self.called

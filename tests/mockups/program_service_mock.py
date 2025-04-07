@@ -87,7 +87,7 @@ class ProgramControllerServiceMockup(sushi_rpc_pb2_grpc.ProgramControllerService
     def SetProcessorProgram(self, request, context):
         self.called = True
         self.recent_request = request
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def was_called(self):
         temp = self.called

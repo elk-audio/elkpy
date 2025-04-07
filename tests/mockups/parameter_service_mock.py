@@ -192,7 +192,7 @@ class ParameterControllerServiceMockup(sushi_rpc_pb2_grpc.ParameterControllerSer
     def SetParameterValue(self, request, context):
         self.called = True
         self.recent_request = request
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def GetTrackProperties(self, request, context):
         if request.id == expected_track_identifier:
@@ -232,7 +232,7 @@ class ParameterControllerServiceMockup(sushi_rpc_pb2_grpc.ParameterControllerSer
            request.property.processor_id == expected_processor_identifier and \
            request.value == expected_property_1_value:
             self.called = True
-            return proto.GenericVoidValue()
+            return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def was_called(self):
         temp = self.called

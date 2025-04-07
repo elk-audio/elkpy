@@ -37,32 +37,32 @@ class KeyboardControllerServiceMockup(sushi_rpc_pb2_grpc.KeyboardControllerServi
     def SendNoteOn(self, request, context):
         self.called = True
         self.recent_request = request
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def SendNoteOff(self, request, context):
         self.called = True
         self.recent_request = request
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def SendNoteAftertouch(self, request, context):
         self.called = True
         self.recent_request = request
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def SendAftertouch(self, request, context):
         self.called = True
         self.recent_request = request
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def SendPitchBend(self, request, context):
         self.called = True
         self.recent_request = request
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def SendModulation(self, request, context):
         self.called = True
         self.recent_request = request
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def was_called(self):
         temp = self.called

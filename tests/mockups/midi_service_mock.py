@@ -129,7 +129,7 @@ class MidiControllerServiceMockup(sushi_rpc_pb2_grpc.MidiControllerServicer):
     def SetMidiClockOutputEnabled(self, request, context):
         if request.port == expected_midi_clock_port:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def ConnectKbdInputToTrack(self, request, context):
         if request.track.id == expected_input_kbd_connection.track \
@@ -137,7 +137,7 @@ class MidiControllerServiceMockup(sushi_rpc_pb2_grpc.MidiControllerServicer):
         and request.port == expected_input_kbd_connection.port \
         and request.raw_midi == expected_input_kbd_connection.raw_midi:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def ConnectKbdOutputFromTrack(self, request, context):
         if request.track.id == expected_output_kbd_connection.track \
@@ -145,7 +145,7 @@ class MidiControllerServiceMockup(sushi_rpc_pb2_grpc.MidiControllerServicer):
         and request.port == expected_output_kbd_connection.port \
         and request.raw_midi == expected_output_kbd_connection.raw_midi:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def ConnectCCToParameter(self, request, context):
         if request.parameter.processor_id == expected_input_cc_connection.processor_id \
@@ -157,14 +157,14 @@ class MidiControllerServiceMockup(sushi_rpc_pb2_grpc.MidiControllerServicer):
         and request.max_range == expected_input_cc_connection.max_range \
         and request.relative_mode == expected_input_cc_connection.relative_mode:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def ConnectPCToProcessor(self, request, context):
         if request.processor.id == expected_input_pc_connection.processor \
         and request.channel == expected_input_pc_connection.channel \
         and request.port == expected_input_pc_connection.port:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def DisconnectKbdInput(self, request, context):
         if request.track == expected_input_kbd_connection.track \
@@ -172,7 +172,7 @@ class MidiControllerServiceMockup(sushi_rpc_pb2_grpc.MidiControllerServicer):
         and request.port == expected_input_kbd_connection.port \
         and request.raw_midi == expected_input_kbd_connection.raw_midi:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def DisconnectKbdOutput(self, request, context):
         if request.track == expected_input_kbd_connection.track \
@@ -180,7 +180,7 @@ class MidiControllerServiceMockup(sushi_rpc_pb2_grpc.MidiControllerServicer):
         and request.port == expected_input_kbd_connection.port \
         and request.raw_midi == expected_input_kbd_connection.raw_midi:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def DisconnectCC(self, request, context):
         if request.parameter.processor_id == expected_input_cc_connection.processor_id \
@@ -192,24 +192,24 @@ class MidiControllerServiceMockup(sushi_rpc_pb2_grpc.MidiControllerServicer):
         and request.max_range == expected_input_cc_connection.max_range \
         and request.relative_mode == expected_input_cc_connection.relative_mode:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def DisconnectPC(self, request, context):
         if request.processor.id == expected_input_pc_connection.processor \
         and request.channel == expected_input_pc_connection.channel \
         and request.port == expected_input_pc_connection.port:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def DisconnectAllCCFromProcessor(self, request, context):
         if request.id == expected_input_cc_connection.processor_id:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def DisconnectAllPCFromProcessor(self, request, context):
         if request.id == expected_input_pc_connection.processor:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def was_called(self):
         result = self.called

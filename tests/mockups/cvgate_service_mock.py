@@ -137,14 +137,14 @@ class CvGateControllerServiceMockup(sushi_rpc_pb2_grpc.CvGateControllerServicer)
         and request.parameter.parameter_id == expected_input_cv_connection.parameter_id \
         and request.cv_port_id == expected_input_cv_connection.cv_port_id:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def ConnectCvOutputFromParameter(self, request, context):
         if request.parameter.processor_id == expected_output_cv_connection.processor_id \
         and request.parameter.parameter_id == expected_output_cv_connection.parameter_id \
         and request.cv_port_id == expected_output_cv_connection.cv_port_id:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def ConnectGateInputToProcessor(self, request, context):
         if request.processor.id == expected_input_gate_connection.processor_id \
@@ -152,7 +152,7 @@ class CvGateControllerServiceMockup(sushi_rpc_pb2_grpc.CvGateControllerServicer)
         and request.note_no == expected_input_gate_connection.note_no \
         and request.gate_port_id == expected_input_gate_connection.gate_port_id:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def ConnectGateOutputFromProcessor(self, request, context):
         if request.processor.id == expected_output_gate_connection.processor_id \
@@ -160,21 +160,21 @@ class CvGateControllerServiceMockup(sushi_rpc_pb2_grpc.CvGateControllerServicer)
         and request.note_no == expected_output_gate_connection.note_no \
         and request.gate_port_id == expected_output_gate_connection.gate_port_id:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def DisconnectCvInput(self, request, context):
         if request.parameter.processor_id == expected_input_cv_connection.processor_id \
         and request.parameter.parameter_id == expected_input_cv_connection.parameter_id \
         and request.cv_port_id == expected_input_cv_connection.cv_port_id:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def DisconnectCvOutput(self, request, context):
         if request.parameter.processor_id == expected_output_cv_connection.processor_id \
         and request.parameter.parameter_id == expected_output_cv_connection.parameter_id \
         and request.cv_port_id == expected_output_cv_connection.cv_port_id:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def DisconnectGateInput(self, request, context):
         if request.processor.id == expected_input_gate_connection.processor_id \
@@ -182,7 +182,7 @@ class CvGateControllerServiceMockup(sushi_rpc_pb2_grpc.CvGateControllerServicer)
         and request.note_no == expected_input_gate_connection.note_no \
         and request.gate_port_id == expected_input_gate_connection.gate_port_id:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def DisconnectGateOutput(self, request, context):
         if request.processor.id == expected_output_gate_connection.processor_id \
@@ -190,27 +190,27 @@ class CvGateControllerServiceMockup(sushi_rpc_pb2_grpc.CvGateControllerServicer)
         and request.note_no == expected_output_gate_connection.note_no \
         and request.gate_port_id == expected_output_gate_connection.gate_port_id:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def DisconnectAllCvInputsFromProcessor(self, request, context):
         if request.id == expected_input_cv_connection.processor_id:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def DisconnectAllCvOutputsFromProcessor(self, request, context):
         if request.id == expected_output_cv_connection.processor_id:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def DisconnectAllGateInputsFromProcessor(self, request, context):
         if request.id == expected_input_gate_connection.processor_id:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def DisconnectAllGateOutputsFromProcessor(self, request, context):
         if request.id == expected_output_gate_connection.processor_id:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def was_called(self):
         result = self.called

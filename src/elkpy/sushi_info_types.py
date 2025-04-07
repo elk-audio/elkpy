@@ -29,7 +29,6 @@ class CommandResponseStatus(IntEnum):
     Enum class to hold the values matching the different status code in Command Responses.
 
     Attributes:
-        DUMMY,
         SUCCESS
         ASYNC_RESPONSE
         ERROR
@@ -37,11 +36,8 @@ class CommandResponseStatus(IntEnum):
         NOT_FOUND
         OUT_OF_RANGE
         INVALID_ARGUMENTS
-
-    Note: DUMMY is equivalent to SUCCESS for methods that can not fail.
     """
 
-    DUMMY = 0
     SUCCESS = 1
     ASYNC_RESPONSE = 2
     ERROR = 3
