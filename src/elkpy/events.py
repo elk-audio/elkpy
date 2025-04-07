@@ -12,6 +12,7 @@ class SushiCommandResponse(asyncio.Event):
         super().__init__()
 
     async def wait(self):
+        r = await super().wait()
         if self.error:
-            raise SushiUnkownError
-        return await super().wait()
+            raise SushiUnkownError('Sushi returned an error')
+        return r

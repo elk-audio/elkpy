@@ -85,7 +85,6 @@ class TransportController(object):
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
-            return -1
 
     def get_playing_mode(self) -> int:
         """

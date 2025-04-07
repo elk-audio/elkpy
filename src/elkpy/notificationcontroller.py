@@ -22,6 +22,7 @@ import asyncio
 from threading import Thread
 from . import sushierrors
 from . import grpc_gen
+from elkpy.sushi_info_types import CommandResponseStatus
 
 from typing import TYPE_CHECKING, Callable
 
@@ -484,11 +485,15 @@ class NotificationController:
                 async for notification in stream:
                     # match with events and set them.
                     if ev := self._parent.command_responses.get(notification.request_id):
-                        self.update_event(ev)
+                        match notification.status.status: 
+                            case CommandResponseStatus.SUCCESS:
+                                ev.set()
+                            case CommandResponseStatus.ERROR:
+                                ev.error = True
+                                ev.set()
+                            case _: 
+                                print(notification.status.status)
+
                         self._parent.command_responses.pop(notification.request_id)
         except Exception:
             pass
-
-    def update_event(self, event: 'SushiCommandResponse') -> None:
-        print(f"Got: {event}")
-        event.set()
