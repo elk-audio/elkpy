@@ -132,6 +132,7 @@ class SushiController:
         self,
         address="localhost:51051",
         sushi_proto_def="/usr/share/sushi/sushi_rpc.proto",
+        auto_update_async_command_responses: bool = True
     ):
         """
         The constructor for the SushiController class setting up the gRPC connection with sushi.
@@ -166,7 +167,7 @@ class SushiController:
         self.system = systemcontroller.SystemController(address, sushi_proto_def)
         self.session = sessioncontroller.SessionController(self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc)
         self.notifications = notificationcontroller.NotificationController(
-            self, address, sushi_proto_def
+            self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc, auto_update_async_command_responses
         )
 
         self.command_responses: dict[int, SushiCommandResponse] = {}

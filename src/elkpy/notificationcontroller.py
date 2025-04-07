@@ -57,6 +57,9 @@ class NotificationController:
         parent,
         address="localhost:51051",
         sushi_proto_def="/usr/share/sushi/sushi_rpc.proto",
+        sushi_proto=None,
+        sushi_grpc=None,
+        auto_update_command_responses=True
     ):
         """
         The constructor for the NotificationController class setting up the gRPC connection with sushi.
@@ -67,27 +70,33 @@ class NotificationController:
         """
         self._parent: "SushiController" = parent
         self.address = address
-        self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(
-            sushi_proto_def
-        )
+        if sushi_proto and sushi_grpc:
+            self._sushi_proto = sushi_proto
+            self._sushi_grpc = sushi_grpc
+        else:
+            self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(
+                sushi_proto_def
+            )
         self.tasks = []
-        try:
-            self.loop = asyncio.get_running_loop()
-            self._async = True
-            self.tasks.append(asyncio.create_task(self.update_command_responses()))
-        except RuntimeError:
-            self._async = False
-            self.loop = asyncio.new_event_loop()
-            self.notification_thread = Thread(
-                target=self._run_notification_loop, args=(self.loop,)
-            )
-            self.notification_thread.daemon = True
-            self.notification_thread.start()
-            self.tasks.append(
-                asyncio.run_coroutine_threadsafe(
-                    self.update_command_responses(), self.loop
+
+        if auto_update_command_responses:
+            try:
+                self.loop = asyncio.get_running_loop()
+                self._async = True
+                self.tasks.append(asyncio.create_task(self.update_command_responses()))
+            except RuntimeError:
+                self._async = False
+                self.loop = asyncio.new_event_loop()
+                self.notification_thread = Thread(
+                    target=self._run_notification_loop, args=(self.loop,)
                 )
-            )
+                self.notification_thread.daemon = True
+                self.notification_thread.start()
+                self.tasks.append(
+                    asyncio.run_coroutine_threadsafe(
+                        self.update_command_responses(), self.loop
+                    )
+                )
 
     @staticmethod
     def _run_notification_loop(loop):
