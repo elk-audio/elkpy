@@ -49,7 +49,8 @@ class AudioGraphController:
         parent,
         address="localhost:51051",
         sushi_proto_def="/usr/share/sushi/sushi_rpc.proto",
-        sushi_proto = None, sushi_grpc = None
+        sushi_proto=None,
+        sushi_grpc=None,
     ):
         """
         The constructor for the AudioGraphController class setting up the gRPC connection with sushi.
@@ -73,7 +74,9 @@ class AudioGraphController:
             self._sushi_proto = sushi_proto
             self._sushi_grpc = sushi_grpc
         else:
-            self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
+            self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(
+                sushi_proto_def
+            )
 
         self._stub = self._sushi_grpc.AudioGraphControllerStub(channel)
 
@@ -112,7 +115,7 @@ class AudioGraphController:
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def get_track_id(self, track_name: str) -> SushiCommandResponse | int:
+    def get_track_id(self, track_name: str) -> int:
         """
         Get the id of a track from its name.
 
@@ -120,29 +123,21 @@ class AudioGraphController:
             track_name (str): The name of the track.
 
         Returns:
-            SushiCommandResponse: an asyncio.Event with the following attributes:
-            - id: int: Identifies the command in Sushi. Only relevant for commands that Sushi handles asynchronously.
-            - is_set(): method to check if it is set.
-        Or:
-            int: the id of the requested track
-
-        Because this API might not return the expected id but only an async event, the user must 
-        test whether the SushiCommandResponse is set or not. This can be done in 2 ways:
-        - by calling SushiCommandResponse.is_set() -> bool
-        - by testing its truthiness: if SushiCommandResponse
-
+            id (int): The track id in Sushi
         """
         try:
             cr = self._stub.GetTrackId(
                 self._sushi_proto.GenericStringValue(value=track_name)
             )
-            response = self._parent.validate_command_response(cr, context_info=f"Getting id for track {track_name}")
+            response = self._parent.validate_command_response(
+                cr, context_info=f"Getting id for track {track_name}"
+            )
             return response.id
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With track name: {}".format(track_name))
 
-    def get_track_info(self, track_identifier: int) -> SushiCommandResponse | info_types.TrackInfo:
+    def get_track_info(self, track_identifier: int) -> info_types.TrackInfo:
         """
         Get the info of a track from its id.
 
@@ -156,7 +151,9 @@ class AudioGraphController:
             cr = self._stub.GetTrackInfo(
                 self._sushi_proto.TrackIdentifier(id=track_identifier)
             )
-            response = self._parent.validate_command_response(cr, context_info=f"Getting track info for track {track_identifier}")
+            response = self._parent.validate_command_response(
+                cr, context_info=f"Getting track info for track {track_identifier}"
+            )
             return info_types.TrackInfo(response.info)
 
         except grpc.RpcError as e:
@@ -180,7 +177,9 @@ class AudioGraphController:
             cr = self._stub.GetTrackProcessors(
                 self._sushi_proto.TrackIdentifier(id=track_identifier)
             )
-            response = self._parent.validate_command_response(cr, f"Getting track processors for track {track_identifier}")
+            response = self._parent.validate_command_response(
+                cr, f"Getting track processors for track {track_identifier}"
+            )
             processor_info_list = []
             for processor_info in response.processors:
                 processor_info_list.append(info_types.ProcessorInfo(processor_info))
@@ -206,7 +205,9 @@ class AudioGraphController:
             cr = self._stub.GetProcessorId(
                 self._sushi_proto.GenericStringValue(value=processor_name)
             )
-            response = self._parent.validate_command_response(cr, f"Getting id for processor {processor_name}")
+            response = self._parent.validate_command_response(
+                cr, f"Getting id for processor {processor_name}"
+            )
             return response.id
 
         except grpc.RpcError as e:
@@ -228,7 +229,9 @@ class AudioGraphController:
             cr = self._stub.GetProcessorInfo(
                 self._sushi_proto.ProcessorIdentifier(id=processor_identifier)
             )
-            response = self._parent.validate_command_response(cr, f"Getting processor info for processor {processor_identifier}")
+            response = self._parent.validate_command_response(
+                cr, f"Getting processor info for processor {processor_identifier}"
+            )
             return info_types.ProcessorInfo(response.processor)
 
         except grpc.RpcError as e:
@@ -250,7 +253,9 @@ class AudioGraphController:
             cr = self._stub.GetProcessorBypassState(
                 self._sushi_proto.ProcessorIdentifier(id=processor_identifier)
             )
-            response = self._parent.validate_command_response(cr, f"Getting bypass state for processor {processor_identifier}")
+            response = self._parent.validate_command_response(
+                cr, f"Getting bypass state for processor {processor_identifier}"
+            )
             return response.value
 
         except grpc.RpcError as e:
@@ -274,7 +279,9 @@ class AudioGraphController:
             cr = self._stub.GetProcessorState(
                 self._sushi_proto.ProcessorIdentifier(id=processor_identifier)
             )
-            response = self._parent.validate_command_response(cr, f"Getting the state of processor {processor_identifier}")
+            response = self._parent.validate_command_response(
+                cr, f"Getting the state of processor {processor_identifier}"
+            )
             return response.state
 
         except grpc.RpcError as e:
@@ -291,6 +298,12 @@ class AudioGraphController:
         Parameters:
             processor_identifier (int): The id of the processor to set the bypass state of.
             bypass_sate (bool): The bypass state of the processor matching the id.
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.SetProcessorBypassState(
@@ -301,7 +314,10 @@ class AudioGraphController:
                     value=bypass_state,
                 )
             )
-            return self._parent.validate_command_response(cr, f"Setting bypass state of processor {processor_identifier} to {bypass_state}")
+            return self._parent.validate_command_response(
+                cr,
+                f"Setting bypass state of processor {processor_identifier} to {bypass_state}",
+            )
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(
@@ -417,6 +433,12 @@ class AudioGraphController:
         Parameters:
             name (str): The name of the new track.
             channels (int): The number of channels to assign the new track.
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.CreateTrack(
@@ -435,12 +457,20 @@ class AudioGraphController:
         Parameters:
             name (str): The name of the new track.
             buses (int): The number of audio buses in the new track.
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.CreateMultibusTrack(
                 self._sushi_proto.CreateMultibusTrackRequest(name=name, buses=buses)
             )
-            return self._parent.validate_command_response(cr, f"Creating multibus track {name}")
+            return self._parent.validate_command_response(
+                cr, f"Creating multibus track {name}"
+            )
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(
                 e, "With track name: {}, buses: {}".format(name, buses)
@@ -452,12 +482,20 @@ class AudioGraphController:
 
         Parameters:
             name (str): The name of the new track.
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.CreatePreTrack(
                 self._sushi_proto.CreatePreTrackRequest(name=name)
             )
-            return self._parent.validate_command_response(cr, f"Creating pre-track {name}")
+            return self._parent.validate_command_response(
+                cr, f"Creating pre-track {name}"
+            )
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With track name: {}".format(name))
 
@@ -467,12 +505,20 @@ class AudioGraphController:
 
         Parameters:
             name (str): The name of the new track.
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.CreatePostTrack(
                 self._sushi_proto.CreatePostTrackRequest(name=name)
             )
-            return self._parent.validate_command_response(cr, f"Creating post-track {name}")
+            return self._parent.validate_command_response(
+                cr, f"Creating post-track {name}"
+            )
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With track name: {}".format(name))
 
@@ -497,6 +543,12 @@ class AudioGraphController:
             track_id (int): The id of the track to add the processor to.
             before_processor (int): Which existing processor to create the new processor in front of.
             add_to_back (bool): Set to true to add the processor to the back of the processing chain on the track.
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
 
         try:
@@ -515,7 +567,9 @@ class AudioGraphController:
                     ),
                 )
             )
-            return self._parent.validate_command_response(cr, f"Creating processor {name} on track {track_id}")
+            return self._parent.validate_command_response(
+                cr, f"Creating processor {name} on track {track_id}"
+            )
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(
                 e,
@@ -547,6 +601,12 @@ class AudioGraphController:
             destination_track (int): The id of the track to move the processor to.
             before_processor (int): The id of another processor to move this processor in front of.
             add_to_back (bool): Set to true to add the processor to the back of the processing chain on the track.
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.MoveProcessorOnTrack(
@@ -562,7 +622,10 @@ class AudioGraphController:
                     ),
                 )
             )
-            return self._parent.validate_command_response(cr, f"Moving processor {processor} from track {source_track} to track {destination_track}")
+            return self._parent.validate_command_response(
+                cr,
+                f"Moving processor {processor} from track {source_track} to track {destination_track}",
+            )
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(
@@ -585,6 +648,12 @@ class AudioGraphController:
         Parameters:
             processor (int): The id of the processor to delete.
             track (int): The id of the track that contains the processor.
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
 
         try:
@@ -594,7 +663,9 @@ class AudioGraphController:
                     track=self._sushi_proto.TrackIdentifier(id=track),
                 )
             )
-            return self._parent.validate_command_response(cr, f"Deleting processor {processor} from track {track}")
+            return self._parent.validate_command_response(
+                cr, f"Deleting processor {processor} from track {track}"
+            )
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(
                 e, "With processor id: {}, track id: {}".format(processor, track)
@@ -602,13 +673,21 @@ class AudioGraphController:
 
     def delete_track(self, track_id: int) -> SushiCommandResponse:
         """
-        Delet a track.
+        Delete a track.
 
         Parameters:
             track_id (int): The id of the track to delete.
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
             cr = self._stub.DeleteTrack(self._sushi_proto.TrackIdentifier(id=track_id))
-            return self._parent.validate_command_response(cr, f"Deleting track {track_id}")
+            return self._parent.validate_command_response(
+                cr, f"Deleting track {track_id}"
+            )
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With track id: {}".format(track_id))
