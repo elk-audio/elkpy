@@ -16,7 +16,6 @@ __copyright__ = """
 """
 __license__ = "GPL-3.0"
 
-from . import sushicontroller as sc
 from .sushicontroller import SushiController
 from typing import List
 

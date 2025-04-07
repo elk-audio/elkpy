@@ -174,16 +174,26 @@ class SushiController:
 
     def validate_command_response(self, cr, context_info: str = ""):
         match CommandResponseStatus(cr.status.status):
+            case CommandResponseStatus.SUCCESS:
+                return cr
+            case CommandResponseStatus.DUMMY:
+                return cr
             case CommandResponseStatus.ERROR:
-                raise SushiUnkownError()
+                raise SushiUnkownError(context_info)
+            case CommandResponseStatus.UNSUPPORTED_OPERATION:
+                raise SushiUnsupportedOperationError(context_info)
             case CommandResponseStatus.NOT_FOUND:
                 raise SushiNotFoundError(context_info)
+            case CommandResponseStatus.OUT_OF_RANGE:
+                raise SushiOutOfRangeError(context_info)
+            case CommandResponseStatus.INVALID_ARGUMENTS:
+                raise SushiInvalidArgumentError(context_info)
             case CommandResponseStatus.ASYNC_RESPONSE:
                 event = SushiCommandResponse(id=cr.id)
                 self.command_responses[cr.id] = event
                 return event
             case _:
-                return cr
+                raise SushiUnkownError(context_info)
 
     def close(self):
         """
