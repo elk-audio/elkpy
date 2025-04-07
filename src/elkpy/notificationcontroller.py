@@ -17,14 +17,6 @@ __copyright__ = """
 __license__ = "GPL-3.0"
 
 
-from .events import (
-    ElkpyEvent,
-    ProcessorCreationEvent,
-    ProcessorDeletionEvent,
-    SushiCommandResponse,
-    TrackCreationEvent,
-    TrackDeletionEvent,
-)
 import grpc.experimental.aio
 import asyncio
 from threading import Thread
@@ -492,30 +484,9 @@ class NotificationController:
                 async for notification in stream:
                     # match with events and set them.
                     if ev := self._parent.command_responses.get(notification.request_id):
-                        print(ev)
                         self.update_event(ev)
         except Exception:
             pass
 
-    def update_event(self, event: ElkpyEvent | SushiCommandResponse) -> None:
-        match event:
-            case TrackCreationEvent():
-                track_id = self._parent.audio_graph.get_track_id(event.name)
-                track_info = self._parent.audio_graph.get_track_info(track_id)
-                event.sushi_id = track_id
-                event.data = track_info
-                event.set()
-            case TrackDeletionEvent():
-                event.set()
-            case ProcessorCreationEvent():
-                proc_id = self._parent.audio_graph.get_processor_id(event.name)
-                proc_info = self._parent.audio_graph.get_processor_info(proc_id)
-                event.sushi_id = proc_id
-                event.data = proc_info
-                event.set()
-            case ProcessorDeletionEvent():
-                event.set()
-            case SushiCommandResponse():
-                event.set()
-            case _:
-                event.set()
+    def update_event(self, event: SushiCommandResponse) -> None:
+        event.set()

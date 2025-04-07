@@ -67,7 +67,7 @@ On the terminal where the elkpy folder is located.
 
 ## Important notes on return values
 
-To maintain proper management of the audio thread, Sushi uses an internal queue for commands passed to it via gRPC. This means that it can not return anything else than a standard -but of limited use- response.
+To maintain proper management of the audio thread, Sushi uses an internal queue for those commands that modify the audio graph. This means that it can not return anything else than a response that informs the user of this inherently asynchronous behavior.
 
 **It is assumed that the user will use Sushi's notification system (see `notificationcontroller.py`) to confirm that their commands have been carried out correctly!**
 
@@ -80,25 +80,16 @@ Commands that edit the audio graph:
 - create_track
 - delete_track
 - create_processor_on_track
-- delete_processor_from_track
+- create_processor_on_track
+- ...
 
-return an `ElkpyEvent`: an asyncio.Event that will be **set** by `elkpy` whenever the corresponding notification is emitted by Sushi.
+return an `SushiCommandResponse`: an asyncio.Event that will be **set** by `elkpy` whenever the corresponding notification is emitted by Sushi.
 
-An asyncio user can elect to `await ElkpyEvent.wait()` to ensure that the command has been properly carried out before carrying on
+An asyncio user can elect to `await SushiCommandResponse.wait()` to ensure that the command has been properly carried out before carrying on
 with further rpcs.
 Ignoring the event is also a valid option for cases where absolute confirmation is not critical.
 
 If an error has occurred in grpc, `wait()` will raise a `SushiUnknownError`.
-
-On top of ensuring completion of gRPC calls, Elkpy events related to track and processor creation bring additional convenience once there are set.
-Indeed elkpy will add relevant data to those events:
-* TrackCreationEvents will have the following attributes:
-  * TrackCreationEvent.sushi_id: the internal id in sushi that must be used to identify the track.
-  * TrackCreationEvent.data: the track_info object returned by *get_track_info()*
-* ProcessorCreationEvent will have:
-  * ProcessorCreationEvent.sushi_id: the processor internal id
-  * ProcessorCreationEvent.data: the return value of *get_processor_info()*
-  * ProcessorCreationEvent.params: a list of processor parameters as returned by *get_processor_parameters()*
 
 
 #### CAUTION
@@ -107,10 +98,10 @@ if you are writing a synchronous program), it will starts a new loop in a separa
 
 You MUST therefore be careful when you instantiate the main SushiController class when writing asyncio applications. Make sure that a loop **is already running**, for instance by instantiating a SushiController inside your `async def main()`.
 
-If you fail to do that, you will end up with 2 running loops: one in the main thread and one in an elkpy thread. And that will break the ElkpyEvent system, because asyncio.Events are **not thread-safe**!
+If you fail to do that, you will end up with 2 running loops: one in the main thread and one in an elkpy thread. And that will break the SushiCommandResponse system, because asyncio.Events are **not thread-safe**!
 
-#### Synchronous programs and ElkpyEvents
-Synchronous programs may also leverage ElkpyEvents but in a different way. The object *waiting* on such events can **not** wait() on them but MUST check their `event.is_set()` method instead. This 
+#### Synchronous programs and SushiCommandResponse
+Synchronous programs may also leverage SushiCommandResponse but in a different way. The object *waiting* on such events can **not** wait() on them but MUST check their `event.is_set()` method instead. This 
 will return `True` once *elkpy* has set the event.
 
 For more information about `asyncio.Event`: [https://docs.python.org/3/library/asyncio-sync.html]

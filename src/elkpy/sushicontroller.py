@@ -16,7 +16,7 @@ __copyright__ = """
 """
 __license__ = "GPL-3.0"
 
-from .events import ElkpyEvent, SushiCommandResponse
+from .events import SushiCommandResponse
 
 from . import audiographcontroller
 from . import keyboardcontroller
@@ -169,7 +169,7 @@ class SushiController:
             self, address, sushi_proto_def
         )
 
-        self.command_responses: dict[int, ElkpyEvent | SushiCommandResponse] = {}
+        self.command_responses: dict[int, SushiCommandResponse] = {}
 
 
     def validate_command_response(self, cr, context_info: str = ""):
