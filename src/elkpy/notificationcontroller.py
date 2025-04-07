@@ -59,7 +59,7 @@ class NotificationController:
         sushi_proto_def="/usr/share/sushi/sushi_rpc.proto",
         sushi_proto=None,
         sushi_grpc=None,
-        auto_update_command_responses=True
+        auto_update_async_command_responses=True
     ):
         """
         The constructor for the NotificationController class setting up the gRPC connection with sushi.
@@ -79,7 +79,7 @@ class NotificationController:
             )
         self.tasks = []
 
-        if auto_update_command_responses:
+        if auto_update_async_command_responses:
             try:
                 self.loop = asyncio.get_running_loop()
                 self._async = True
