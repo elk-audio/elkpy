@@ -67,9 +67,11 @@ On the terminal where the elkpy folder is located.
 
 ## Important notes on return values
 
-To maintain proper management of the audio thread, Sushi uses an internal queue for those commands that modify the audio graph. This means that it can not return anything else than a response that informs the user of this inherently asynchronous behavior.
+In Sushi, get requests are processed synchronously, while set requests are scheduled asynchronously. The former will return the requested data, but
+the latter can only return a confirmation that the command has been registered.
 
-**It is assumed that the user will use Sushi's notification system (see `notificationcontroller.py`) to confirm that their commands have been carried out correctly!**
+This can lead to situations where a user could for instance try to set a parameter on a processor that has not yet been created by Sushi, even though 
+the call to `create_processor_on_track` had been made.
 
 ### Elkpy asyncio events 
 
