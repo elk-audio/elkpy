@@ -138,8 +138,11 @@ class SushiController:
         The constructor for the SushiController class setting up the gRPC connection with sushi.
 
         Parameters:
-            address (str): 'ip-addres:port' The ip-addres and port at which to connect to sushi.
-            sushi_proto_def (str): path to .proto file with SUSHI's gRPC services definition
+            - address (str): 'ip-addres:port' The ip-addres and port at which to connect to sushi.
+            - sushi_proto_def (str): path to .proto file with SUSHI's gRPC services definition
+            - auto_update_async_command_responses (bool): controls whether the notificaton controller
+                    listens to async command response notifications and manages pending command
+                    responses.
         """
         self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
 
