@@ -57,8 +57,6 @@ def grpc_error_handling(e, context_info="") -> NoReturn:
         raise SushiUnkownError(e.details(), context_info) from e
     elif e.code().name == "UNAVAILABLE":
         raise SushiUnavailableError(e.details(), context_info) from e
-    elif e.code().name == "INVALID_ARGUMENT":
-        raise SushiInvalidArgumentError(e.details(), context_info) from e
     else:
         if context_info != "":
             print(context_info)

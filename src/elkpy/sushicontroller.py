@@ -36,79 +36,7 @@ from . import notificationcontroller
 from . import grpc_gen
 
 from .sushi_info_types import CommandResponseStatus
-
-
-############################
-# Error handling functions #
-############################
-class SushiUnkownError(Exception):
-    """
-    Error thrown when the source of the error can't be determined
-    """
-
-    pass
-
-
-class SushiUnsupportedOperationError(Exception):
-    """
-    Error thrown when the operation attempted is not currently supported in sushi
-    """
-
-    pass
-
-
-class SushiNotFoundError(Exception):
-    """
-    Error thrown if the requested entity is not found in sushi
-    """
-
-    pass
-
-
-class SushiOutOfRangeError(Exception):
-    """
-    Error thrown if one or more of the passed arguments are out of their allowed range
-    """
-
-    pass
-
-
-class SushiInvalidArgumentError(Exception):
-    """
-    Error thrown if one or more of the passed arguments are invalid
-    """
-
-    pass
-
-
-class SushiInternalError(Exception):
-    """
-    Error thrown if sushi encountered an internal error
-    """
-
-    pass
-
-
-def grpc_error_handling(e, context_info=""):
-    """
-    Maps a gRPC exception to the corresponding sushi error. If the exception doesn't have a mapping
-    the context info will be printed and the same exception will be re-raised
-    """
-    if e.code().name == "UNKNOWN":
-        raise SushiUnkownError(e.details(), context_info) from e
-    elif e.code().name == "FAILED_PRECONDITION":
-        raise SushiUnsupportedOperationError(e.details(), context_info) from e
-    elif e.code().name == "NOT_FOUND":
-        raise SushiNotFoundError(e.details(), context_info) from e
-    elif e.code().name == "OUT_OF_RANGE":
-        raise SushiOutOfRangeError(e.details(), context_info) from e
-    elif e.code().name == "INVALID_ARGUMENT":
-        raise SushiInvalidArgumentError(e.details(), context_info) from e
-    elif e.code().name == "INTERNAL":
-        raise SushiInternalError(e.details(), context_info) from e
-    else:
-        print("Grpc error: " + str(e.code().name) + ", " + e.details())
-        raise e
+from . import sushierrors
 
 
 sushi_proto = Path(__file__).parent.parent.parent / "sushi-grpc-api" / "sushi_rpc.proto"
@@ -204,15 +132,15 @@ class SushiController:
             case CommandResponseStatus.SUCCESS:
                 return cr
             case CommandResponseStatus.ERROR:
-                raise SushiUnkownError(context_info)
+                raise sushierrors.SushiUnkownError(context_info)
             case CommandResponseStatus.UNSUPPORTED_OPERATION:
-                raise SushiUnsupportedOperationError(context_info)
+                raise sushierrors.SushiUnsupportedOperationError(context_info)
             case CommandResponseStatus.NOT_FOUND:
-                raise SushiNotFoundError(context_info)
+                raise sushierrors.SushiNotFoundError(context_info)
             case CommandResponseStatus.OUT_OF_RANGE:
-                raise SushiOutOfRangeError(context_info)
+                raise sushierrors.SushiOutOfRangeError(context_info)
             case CommandResponseStatus.INVALID_ARGUMENTS:
-                raise SushiInvalidArgumentError(context_info)
+                raise sushierrors.SushiInvalidArgumentError(context_info)
             case CommandResponseStatus.ASYNC_RESPONSE:
                 event = SushiCommandResponse(id=cr.id)
                 self.command_responses[cr.id] = event
