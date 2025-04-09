@@ -153,8 +153,9 @@ class ArpeggiatedSynthExample(SushiController):
 
     def _print_system_info(self):
         info = self.system.get_build_info()
+        api_version = self.system.get_sushi_api_version()
         print(f"Connected to Sushi! \n"
-              f"Version: {info.version}, built: {info.build_date} from commit: {info.commit_hash}")
+              f"Version: {info.version}, built: {info.build_date} from commit: {info.commit_hash}, API v{api_version}")
 
 async def main():
     """
