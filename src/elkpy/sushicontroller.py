@@ -16,6 +16,8 @@ __copyright__ = """
 """
 __license__ = "GPL-3.0"
 
+from pathlib import Path
+
 from .events import SushiCommandResponse
 
 from . import audiographcontroller
@@ -34,6 +36,7 @@ from . import notificationcontroller
 from . import grpc_gen
 
 from .sushi_info_types import CommandResponseStatus
+
 
 ############################
 # Error handling functions #
@@ -108,6 +111,9 @@ def grpc_error_handling(e, context_info=""):
         raise e
 
 
+sushi_proto = Path(__file__).parent.parent.parent / "sushi-grpc-api" / "sushi_rpc.proto"
+
+
 ###############################
 # Main sushi controller class #
 ###############################
@@ -131,8 +137,8 @@ class SushiController:
     def __init__(
         self,
         address="localhost:51051",
-        sushi_proto_def="/usr/share/sushi/sushi_rpc.proto",
-        auto_update_async_command_responses: bool = True
+        sushi_proto_def=sushi_proto,
+        auto_update_async_command_responses: bool = True,
     ):
         """
         The constructor for the SushiController class setting up the gRPC connection with sushi.
@@ -144,17 +150,25 @@ class SushiController:
                     listens to async command response notifications and manages pending command
                     responses.
         """
-        self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
+        self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(
+            sushi_proto_def
+        )
 
         self.audio_graph = audiographcontroller.AudioGraphController(
             self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc
         )
-        self.keyboard = keyboardcontroller.KeyboardController(self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc)
+        self.keyboard = keyboardcontroller.KeyboardController(
+            self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc
+        )
         self.parameters = parametercontroller.ParameterController(
             self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc
         )
-        self.programs = programcontroller.ProgramController(self, address, sushi_proto_def)
-        self.timings = timingcontroller.TimingController(self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc)
+        self.programs = programcontroller.ProgramController(
+            self, address, sushi_proto_def
+        )
+        self.timings = timingcontroller.TimingController(
+            self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc
+        )
         self.transport = transportcontroller.TransportController(
             self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc
         )
@@ -162,19 +176,28 @@ class SushiController:
             self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc
         )
         self.midi_controller = midicontroller.MidiController(
-            self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc)
+            self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc
+        )
         self.cv_gate_controller = cvgatecontroller.CvGateController(
             self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc
         )
-        self.osc_controller = osccontroller.OscController(self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc)
+        self.osc_controller = osccontroller.OscController(
+            self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc
+        )
         self.system = systemcontroller.SystemController(address, sushi_proto_def)
-        self.session = sessioncontroller.SessionController(self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc)
+        self.session = sessioncontroller.SessionController(
+            self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc
+        )
         self.notifications = notificationcontroller.NotificationController(
-            self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc, auto_update_async_command_responses
+            self,
+            address,
+            sushi_proto_def,
+            self._sushi_proto,
+            self._sushi_grpc,
+            auto_update_async_command_responses,
         )
 
         self.command_responses: dict[int, SushiCommandResponse] = {}
-
 
     def validate_command_response(self, cr, context_info: str = ""):
         match CommandResponseStatus(cr.status.status):
