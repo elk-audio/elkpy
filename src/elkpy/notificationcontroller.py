@@ -22,7 +22,7 @@ import asyncio
 from threading import Thread
 from . import sushierrors
 from . import grpc_gen
-from elkpy.sushi_info_types import CommandResponseStatus
+from .sushi_info_types import CommandResponseStatus
 
 from typing import TYPE_CHECKING, Callable
 
@@ -59,7 +59,7 @@ class NotificationController:
         sushi_proto_def="/usr/share/sushi/sushi_rpc.proto",
         sushi_proto=None,
         sushi_grpc=None,
-        auto_update_async_command_responses=True
+        auto_update_async_command_responses=True,
     ):
         """
         The constructor for the NotificationController class setting up the gRPC connection with sushi.
@@ -493,14 +493,16 @@ class NotificationController:
                 )
                 async for notification in stream:
                     # match with events and set them.
-                    if ev := self._parent.command_responses.get(notification.request_id):
-                        match notification.status.status: 
+                    if ev := self._parent.command_responses.get(
+                        notification.request_id
+                    ):
+                        match notification.status.status:
                             case CommandResponseStatus.SUCCESS:
                                 ev.set()
                             case CommandResponseStatus.ERROR:
                                 ev.error = True
                                 ev.set()
-                            case _: 
+                            case _:
                                 print(notification.status.status)
 
                         self._parent.command_responses.pop(notification.request_id)
