@@ -408,7 +408,7 @@ class MidiController(object):
                                                                        relative_mode=relative_mode))
             return self._parent.validate_command_response(cr, f"Disconnect CC from parameter {parameter_id}")
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, f"With MidiCCConnection: parameter: {parameter}, channel: {channel}, "
+            sushierrors.grpc_error_handling(e, f"With MidiCCConnection: parameter: {parameter_id}, channel: {channel}, "
                                                f"port: {port}, cc_number: {cc_number}, min_range: {min_range}, "
                                                f"max_range: {max_range}, relative_mode: {relative_mode}.")
 

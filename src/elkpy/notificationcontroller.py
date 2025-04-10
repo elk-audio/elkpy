@@ -27,7 +27,7 @@ from .sushi_info_types import CommandResponseStatus
 from typing import TYPE_CHECKING, Callable
 
 if TYPE_CHECKING:
-    from .sushicontroller import SushiController, SushiCommandResponse
+    from .sushicontroller import SushiController 
 
 
 ###########################################
