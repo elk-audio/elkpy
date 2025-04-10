@@ -19,22 +19,25 @@ __license__ = "GPL-3.0"
 import os
 import sys
 import unittest
+from pathlib import Path
 import grpc
+from concurrent import futures
+from tests.mockups import audiograph_service_mock
 from src.elkpy import grpc_gen
 from src.elkpy import sushierrors
 from src.elkpy import sushicontroller as sc
 
-proto_file = os.environ.get("SUSHI_GRPC_ELKPY_PROTO")
-if proto_file is None:
+proto_file_str = os.environ.get("SUSHI_GRPC_ELKPY_PROTO")
+if proto_file_str is None:
     print(
         "Environment variable SUSHI_GRPC_ELKPY_PROTO not defined, set it to point the .proto definition"
     )
     sys.exit(-1)
+else:
+    proto_file: Path = Path(proto_file_str)
 
-SUSHI_PROTO, SUSHI_GRPC = grpc_gen.modules_from_proto(proto_file)
+SUSHI_PROTO, SUSHI_GRPC = grpc_gen.modules_from_proto(str(proto_file))
 
-from concurrent import futures
-from tests.mockups import audiograph_service_mock
 
 
 SUSHI_ADDRESS = "localhost:51051"

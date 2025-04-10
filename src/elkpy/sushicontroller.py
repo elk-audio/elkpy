@@ -17,6 +17,7 @@ __copyright__ = """
 __license__ = "GPL-3.0"
 
 from pathlib import Path
+from typing import Any
 
 from .events import SushiCommandResponse
 
@@ -79,47 +80,47 @@ class SushiController:
                     responses.
         """
         self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(
-            sushi_proto_def
+            str(sushi_proto_def)
         )
 
         self.audio_graph = audiographcontroller.AudioGraphController(
-            self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc
+            self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
         )
         self.keyboard = keyboardcontroller.KeyboardController(
-            self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc
+            self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
         )
         self.parameters = parametercontroller.ParameterController(
-            self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc
+            self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
         )
         self.programs = programcontroller.ProgramController(
-            self, address, sushi_proto_def
+            self, address, str(sushi_proto_def)
         )
         self.timings = timingcontroller.TimingController(
-            self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc
+            self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
         )
         self.transport = transportcontroller.TransportController(
-            self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc
+            self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
         )
         self.audio_routing = audioroutingcontroller.AudioRoutingController(
-            self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc
+            self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
         )
         self.midi_controller = midicontroller.MidiController(
-            self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc
+            self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
         )
         self.cv_gate_controller = cvgatecontroller.CvGateController(
-            self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc
+            self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
         )
         self.osc_controller = osccontroller.OscController(
-            self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc
+            self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
         )
-        self.system = systemcontroller.SystemController(address, sushi_proto_def)
+        self.system = systemcontroller.SystemController(address, str(sushi_proto_def))
         self.session = sessioncontroller.SessionController(
-            self, address, sushi_proto_def, self._sushi_proto, self._sushi_grpc
+            self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
         )
         self.notifications = notificationcontroller.NotificationController(
             self,
             address,
-            sushi_proto_def,
+            str(sushi_proto_def),
             self._sushi_proto,
             self._sushi_grpc,
             auto_update_async_command_responses,
@@ -127,7 +128,7 @@ class SushiController:
 
         self.command_responses: dict[int, SushiCommandResponse] = {}
 
-    def validate_command_response(self, cr, context_info: str = ""):
+    def validate_command_response(self, cr, context_info: str = "") -> Any:
         match CommandResponseStatus(cr.status.status):
             case CommandResponseStatus.SUCCESS:
                 return cr
@@ -145,8 +146,6 @@ class SushiController:
                 event = SushiCommandResponse(id=cr.id)
                 self.command_responses[cr.id] = event
                 return event
-            case _:
-                raise SushiUnkownError(context_info)
 
     def close(self):
         """
