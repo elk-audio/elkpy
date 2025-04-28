@@ -19,13 +19,13 @@ __license__ = "GPL-3.0"
 import grpc
 import sushi_rpc_pb2 as proto
 import sushi_rpc_pb2_grpc
-from elkpy import sushi_info_types as info
+from src.elkpy import sushi_info_types as info
 
 expected_input_ports = 16
 expected_output_ports = 7
 expected_midi_clock_port = 1
 
-expected_input_kbd_connection = info.MidiKbdConnection()
+expected_input_kbd_connection = info.MidiKbdConnection({})
 expected_input_kbd_connection.channel = 2
 expected_input_kbd_connection.port = 3
 expected_input_kbd_connection.raw_midi = True
@@ -40,7 +40,7 @@ grpc_input_kbd_connection = proto.MidiKbdConnection(channel=proto.MidiChannel(ch
 
 grpc_input_kbd_connections = proto.MidiKbdConnectionList(connections=[grpc_input_kbd_connection, grpc_input_kbd_connection])
 
-expected_output_kbd_connection = info.MidiKbdConnection()
+expected_output_kbd_connection = info.MidiKbdConnection({})
 expected_output_kbd_connection.channel = 4
 expected_output_kbd_connection.port = 7
 expected_output_kbd_connection.raw_midi = False
@@ -55,7 +55,7 @@ grpc_output_kbd_connection = proto.MidiKbdConnection(channel=proto.MidiChannel(c
 
 grpc_output_kbd_connections = proto.MidiKbdConnectionList(connections=[grpc_output_kbd_connection, grpc_output_kbd_connection])
 
-expected_input_cc_connection = info.MidiCCConnection()
+expected_input_cc_connection = info.MidiCCConnection({})
 expected_input_cc_connection.port = 2
 expected_input_cc_connection.cc_number = 77
 expected_input_cc_connection.channel = 5
@@ -74,9 +74,9 @@ grpc_input_cc_connection = proto.MidiCCConnection(port=expected_input_cc_connect
                                                   parameter=proto.ParameterIdentifier(processor_id=expected_input_cc_connection.processor_id,
                                                                                       parameter_id=expected_input_cc_connection.parameter_id))
 
-grpc_input_cc_connections = proto.MidiCCConnectionList(connections=[grpc_input_cc_connection, grpc_input_cc_connection])
+grpc_input_cc_connections = [grpc_input_cc_connection, grpc_input_cc_connection]
 
-expected_input_pc_connection = info.MidiPCConnection()
+expected_input_pc_connection = info.MidiPCConnection({})
 expected_input_pc_connection.channel = 64
 expected_input_pc_connection.port = 2
 expected_input_pc_connection.processor = 92
@@ -87,7 +87,7 @@ grpc_input_pc_connection = proto.MidiPCConnection(channel=proto.MidiChannel(chan
                                                   port=expected_input_pc_connection.port,
                                                   processor=proto.ProcessorIdentifier(id=expected_input_pc_connection.processor))
 
-grpc_input_pc_connections = proto.MidiPCConnectionList(connections=[grpc_input_pc_connection, grpc_input_pc_connection])
+grpc_input_pc_connections = [grpc_input_pc_connection, grpc_input_pc_connection]
 
 class MidiControllerServiceMockup(sushi_rpc_pb2_grpc.MidiControllerServicer):
 
@@ -108,18 +108,20 @@ class MidiControllerServiceMockup(sushi_rpc_pb2_grpc.MidiControllerServicer):
         return grpc_output_kbd_connections
 
     def GetAllCCInputConnections(self, request, context):
-        return grpc_input_cc_connections
+        return proto.MidiCCConnectionList(connections=grpc_input_cc_connections)
 
     def GetAllPCInputConnections(self, request, context):
-        return grpc_input_pc_connections
+        return proto.MidiPCConnectionList(connections=grpc_input_pc_connections)
 
     def GetCCInputConnectionsForProcessor(self, request, context):
         if request.id == expected_input_cc_connection.processor_id:
-            return grpc_input_cc_connections
+            return proto.MidiCCConnectionListResponse(status=proto.CommandStatus(status=1),
+                                                      connections=grpc_input_cc_connections)
 
     def GetPCInputConnectionsForProcessor(self, request, context):
         if request.id == expected_input_pc_connection.processor:
-            return grpc_input_pc_connections
+            return proto.MidiPCConnectionListResponse(status=proto.CommandStatus(status=1),
+                                                      connections=grpc_input_pc_connections)
 
     def GetMidiClockOutputEnabled(self, request, context):
         return proto.GenericBoolValue(value = (request.value == expected_midi_clock_port))
@@ -127,7 +129,7 @@ class MidiControllerServiceMockup(sushi_rpc_pb2_grpc.MidiControllerServicer):
     def SetMidiClockOutputEnabled(self, request, context):
         if request.port == expected_midi_clock_port:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def ConnectKbdInputToTrack(self, request, context):
         if request.track.id == expected_input_kbd_connection.track \
@@ -135,7 +137,7 @@ class MidiControllerServiceMockup(sushi_rpc_pb2_grpc.MidiControllerServicer):
         and request.port == expected_input_kbd_connection.port \
         and request.raw_midi == expected_input_kbd_connection.raw_midi:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def ConnectKbdOutputFromTrack(self, request, context):
         if request.track.id == expected_output_kbd_connection.track \
@@ -143,7 +145,7 @@ class MidiControllerServiceMockup(sushi_rpc_pb2_grpc.MidiControllerServicer):
         and request.port == expected_output_kbd_connection.port \
         and request.raw_midi == expected_output_kbd_connection.raw_midi:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def ConnectCCToParameter(self, request, context):
         if request.parameter.processor_id == expected_input_cc_connection.processor_id \
@@ -155,14 +157,14 @@ class MidiControllerServiceMockup(sushi_rpc_pb2_grpc.MidiControllerServicer):
         and request.max_range == expected_input_cc_connection.max_range \
         and request.relative_mode == expected_input_cc_connection.relative_mode:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def ConnectPCToProcessor(self, request, context):
         if request.processor.id == expected_input_pc_connection.processor \
         and request.channel == expected_input_pc_connection.channel \
         and request.port == expected_input_pc_connection.port:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def DisconnectKbdInput(self, request, context):
         if request.track == expected_input_kbd_connection.track \
@@ -170,7 +172,7 @@ class MidiControllerServiceMockup(sushi_rpc_pb2_grpc.MidiControllerServicer):
         and request.port == expected_input_kbd_connection.port \
         and request.raw_midi == expected_input_kbd_connection.raw_midi:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def DisconnectKbdOutput(self, request, context):
         if request.track == expected_input_kbd_connection.track \
@@ -178,7 +180,7 @@ class MidiControllerServiceMockup(sushi_rpc_pb2_grpc.MidiControllerServicer):
         and request.port == expected_input_kbd_connection.port \
         and request.raw_midi == expected_input_kbd_connection.raw_midi:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def DisconnectCC(self, request, context):
         if request.parameter.processor_id == expected_input_cc_connection.processor_id \
@@ -190,24 +192,24 @@ class MidiControllerServiceMockup(sushi_rpc_pb2_grpc.MidiControllerServicer):
         and request.max_range == expected_input_cc_connection.max_range \
         and request.relative_mode == expected_input_cc_connection.relative_mode:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def DisconnectPC(self, request, context):
         if request.processor.id == expected_input_pc_connection.processor \
         and request.channel == expected_input_pc_connection.channel \
         and request.port == expected_input_pc_connection.port:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def DisconnectAllCCFromProcessor(self, request, context):
         if request.id == expected_input_cc_connection.processor_id:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def DisconnectAllPCFromProcessor(self, request, context):
         if request.id == expected_input_pc_connection.processor:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def was_called(self):
         result = self.called

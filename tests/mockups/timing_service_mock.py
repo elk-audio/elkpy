@@ -16,62 +16,97 @@ __copyright__ = """
 """
 __license__ = "GPL-3.0"
 
-import grpc
 import sushi_rpc_pb2 as proto
 import sushi_rpc_pb2_grpc
-from elkpy import sushi_info_types as info
+from src.elkpy import sushi_info_types as info
 
 expected_timings_set = False
-expected_cpu_timings = (2.5,2,3)
-expected_id = 2
-class TimingControllerServiceMockup(sushi_rpc_pb2_grpc.TimingControllerServicer):
+expected_cpu_timings = proto.CpuTimings(
+    main=proto.Timings(
+        max=1.0,
+        min=0.8,
+        average=22.8,
+    ),
+    threads=[
+        proto.Timings(
+            max=10.5,
+            min=5.0,
+            average=28.5,
+        ),
+        proto.Timings(
+            max=1.88,
+            min=0.9,
+            average=2.5,
+        ),
+    ],
+)
+expected_processor_timings = proto.Timings(
+    max=1.88,
+    min=0.9,
+    average=2.5,
+)
 
+expected_id = 2
+success_command_response = proto.CommandResponse(
+    status=proto.CommandStatus(status=1), id=42
+)
+
+
+class TimingControllerServiceMockup(sushi_rpc_pb2_grpc.TimingControllerServicer):
     def __init__(self):
         super().__init__()
         self.called = False
         self.recent_request = None
 
     def GetTimingsEnabled(self, request, context):
-        return proto.GenericBoolValue(value = expected_timings_set)
+        return proto.GenericBoolValue(value=expected_timings_set)
 
     def SetTimingsEnabled(self, request, context):
         self.called = True
         self.recent_request = request
-        return proto.GenericVoidValue()
+        return success_command_response
 
     def GetEngineTimings(self, request, context):
-        return proto.CpuTimings(min = expected_cpu_timings[1],
-                                max = expected_cpu_timings[2],
-                                average = expected_cpu_timings[0])
+        return expected_cpu_timings
 
     def GetTrackTimings(self, request, context):
         self.called = True
         self.recent_request = request
-        return proto.CpuTimings(min = expected_cpu_timings[1],
-                                max = expected_cpu_timings[2],
-                                average = expected_cpu_timings[0])
+        return proto.TimingResponse(
+            status=proto.CommandStatus(status=1),
+            timings=proto.Timings(
+                max=1.88,
+                min=0.9,
+                average=2.5,
+            ),
+        )
 
     def GetProcessorTimings(self, request, context):
         self.called = True
         self.recent_request = request
-        return proto.CpuTimings(min = expected_cpu_timings[1],
-                                max = expected_cpu_timings[2],
-                                average = expected_cpu_timings[0])
+        return proto.TimingResponse(
+            status=proto.CommandStatus(status=1),
+            timings=proto.Timings(
+                max=1.88,
+                min=0.9,
+                average=2.5,
+            ),
+        )
 
     def ResetAllTimings(self, request, context):
         self.called = True
         self.recent_request = request
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def ResetTrackTimings(self, request, context):
         self.called = True
         self.recent_request = request
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def ResetProcessorTimings(self, request, context):
         self.called = True
         self.recent_request = request
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def was_called(self):
         temp = self.called

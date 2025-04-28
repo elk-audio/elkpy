@@ -16,7 +16,11 @@ __copyright__ = """
 """
 __license__ = "GPL-3.0"
 
+from .events import SushiCommandResponse
 import grpc
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from elkpy.sushicontroller import SushiController
 
 from . import sushierrors
 from . import grpc_gen
@@ -27,7 +31,7 @@ from typing import List
 # Sushi program controller class #
 ####################################
 
-class ProgramController(object):
+class ProgramController:
     """
     A class to control the program in sushi via gRPC. It controls the programs for the processors and
     can set programs and the get the current program as well as other programs availble.
@@ -36,6 +40,7 @@ class ProgramController(object):
         _stub (ProgramControllerStub): Connection stubs to the gRPC program interface implemented in sushi.
     """
     def __init__(self,
+                 parent: 'SushiController',
                  address = 'localhost:51051',
                  sushi_proto_def = '/usr/share/sushi/sushi_rpc.proto'):
         """
@@ -52,6 +57,7 @@ class ProgramController(object):
 
         self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
         self._stub = self._sushi_grpc.ProgramControllerStub(channel)
+        self._parent = parent
 
     def get_processor_current_program(self, processor_identifier: int) -> int:
         """
@@ -64,9 +70,10 @@ class ProgramController(object):
             int: The id of the processors current program.
         """
         try:
-            response = self._stub.GetProcessorCurrentProgram(self._sushi_proto.ProcessorIdentifier(
+            cr = self._stub.GetProcessorCurrentProgram(self._sushi_proto.ProcessorIdentifier(
                 id = processor_identifier
             ))
+            response = self._parent.validate_command_response(cr, f"Get current program for processor {processor_identifier}")
             return response.program
 
         except grpc.RpcError as e:
@@ -83,9 +90,10 @@ class ProgramController(object):
             str: The name of the processors current program.
         """
         try:
-            response = self._stub.GetProcessorCurrentProgramName(self._sushi_proto.ProcessorIdentifier(
+            cr = self._stub.GetProcessorCurrentProgramName(self._sushi_proto.ProcessorIdentifier(
                 id = processor_identifier
             ))
+            response = self._parent.validate_command_response(cr, f"Get current program name for processor {processor_identifier}")
             return response.value
 
         except grpc.RpcError as e:
@@ -103,10 +111,11 @@ class ProgramController(object):
             str: The name of the program matching the processor and program id.
         """
         try:
-            response = self._stub.GetProcessorProgramName(self._sushi_proto.ProcessorProgramIdentifier(
+            cr = self._stub.GetProcessorProgramName(self._sushi_proto.ProcessorProgramIdentifier(
                 processor = self._sushi_proto.ProcessorIdentifier(id = processor_identifier),
                 program = program_identifier
             ))
+            response = self._parent.validate_command_response(cr, f"Get program {program_identifier} name for processor {processor_identifier}")
             return response.value
 
         except grpc.RpcError as e:
@@ -123,9 +132,10 @@ class ProgramController(object):
             List[info_types.ProgramInfo]: A list of the programs available to the processor matching the id.
         """
         try:
-            response = self._stub.GetProcessorPrograms(self._sushi_proto.ProcessorIdentifier(
+            cr = self._stub.GetProcessorPrograms(self._sushi_proto.ProcessorIdentifier(
                 id = processor_identifier
             ))
+            response = self._parent.validate_command_response(cr, f"Get programs for processor {processor_identifier}")
 
             program_info_list = []
             for program_info in response.programs:
@@ -136,19 +146,26 @@ class ProgramController(object):
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With processor id: {}".format(processor_identifier))
 
-    def set_processor_program(self, processor_identifier: int, program_identifier: int) -> None:
+    def set_processor_program(self, processor_identifier: int, program_identifier: int) -> SushiCommandResponse:
         """
         Set the program of the specified processor to the one matching the specified program id.
 
         Parameters:
             processor_identifier (int): The id of the processor to set the program of.
             program_identifier (int): The id of the program to set.
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
-            self._stub.SetProcessorProgram(self._sushi_proto.ProcessorProgramSetRequest(
+            cr = self._stub.SetProcessorProgram(self._sushi_proto.ProcessorProgramSetRequest(
                 processor = self._sushi_proto.ProcessorIdentifier(id = processor_identifier),
                 program = self._sushi_proto.ProgramIdentifier(program = program_identifier)
             ))
+            return self._parent.validate_command_response(cr, f"Set processor {processor_identifier} program {program_identifier}")
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, "With processor id: {}, program id: {}".format(processor_identifier, program_identifier))

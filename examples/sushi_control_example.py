@@ -20,8 +20,8 @@ __license__ = "GPL-3.0"
 
 import os
 import sys
-import time
 import argparse
+import asyncio
 
 from elkpy.sushi_info_types import PluginType
 from elkpy import grpc_gen
@@ -39,11 +39,12 @@ EFFECT_NAME = 'mda DubDelay'
 
 SUSHI_PROCESSORS = [TRACK_NAME, SEQUENCER_NAME, SYNTH_NAME, EFFECT_NAME]
 
-PLUGINS = [{
-    "path": "",
-    "name": SEQUENCER_NAME,
-    "uid": "sushi.testing.step_sequencer",
-    "type": PluginType.INTERNAL
+PLUGINS = [
+    {
+        "path": "",
+        "name": SEQUENCER_NAME,
+        "uid": "sushi.testing.step_sequencer",
+        "type": PluginType.INTERNAL
     },
     {
         "path": "mda-vst3.vst3",
@@ -72,7 +73,6 @@ def read_args() -> dict:
     args = parser.parse_args()
     config = vars(args)
 
-    print(config)
     if not config['protofile']:
         print("No proto file is found, probably the environment variable SUSHI_GRPC_ELKPY_PROTO is not defined.")
         sys.exit(-1)
@@ -91,39 +91,33 @@ class ArpeggiatedSynthExample(SushiController):
     def __init__(self, address: str, proto_file: str):
         super().__init__(address, proto_file)
         self._print_system_info()
+        self._processors: dict = {}
 
-        # Subscribe to notifications for processor changes
-        self._processor_creation_notification_count = 0
-        self.notifications.subscribe_to_processor_changes(self._set_parameters_when_processors_are_ready)
+        # Fetching the track ID from the name defined in the Sushi config file:
+        self.track_id = self.audio_graph.get_track_id(TRACK_NAME)
 
-        # Fetch the track ID - for the name defined in the Sushi config file
-        track_id = self.audio_graph.get_track_id(TRACK_NAME)
+    async def set_state(self) -> None:
+        """
+        This example shows off the way Elkpy is meant to handle Sushi's asynchronous processing of audio graph altering commands.
+        Because _load_plugin_on_track blocks and waits for each Sushi event to be set, we can start setting parameters right 
+        after calling it. The command is guaranteed to have completed.
 
-        # Add plugins to track.
-        # For each addition completion, Sushi will notify by invoking a processor_change callback
+        If the .wait() call in _load_plugin_on_track had been missing, _set_parameters_for_theme_tune might fail as there is no
+        guarantee that the target processor exists yet.
+        """
         for plugin_spec in PLUGINS:
-            self._load_plugin_on_track(track_id, plugin_spec)
+            await self._load_plugin_on_track(self.track_id, plugin_spec)
+            self._processors[plugin_spec['name']] = sp.SushiProcessor(plugin_spec['name'], self)
 
-    def _set_parameters_when_processors_are_ready(self, notification: "ProcessorUpdate"):
-        """
-        A callback invoked by the elkpy notification controller, whenever a processor is added/removed.
-        This implementation waits until all processors are created.
-        It then creates processor_controllers.
-        And finally, uses these to set the processor parameters.
-        """
-
-        if notification.action == 1:  # PROCESSOR_ADDED
-            print('Processor created with ID: {}'.format(notification.processor.id))
-            self._processor_creation_notification_count += 1
-
-        # When all processors have been created, instantiate controllers for them, and set their parameters:
-        if self._processor_creation_notification_count == len(PLUGINS):
-            self._processors = self._create_processor_controllers(SUSHI_PROCESSORS)
-            self._set_parameters_for_theme_tune()
+        self._set_parameters_for_theme_tune()
 
     def _set_parameters_for_theme_tune(self):
         """
         Sets the parameters for the processors, to play a familiar theme tune.
+        While set_parameter_value would return a SushiCommandResponse (aka an asyncio.Event)
+        that we could wait to guarantee that the parameter has been set, this usecase 
+        does not warrant such a level of strictness. 
+        Therefore we simply ignore the return values.
         """
 
         # Synth parameters:
@@ -145,44 +139,38 @@ class ArpeggiatedSynthExample(SushiController):
 
         self.transport.set_tempo(200)
 
-    def _load_plugin_on_track(self, track_id: int, plugin_spec: dict):
+    async def _load_plugin_on_track(self, track_id: int, plugin_spec: dict):
         path = plugin_spec['path']
         name = plugin_spec['name']
         p_type = plugin_spec['type']
         uid = plugin_spec['uid']
 
         try:
-            self.audio_graph.create_processor_on_track(name, uid, path, p_type, track_id, 0, True)
+            ev = self.audio_graph.create_processor_on_track(name, uid, path, p_type, track_id, 0, True)
+            # The following call to ev.wait() is crucial to guarantee that the processor actually exists in Sushi when the method returns.
+            # Other asyncio strategies are possible, like gathering all events and waiting for them as a separate track for instance.
+            await ev.wait()
         except Exception as e:
             print('Error loading plugin: {}'.format(e))
 
-    def _create_processor_controllers(self, processor_names: list) -> list:
-        """
-        Instantiates elkpy controllers for the Sushi processors named in list argument.
-        """
-        processor_controllers = {}
-        for processor_name in processor_names:
-            processor_controllers[processor_name] = sp.SushiProcessor(processor_name, self)
-
-        return processor_controllers
-
     def _print_system_info(self):
         info = self.system.get_build_info()
+        api_version = self.system.get_sushi_api_version()
         print(f"Connected to Sushi! \n"
-              f"Version: {info.version}, built: {info.build_date} from commit: {info.commit_hash}")
+              f"Version: {info.version}, built: {info.build_date} from commit: {info.commit_hash}, API v{api_version}")
+
+async def main():
+    """
+    Having a main function is not necessary per se BUT it is a convenient way to make sure that an asyncio.Event is running when we 
+    start running coroutines. Programmers should not forget that elkpy starts some coroutines as soon as a SushiController is
+    created.
+    """
+    bridge = ArpeggiatedSynthExample(f"{config['ip']}:{config['port']}", config['protofile'])
+    await bridge.set_state()
 
 
 if __name__ == '__main__':
     config = read_args()
     sushi_grpc_types, _ = grpc_gen.modules_from_proto(config['protofile'])
 
-    bridge = ArpeggiatedSynthExample(f"{config['ip']}:{config['port']}", config['protofile'])
-
-    while True:
-        try:
-            time.sleep(1)
-
-        except KeyboardInterrupt:
-            # The close() method is inherited from SushiController
-            bridge.close()
-            sys.exit(0)
+    asyncio.run(main())

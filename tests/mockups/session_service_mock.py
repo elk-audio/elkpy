@@ -19,7 +19,7 @@ __license__ = "GPL-3.0"
 import grpc
 import sushi_rpc_pb2 as proto
 import sushi_rpc_pb2_grpc
-from elkpy import sushi_info_types as info
+from src.elkpy import sushi_info_types as info
 
 expected_session = proto.SessionState()
 expected_binary_session = expected_session.SerializeToString()
@@ -33,4 +33,4 @@ class SessionControllerServiceMockup(sushi_rpc_pb2_grpc.SessionControllerService
         return proto.SessionState()
 
     def RestoreSession(self, request, context):
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=45)

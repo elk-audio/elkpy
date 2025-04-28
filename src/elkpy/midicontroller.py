@@ -16,12 +16,16 @@ __copyright__ = """
 """
 __license__ = "GPL-3.0"
 
+from typing import TYPE_CHECKING, List
+if TYPE_CHECKING:
+    from elkpy.sushicontroller import SushiController
+
+from .events import SushiCommandResponse
 import grpc
 
 from . import sushierrors
 from . import sushi_info_types as info_types
 from . import grpc_gen
-from typing import List
 
 ############################################
 #   Sushi MIDI Controller class   #
@@ -35,8 +39,10 @@ class MidiController(object):
     processors, and parameters in sushi.
     """
     def __init__(self,
+                 parent: 'SushiController',
                  address: str='localhost:51051',
-                 sushi_proto_def: str='/usr/share/sushi/sushi_rpc.proto') -> None:
+                 sushi_proto_def: str='/usr/share/sushi/sushi_rpc.proto',
+                 sushi_proto = None, sushi_grpc = None) -> None:
         """
         The constructor for the MidiController class setting up the gRPC connection with sushi.
 
@@ -50,8 +56,13 @@ class MidiController(object):
             raise TypeError(f"Parameter address = {address}. Should be a string containing the ip-address and port "
                             f"to Sushi") from e
 
-        self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
+        if sushi_proto and sushi_grpc:
+            self._sushi_proto = sushi_proto
+            self._sushi_grpc = sushi_grpc
+        else:
+            self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
         self._stub = self._sushi_grpc.MidiControllerStub(channel)
+        self._parent = parent
 
     def get_input_ports(self) -> int:
         """
@@ -142,7 +153,8 @@ class MidiController(object):
             List[info_types.MidiCCConnection]: List of MidiCCConnection objects
         """
         try:
-            response = self._stub.GetCCInputConnectionsForProcessor(self._sushi_proto.ProcessorIdentifier(id=processor_id))
+            cr = self._stub.GetCCInputConnectionsForProcessor(self._sushi_proto.ProcessorIdentifier(id=processor_id))
+            response = self._parent.validate_command_response(cr, f"Get CC input connections for processor {processor_id}")
             return [info_types.MidiCCConnection(c) for c in response.connections]
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, f"With processor_id: {processor_id}")
@@ -158,8 +170,9 @@ class MidiController(object):
             List[info_types.MidiPCConnection]: List of MidiPCConnection objects
         """
         try:
-            response = self._stub.GetPCInputConnectionsForProcessor(
+            cr = self._stub.GetPCInputConnectionsForProcessor(
                 self._sushi_proto.ProcessorIdentifier(id=processor_id))
+            response = self._parent.validate_command_response(cr, f"Get PC input connections for processor {processor_id}")
             return [info_types.MidiPCConnection(c) for c in response.connections]
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, f"With processor_id: {processor_id}")
@@ -180,21 +193,28 @@ class MidiController(object):
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, f"With port: {port}")
 
-    def set_midi_clock_output_enabled(self, port: int, enabled: bool) -> None:
+    def set_midi_clock_output_enabled(self, port: int, enabled: bool) -> SushiCommandResponse:
         """
         Enable or disable MIDI clock output for a midi port.
 
         Parameters:
             port (int): The id of the output port to toggle
             enabled (bool): True to turn on clock output, False to turn off
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
-            response = self._stub.SetMidiClockOutputEnabled(
+            cr = self._stub.SetMidiClockOutputEnabled(
                 self._sushi_proto.MidiClockSetRequest(port=port, enabled=enabled))
+            return self._parent.validate_command_response(cr, f"Set MIDI clock output to {enabled}")
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, f"With port: {port}, enabled: {enabled}")
 
-    def connect_kbd_input_to_track(self, track: int, channel: int, port: int, raw_midi: bool) -> None:
+    def connect_kbd_input_to_track(self, track: int, channel: int, port: int, raw_midi: bool) -> SushiCommandResponse:
         """
         Connects MIDI Keyboard messages to a track
 
@@ -203,17 +223,24 @@ class MidiController(object):
             channel (int): The id of the channel to connect to
             port (int): The id of the port to connect to
             raw_midi (bool): Enable raw MIDI
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
-            self._stub.ConnectKbdInputToTrack(self._sushi_proto.MidiKbdConnection(track=self._sushi_proto.TrackIdentifier(id=track),
+            cr = self._stub.ConnectKbdInputToTrack(self._sushi_proto.MidiKbdConnection(track=self._sushi_proto.TrackIdentifier(id=track),
                                                                                   channel=self._sushi_proto.MidiChannel(channel=channel),
                                                                                   port=port,
                                                                                   raw_midi=raw_midi))
+            return self._parent.validate_command_response(cr, "Connect Keyboard input to track")
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, f"With MidiKbdConnection: track: {track}, channel: {channel}, "
                                                f"port: {port}, raw_midi: {raw_midi}")
 
-    def connect_kbd_output_from_track(self, track: int, channel: int, port: int, raw_midi: bool) -> None:
+    def connect_kbd_output_from_track(self, track: int, channel: int, port: int, raw_midi: bool) -> SushiCommandResponse:
         """
         Connects MIDI Keyboard messages from a track to a MIDI output port
 
@@ -222,18 +249,25 @@ class MidiController(object):
             channel (int): The id of the channel to connect to
             port (int): The id of the port to connect to
             raw_midi (bool): Enable raw MIDI
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
-            self._stub.ConnectKbdOutputFromTrack(self._sushi_proto.MidiKbdConnection(track=self._sushi_proto.TrackIdentifier(id=track),
+            cr = self._stub.ConnectKbdOutputFromTrack(self._sushi_proto.MidiKbdConnection(track=self._sushi_proto.TrackIdentifier(id=track),
                                                                                      channel=self._sushi_proto.MidiChannel(channel=channel),
                                                                                      port=port,
                                                                                      raw_midi=raw_midi))
+            return self._parent.validate_command_response(cr, "Connect Keyboard output to track")
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, f"With MidiKbdConnection: track: {track}, channel: {channel}, "
                                                f"port: {port}, raw_midi: {raw_midi}")
 
     def connect_cc_to_parameter(self, processor_id: int, parameter_id: int, channel: int, port: int, cc_number: int,
-                                min_range: float, max_range: float, relative_mode: bool) -> None:
+                                min_range: float, max_range: float, relative_mode: bool) -> SushiCommandResponse:
         """
         Connects MIDI Control Change messages to a parameter
 
@@ -246,21 +280,28 @@ class MidiController(object):
             min_range (float): The minimum parameter value used for the connection
             max_range (float): The maximum parameter value used for the connection
             relative_mode (bool): Whether the parameter changes relative to a previous value
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
-            self._stub.ConnectCCToParameter(self._sushi_proto.MidiCCConnection(parameter=self._sushi_proto.ParameterIdentifier(processor_id=processor_id, parameter_id=parameter_id),
+            cr = self._stub.ConnectCCToParameter(self._sushi_proto.MidiCCConnection(parameter=self._sushi_proto.ParameterIdentifier(processor_id=processor_id, parameter_id=parameter_id),
                                                                                channel=self._sushi_proto.MidiChannel(channel=channel),
                                                                                port=port,
                                                                                cc_number=cc_number,
                                                                                min_range=min_range,
                                                                                max_range=max_range,
                                                                                relative_mode=relative_mode))
+            return self._parent.validate_command_response(cr, f"Connect CC{cc_number} to parameter {parameter_id}")
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, f"With MidiCCConnection: parameter: {parameter}, channel: {channel}, "
+            sushierrors.grpc_error_handling(e, f"With MidiCCConnection: parameter: {parameter_id}, channel: {channel}, "
                                                f"port: {port}, cc_number: {cc_number}, min_range: {min_range}, "
                                                f"max_range: {max_range}, relative_mode: {relative_mode}.")
 
-    def connect_pc_to_processor(self, processor: int, channel: int, port: int) -> None:
+    def connect_pc_to_processor(self, processor: int, channel: int, port: int) -> SushiCommandResponse:
         """
         Connects MIDI Program Change messages to a processor
 
@@ -268,16 +309,23 @@ class MidiController(object):
             processor (int): The id of the processor to connect
             channel (int): The MIDI channel to use for the connection
             port (int): The MIDI port to use for the connection
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
-            self._stub.ConnectPCToProcessor(self._sushi_proto.MidiPCConnection(processor=self._sushi_proto.ProcessorIdentifier(id=processor),
+            cr = self._stub.ConnectPCToProcessor(self._sushi_proto.MidiPCConnection(processor=self._sushi_proto.ProcessorIdentifier(id=processor),
                                                                                channel=self._sushi_proto.MidiChannel(channel=channel),
                                                                                port=port))
+            return self._parent.validate_command_response(cr, f"Connect PC to processor {processor}")
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, f"With MidiPCConnection: processor: {processor}, channel: {channel}, "
                                                f"port: {port}.")
 
-    def disconnect_kbd_input(self, track: int, channel: int, port: int, raw_midi: bool) -> None:
+    def disconnect_kbd_input(self, track: int, channel: int, port: int, raw_midi: bool) -> SushiCommandResponse:
         """
         Disconnects a MIDI Keyboard input connection from a track
 
@@ -286,17 +334,24 @@ class MidiController(object):
             channel (int): The MIDI channel to disconnect
             port (int): The MIDI port to disconnect
             raw_midi (bool): Disconnect raw MIDI
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
-            self._stub.DisconnectKbdInput(self._sushi_proto.MidiKbdConnection(track=self._sushi_proto.TrackIdentifier(id=track),
+            cr = self._stub.DisconnectKbdInput(self._sushi_proto.MidiKbdConnection(track=self._sushi_proto.TrackIdentifier(id=track),
                                                                               channel=self._sushi_proto.MidiChannel(channel=channel),
                                                                               port=port,
                                                                               raw_midi=raw_midi))
+            return self._parent.validate_command_response(cr, f"Disconnect Keyboard input from track {track}")
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, f"With MidiKbdConnection: track: {track}, channel: {channel}, "
                                                f"port: {port}, raw_midi: {raw_midi}.")
 
-    def disconnect_kbd_output(self, track: int, channel: int, port: int, raw_midi: bool) -> None:
+    def disconnect_kbd_output(self, track: int, channel: int, port: int, raw_midi: bool) -> SushiCommandResponse:
         """
         Disconnects a MIDI Keyboard output connection from a track
 
@@ -305,18 +360,25 @@ class MidiController(object):
             channel (int): The MIDI channel to disconnect
             port (int): The MIDI port to disconnect
             raw_midi (bool): Disconnect raw MIDI
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
-            self._stub.DisconnectKbdOutput(self._sushi_proto.MidiKbdConnection(track=self._sushi_proto.TrackIdentifier(id=track),
+            cr = self._stub.DisconnectKbdOutput(self._sushi_proto.MidiKbdConnection(track=self._sushi_proto.TrackIdentifier(id=track),
                                                                                channel=self._sushi_proto.MidiChannel(channel=channel),
                                                                                port=port,
                                                                                raw_midi=raw_midi))
+            return self._parent.validate_command_response(cr, f"Disconnect MIDI output from track {track}")
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, f"With MidiKbdConnection: track: {track}, channel: {channel}, "
                                                f"port: {port}, raw_midi: {raw_midi}.")
 
     def disconnect_cc(self, processor_id: int, parameter_id: int, channel: int, port: int, cc_number: int,
-                                min_range: float, max_range: float, relative_mode: bool) -> None:
+                                min_range: float, max_range: float, relative_mode: bool) -> SushiCommandResponse:
         """
         Disconnects a MIDI Control Change connection
 
@@ -329,21 +391,28 @@ class MidiController(object):
             min_range (float): The minimum parameter value used for the connection
             max_range (float): The maximum parameter value used for the connection
             relative_mode (bool): Whether the parameter changes relative to a previous value
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
-            self._stub.DisconnectCC(self._sushi_proto.MidiCCConnection(parameter=self._sushi_proto.ParameterIdentifier(processor_id=processor_id, parameter_id=parameter_id),
+            cr = self._stub.DisconnectCC(self._sushi_proto.MidiCCConnection(parameter=self._sushi_proto.ParameterIdentifier(processor_id=processor_id, parameter_id=parameter_id),
                                                                        channel=self._sushi_proto.MidiChannel(channel=channel),
                                                                        port=port,
                                                                        cc_number=cc_number,
                                                                        min_range=min_range,
                                                                        max_range=max_range,
                                                                        relative_mode=relative_mode))
+            return self._parent.validate_command_response(cr, f"Disconnect CC from parameter {parameter_id}")
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, f"With MidiCCConnection: parameter: {parameter}, channel: {channel}, "
+            sushierrors.grpc_error_handling(e, f"With MidiCCConnection: parameter: {parameter_id}, channel: {channel}, "
                                                f"port: {port}, cc_number: {cc_number}, min_range: {min_range}, "
                                                f"max_range: {max_range}, relative_mode: {relative_mode}.")
 
-    def disconnect_pc(self, processor: int, channel: int, port: int) -> None:
+    def disconnect_pc(self, processor: int, channel: int, port: int) -> SushiCommandResponse:
         """
         Disconnects a MIDI Program Change connection
 
@@ -351,35 +420,56 @@ class MidiController(object):
             processor (int): The id of the processor to connect
             channel (int): The MIDI channel to use for the connection
             port (int): The MIDI port to use for the connection
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
-            self._stub.DisconnectPC(self._sushi_proto.MidiPCConnection(processor=self._sushi_proto.ProcessorIdentifier(id=processor),
+            cr = self._stub.DisconnectPC(self._sushi_proto.MidiPCConnection(processor=self._sushi_proto.ProcessorIdentifier(id=processor),
                                                                        channel=self._sushi_proto.MidiChannel(channel=channel),
                                                                        port=port))
+            return self._parent.validate_command_response(cr, f"Disconnect PC from processor {processor}")
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, f"With MidiPCConnection: processor: {processor}, channel: {channel}, "
                                                f"port: {port}.")
 
-    def disconnect_all_cc_from_processor(self, processor_id: int) -> None:
+    def disconnect_all_cc_from_processor(self, processor_id: int) -> SushiCommandResponse:
         """
         Disconnects all MIDI Control Change connections from a processor
 
         Parameters:
             processor_id (int): The id of the processor to disconnect
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
-            self._stub.DisconnectAllCCFromProcessor(self._sushi_proto.ProcessorIdentifier(id=processor_id))
+            cr = self._stub.DisconnectAllCCFromProcessor(self._sushi_proto.ProcessorIdentifier(id=processor_id))
+            return self._parent.validate_command_response(cr, f"Disconnect all CC from processor {processor_id}")
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, f"With processor_id: {processor_id}")
 
-    def disconnect_all_pc_from_processor(self, processor_id: int) -> None:
+    def disconnect_all_pc_from_processor(self, processor_id: int) -> SushiCommandResponse:
         """
         Disconnects all MIDI Program Change connections from a processor
 
         Parameters:
             processor_id (int): The id of processor to disconnect
+
+        Returns:
+            SushiCommandResponse: an asyncio.Event that will be set asynchronously by elkpy when
+            the command has been completed.
+            The user MAY await it in an asynchronous program, or check .is_set() on it in a
+            loop.
         """
         try:
-            self._stub.DisconnectAllPCFromProcessor(self._sushi_proto.ProcessorIdentifier(id=processor_id))
+            cr = self._stub.DisconnectAllPCFromProcessor(self._sushi_proto.ProcessorIdentifier(id=processor_id))
+            return self._parent.validate_command_response(cr, f"Disconnect all PC from processor {processor_id}")
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, f"With processor_id: {processor_id}")

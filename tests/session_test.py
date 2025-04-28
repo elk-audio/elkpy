@@ -19,25 +19,24 @@ __license__ = "GPL-3.0"
 import os
 import sys
 import unittest
-import time
 import grpc
 
 from concurrent import futures
 from tests.mockups import session_service_mock
-from elkpy import sessioncontroller as sc
-from elkpy import sushi_info_types as info_types
+from src.elkpy import sushicontroller as sc
 
-from elkpy import grpc_gen
-from elkpy import sushierrors
+from src.elkpy import grpc_gen
 
-proto_file = os.environ.get('SUSHI_GRPC_ELKPY_PROTO')
+proto_file = os.environ.get("SUSHI_GRPC_ELKPY_PROTO")
 if proto_file is None:
-    print("Environment variable SUSHI_GRPC_ELKPY_PROTO not defined, set it to point the .proto definition")
+    print(
+        "Environment variable SUSHI_GRPC_ELKPY_PROTO not defined, set it to point the .proto definition"
+    )
     sys.exit(-1)
 
 SUSHI_PROTO, SUSHI_GRPC = grpc_gen.modules_from_proto(proto_file)
 
-SUSHI_ADDRESS = ('localhost:51063')
+SUSHI_ADDRESS = "localhost:51063"
 
 mock_server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 service = session_service_mock.SessionControllerServiceMockup()
@@ -45,15 +44,21 @@ SUSHI_GRPC.add_SessionControllerServicer_to_server(service, mock_server)
 mock_server.add_insecure_port(SUSHI_ADDRESS)
 mock_server.start()
 
+
 class TestSessionController(unittest.TestCase):
     def setUp(self):
-        self._sc = sc.SessionController(SUSHI_ADDRESS, proto_file)
+        self._sushic = sc.SushiController(address=SUSHI_ADDRESS, sushi_proto_def=proto_file)
+        self._sc = self._sushic.session 
 
     def test_save_session(self):
-        self.assertEqual(self._sc.save_binary_session(),
-                         session_service_mock.expected_binary_session)
+        self.assertEqual(
+            self._sc.save_binary_session(), session_service_mock.expected_binary_session
+        )
 
     def test_restore_state(self):
-        self.assertEqual(self._sc.restore_binary_session(session_service_mock.expected_binary_session),
-                         None)
-
+        self.assertEqual(
+            self._sc.restore_binary_session(
+                session_service_mock.expected_binary_session
+            ).is_set(),
+            False,
+        )

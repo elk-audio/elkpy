@@ -19,25 +19,25 @@ __license__ = "GPL-3.0"
 import os
 import sys
 import unittest
-import time
 import grpc
 
 from concurrent import futures
 from tests.mockups import program_service_mock
-from elkpy import programcontroller as pc
-from elkpy import sushi_info_types as info_types
+from src.elkpy import sushicontroller as sc
 
-from elkpy import grpc_gen
-from elkpy import sushierrors
+from src.elkpy import grpc_gen
+from src.elkpy import sushierrors
 
-proto_file = os.environ.get('SUSHI_GRPC_ELKPY_PROTO')
+proto_file = os.environ.get("SUSHI_GRPC_ELKPY_PROTO")
 if proto_file is None:
-    print("Environment variable SUSHI_GRPC_ELKPY_PROTO not defined, set it to point the .proto definition")
+    print(
+        "Environment variable SUSHI_GRPC_ELKPY_PROTO not defined, set it to point the .proto definition"
+    )
     sys.exit(-1)
 
 SUSHI_PROTO, SUSHI_GRPC = grpc_gen.modules_from_proto(proto_file)
 
-SUSHI_ADDRESS = ('localhost:51059')
+SUSHI_ADDRESS = "localhost:51059"
 
 mock_server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 service = program_service_mock.ProgramControllerServiceMockup()
@@ -45,41 +45,64 @@ SUSHI_GRPC.add_ProgramControllerServicer_to_server(service, mock_server)
 mock_server.add_insecure_port(SUSHI_ADDRESS)
 mock_server.start()
 
+
 class TestProgramController(unittest.TestCase):
     def setUp(self):
-        self._pc = pc.ProgramController(SUSHI_ADDRESS, proto_file)
+        self._sc = sc.SushiController(address=SUSHI_ADDRESS, sushi_proto_def=proto_file)
+        self._pc = self._sc.programs
 
     def test_get_processor_current_program(self):
-        self.assertEqual(self._pc.get_processor_current_program(program_service_mock.expected_processor_identifier.id),
-                         program_service_mock.expected_program_1.id)
+        self.assertEqual(
+            self._pc.get_processor_current_program(
+                program_service_mock.expected_processor_identifier.id
+            ),
+            program_service_mock.expected_program_1.id,
+        )
 
         with self.assertRaises(sushierrors.SushiInvalidArgumentError):
             self._pc.get_processor_current_program(-1)
 
     def test_get_processor_current_program_name(self):
-        self.assertEqual(self._pc.get_processor_current_program_name(program_service_mock.expected_processor_identifier.id),
-                         program_service_mock.expected_program_1.name)
+        self.assertEqual(
+            self._pc.get_processor_current_program_name(
+                program_service_mock.expected_processor_identifier.id
+            ),
+            program_service_mock.expected_program_1.name,
+        )
 
         with self.assertRaises(sushierrors.SushiInvalidArgumentError):
             self._pc.get_processor_current_program_name(-1)
 
     def test_get_processor_program_name(self):
-        self.assertEqual(self._pc.get_processor_program_name(
-            program_service_mock.expected_processor_identifier.id,
-            program_service_mock.expected_program_1.id),
-            program_service_mock.expected_program_1.name)
+        self.assertEqual(
+            self._pc.get_processor_program_name(
+                program_service_mock.expected_processor_identifier.id,
+                program_service_mock.expected_program_1.id,
+            ),
+            program_service_mock.expected_program_1.name,
+        )
 
-        self.assertEqual(self._pc.get_processor_program_name(
-            program_service_mock.expected_processor_identifier.id,
-            program_service_mock.expected_program_2.id),
-            program_service_mock.expected_program_2.name)
+        self.assertEqual(
+            self._pc.get_processor_program_name(
+                program_service_mock.expected_processor_identifier.id,
+                program_service_mock.expected_program_2.id,
+            ),
+            program_service_mock.expected_program_2.name,
+        )
 
         with self.assertRaises(sushierrors.SushiInvalidArgumentError):
             self._pc.get_processor_program_name(-1, -1)
 
     def test_get_processor_programs(self):
-        self.assertEqual(self._pc.get_processor_programs(program_service_mock.expected_processor_identifier.id),
-                         [program_service_mock.expected_program_1, program_service_mock.expected_program_2])
+        self.assertEqual(
+            self._pc.get_processor_programs(
+                program_service_mock.expected_processor_identifier.id
+            ),
+            [
+                program_service_mock.expected_program_1,
+                program_service_mock.expected_program_2,
+            ],
+        )
 
         with self.assertRaises(sushierrors.SushiInvalidArgumentError):
             self._pc.get_processor_programs(-1)
@@ -87,8 +110,11 @@ class TestProgramController(unittest.TestCase):
     def test_set_processor_program(self):
         self._pc.set_processor_program(
             program_service_mock.expected_program_set_request.processor.id,
-            program_service_mock.expected_program_set_request.program.program
+            program_service_mock.expected_program_set_request.program.program,
         )
 
         self.assertTrue(service.was_called())
-        self.assertEqual(service.get_recent_request(), program_service_mock.expected_program_set_request)
+        self.assertEqual(
+            service.get_recent_request(),
+            program_service_mock.expected_program_set_request,
+        )

@@ -16,11 +16,10 @@ __copyright__ = """
 """
 __license__ = "GPL-3.0"
 
-from . import sushicontroller as sc
 from .sushicontroller import SushiController
 from typing import List
 
-class SushiProcessor(object):
+class SushiProcessor:
     """
     A Class to provide control of a specific processor in sushi.
 
@@ -135,37 +134,37 @@ class SushiProcessor(object):
             program_name (str): The name of the program to set the processor to.
         """
         try:
-            self._controller.audio_graph.set_processor_program(self._id, self._programs[program_name])
+            self._controller.programs.set_processor_program(self._id, self._programs[program_name])
         except KeyError:
-            self._controller.audio_graph.set_processor_program(self._id, program_name)
+            pass
 
     def set_program_next(self):
         """
         Set the processor to the next program or loopback to the beginning if at the end of the program list
         """
         number_of_programs = len(self._programs)
-        current_program_index = self._controller.audio_graph.get_processor_current_program(self._id)
+        current_program_index = self._controller.programs.get_processor_current_program(self._id)
 
         if current_program_index == number_of_programs-1:
             new_program_index = 0
         else:
             new_program_index = current_program_index + 1
 
-        self._controller.audio_graph.set_processor_program(self._id, new_program_index)
+        self._controller.programs.set_processor_program(self._id, new_program_index)
 
     def set_program_previous(self):
         """
         Set the processor to the previous program or loopback to the end if at the start of the program list
         """
         number_of_programs = len(self._programs)
-        current_program_index = self._controller.audio_graph.get_processor_current_program(self._id)
+        current_program_index = self._controller.programs.get_processor_current_program(self._id)
 
         if current_program_index == 0:
             new_program_index = number_of_programs-1
         else:
             new_program_index = current_program_index - 1
 
-        self._controller.audio_graph.set_processor_program(self._id, new_program_index)
+        self._controller.programs.set_processor_program(self._id, new_program_index)
 
     def get_program(self) -> str:
         """

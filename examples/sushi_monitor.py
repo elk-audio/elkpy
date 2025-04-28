@@ -126,6 +126,7 @@ class Listener(SushiController):
         track = self._processors[notif.parent_track.id]['info']
 
         if notif.action == 1:  # PROCESSOR_ADDED
+            info = self.audio_graph.get_processor_info(notif.processor.id)
             self._add_processor(info)
             print(f"Processor \"{info.name}\" ({info.id}) added to track \"{track.name}\" ({track.id})")
 

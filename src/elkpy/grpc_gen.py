@@ -21,8 +21,11 @@ import os
 import sys
 import importlib
 import grpc_tools.protoc as gprotoc
+from types import ModuleType
+from typing import Tuple 
 
-def modules_from_proto(proto_filename):
+
+def modules_from_proto(proto_filename: str) -> Tuple[ModuleType, ModuleType]:
     """
     Run protoc compiler and get generated modules.
 

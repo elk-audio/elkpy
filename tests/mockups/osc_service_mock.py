@@ -19,7 +19,7 @@ __license__ = "GPL-3.0"
 import grpc
 import sushi_rpc_pb2 as proto
 import sushi_rpc_pb2_grpc
-from elkpy import sushi_info_types as info
+from src.elkpy import sushi_info_types as info
 
 expected_osc_send_port = 24024
 expected_osc_receive_port = 24023
@@ -48,21 +48,21 @@ class OscControllerServiceMockup(sushi_rpc_pb2_grpc.OscControllerServicer):
         if request.processor_id == expected_processor_id \
         and request.parameter_id == expected_parameter_id:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def DisableOutputForParameter(self, request, context):
         if request.processor_id == expected_processor_id \
         and request.parameter_id == expected_parameter_id:
             self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def EnableAllOutput(self, request, context):
         self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def DisableAllOutput(self, request, context):
         self.called = True
-        return proto.GenericVoidValue()
+        return proto.CommandResponse(status=proto.CommandStatus(status=2), id=0)
 
     def was_called(self):
         result = self.called

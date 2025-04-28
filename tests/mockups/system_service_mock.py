@@ -19,9 +19,9 @@ __license__ = "GPL-3.0"
 import grpc
 import sushi_rpc_pb2 as proto
 import sushi_rpc_pb2_grpc
-from elkpy import sushi_info_types as info
+from src.elkpy import sushi_info_types as info
 
-expected_build_info = info.SushiBuildInfo()
+expected_build_info = info.SushiBuildInfo({})
 expected_build_info.version = "0.11.0"
 expected_build_info.build_options = ["WITH_VST", "WITH_XENOMAI"]
 expected_build_info.audio_buffer_size = 64

@@ -19,16 +19,13 @@ __license__ = "GPL-3.0"
 import os
 import sys
 import unittest
-import time
 import grpc
 
 from concurrent import futures
 from tests.mockups import cvgate_service_mock
-from elkpy import cvgatecontroller as cgc
-from elkpy import sushi_info_types as info_types
+from src.elkpy import sushicontroller as sc
 
-from elkpy import grpc_gen
-from elkpy import sushierrors
+from src.elkpy import grpc_gen
 
 proto_file = os.environ.get('SUSHI_GRPC_ELKPY_PROTO')
 if proto_file is None:
@@ -45,13 +42,12 @@ SUSHI_GRPC.add_CvGateControllerServicer_to_server(service, mock_server)
 mock_server.add_insecure_port(SUSHI_ADDRESS)
 mock_server.start()
 
+
 class TestCVGateController(unittest.TestCase):
     def setUp(self):
-        self._cgc = cgc.CvGateController(SUSHI_ADDRESS, proto_file)
+        self._sc = sc.SushiController(address=SUSHI_ADDRESS, sushi_proto_def=proto_file)
+        self._cgc = self._sc.cv_gate_controller
 
-    def test_get_cv_input_channel_count(self):
-        self.assertEqual(self._cgc.get_cv_input_channel_count(),
-                        cvgate_service_mock.expected_cv_input_channel_count)
 
     def test_get_cv_input_channel_count(self):
         self.assertEqual(self._cgc.get_cv_output_channel_count(),

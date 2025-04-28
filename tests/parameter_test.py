@@ -19,16 +19,14 @@ __license__ = "GPL-3.0"
 import os
 import sys
 import unittest
-import time
 import grpc
 
 from concurrent import futures
 from tests.mockups import parameter_service_mock
-from elkpy import parametercontroller as pc
-from elkpy import sushi_info_types as info_types
+from src.elkpy import sushicontroller as sc
 
-from elkpy import grpc_gen
-from elkpy import sushierrors
+from src.elkpy import grpc_gen
+from src.elkpy import sushierrors
 
 proto_file = os.environ.get('SUSHI_GRPC_ELKPY_PROTO')
 if proto_file is None:
@@ -47,7 +45,8 @@ mock_server.start()
 
 class TestParameterController(unittest.TestCase):
     def setUp(self):
-        self._pc = pc.ParameterController(SUSHI_ADDRESS, proto_file)
+        self._sc = sc.SushiController(address=SUSHI_ADDRESS, sushi_proto_def=proto_file)
+        self._pc = self._sc.parameters
 
     def test_get_track_parameters(self):
         self.assertEqual(self._pc.get_track_parameters(
