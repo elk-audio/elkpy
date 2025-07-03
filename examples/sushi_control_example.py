@@ -26,7 +26,7 @@ import asyncio
 from elkpy.sushi_info_types import PluginType
 from elkpy import grpc_gen
 
-# This is needed to run sushi_monitor.py from within the examples folder without also copying elkpy to it.
+# This is needed to run the example from within the examples folder without also copying elkpy to it.
 sys.path.append("../elkpy/")
 
 from elkpy.sushicontroller import SushiController
@@ -82,8 +82,10 @@ def read_args() -> dict:
 
 class ArpeggiatedSynthExample(SushiController):
     """ 
-    This example takes an existing setup of Sushi, with a single main track connected to MIDI input,
-    adds a sequencer, a synth, and an effect, and sets their values to play back an arpeggio.
+    This example takes an existing setup of Sushi:
+     A single main track connected to MIDI input.
+     It adds a sequencer, a synth, and an effect.
+     When done, it sets their values to play back an arpeggio.
     """
 
     def __init__(self, address: str, proto_file: str):
