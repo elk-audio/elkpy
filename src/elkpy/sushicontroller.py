@@ -18,6 +18,7 @@ __license__ = "GPL-3.0"
 
 from pathlib import Path
 from typing import Any
+import re
 
 from .events import SushiCommandResponse
 
@@ -117,6 +118,10 @@ class SushiController:
         self.session = sessioncontroller.SessionController(
             self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
         )
+
+        if not self.check_sushi_api_compatibility():
+            sys.exit()
+
         self.notifications = notificationcontroller.NotificationController(
             self,
             address,
@@ -127,6 +132,30 @@ class SushiController:
         )
 
         self.command_responses: dict[int, SushiCommandResponse] = {}
+
+    def check_sushi_api_compatibility(self) -> bool:
+        """Verifies that the version of the api used by elkpy matches the one build in Sushi"""
+
+        api_proto_file = Path(__file__).parent.parent.parent / "sushi-grpc-api" / "api_version.proto"
+
+        with open(api_proto_file, 'r') as f:
+            content = f.read()
+        
+        # Find: [default = "something"]
+        match = re.search(r'\[default\s*=\s*"([^"]+)"\]', content)
+        
+        if match:
+            api_version = match.group(1)
+            sushi_version = self.system.get_sushi_api_version() 
+            if api_version == sushi_version:
+                print("API match!")
+                return True
+            else:
+                print(f"API version mismatch! Sushi = {sushi_version} <-> Elkpy = {api_version}")
+                sys.exit()
+        
+        raise ValueError("No default api version found")
+
 
     def validate_command_response(self, cr, context_info: str = "") -> Any:
         match CommandResponseStatus(cr.status.status):
