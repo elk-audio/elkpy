@@ -1,0 +1,1039 @@
+/** gRPC definitions for external control of sushi
+ *
+ * @copyright 2018 - 2025 Elk Audio AB, Stockholm
+ */
+
+syntax = "proto3";
+
+package sushi_rpc;
+
+service SystemController
+{
+    rpc GetSushiVersion (GenericVoidValue) returns (GenericStringValue) {}
+    rpc GetSushiApiVersion (GenericVoidValue) returns (GenericStringValue) {}
+    rpc GetBuildInfo (GenericVoidValue) returns (SushiBuildInfo) {}
+
+    rpc GetInputAudioChannelCount (GenericVoidValue) returns (GenericIntValue) {}
+    rpc GetOutputAudioChannelCount (GenericVoidValue) returns (GenericIntValue) {}
+}
+
+service TransportController
+{
+    rpc GetSamplerate (GenericVoidValue) returns (GenericFloatValue) {}
+    rpc GetPlayingMode (GenericVoidValue) returns (PlayingMode) {}
+    rpc GetSyncMode (GenericVoidValue) returns (SyncMode) {}
+    rpc GetTimeSignature (GenericVoidValue) returns (TimeSignature) {}
+    rpc GetTempo (GenericVoidValue) returns (GenericFloatValue) {}
+
+    rpc SetTempo (GenericFloatValue) returns (CommandResponse) {}
+    rpc SetPlayingMode (PlayingMode) returns (CommandResponse) {}
+    rpc SetSyncMode (SyncMode) returns (CommandResponse) {}
+    rpc SetTimeSignature (TimeSignature) returns (CommandResponse) {}
+}
+
+service TimingController
+{
+    rpc GetTimingsEnabled (GenericVoidValue) returns (GenericBoolValue) {}
+    rpc SetTimingsEnabled (GenericBoolValue) returns (CommandResponse) {}
+
+    rpc GetEngineTimings (GenericVoidValue) returns (CpuTimings) {}
+    rpc GetTrackTimings (TrackIdentifier) returns (TimingResponse) {}
+    rpc GetProcessorTimings (ProcessorIdentifier) returns (TimingResponse) {}
+
+    rpc ResetAllTimings (GenericVoidValue) returns (CommandResponse) {}
+    rpc ResetTrackTimings (TrackIdentifier) returns (CommandResponse) {}
+    rpc ResetProcessorTimings (ProcessorIdentifier) returns (CommandResponse) {}
+}
+
+service KeyboardController
+{
+    rpc SendNoteOn (NoteOnRequest) returns (CommandResponse) {}
+    rpc SendNoteOff (NoteOffRequest) returns (CommandResponse) {}
+    rpc SendNoteAftertouch (NoteAftertouchRequest) returns (CommandResponse) {}
+    rpc SendAftertouch (NoteModulationRequest) returns (CommandResponse) {}
+    rpc SendPitchBend (NoteModulationRequest) returns (CommandResponse) {}
+    rpc SendModulation (NoteModulationRequest) returns (CommandResponse) {}
+}
+
+service AudioGraphController
+{
+    rpc GetAllProcessors (GenericVoidValue) returns (ProcessorInfoList) {}
+    rpc GetAllTracks (GenericVoidValue) returns (TrackInfoList) {}
+    rpc GetTrackId (GenericStringValue) returns (TrackIdentifierResponse) {}
+    rpc GetTrackInfo (TrackIdentifier) returns (TrackInfoResponse) {}
+    rpc GetTrackProcessors (TrackIdentifier) returns (ProcessorInfoListResponse) {}
+    rpc GetProcessorId (GenericStringValue) returns (ProcessorIdentifierResponse) {}
+    rpc GetProcessorInfo (ProcessorIdentifier) returns (ProcessorInfoResponse) {}
+    rpc GetProcessorBypassState (ProcessorIdentifier) returns (BoolResponse) {}
+    rpc GetProcessorState (ProcessorIdentifier) returns (ProcessorStateResponse) {}
+
+    rpc SetProcessorBypassState (ProcessorBypassStateSetRequest) returns (CommandResponse) {}
+    rpc SetProcessorState (ProcessorStateSetRequest) returns (CommandResponse) {}
+
+    rpc CreateTrack (CreateTrackRequest) returns (CommandResponse) {}
+    rpc CreateMultibusTrack (CreateMultibusTrackRequest) returns (CommandResponse) {}
+    rpc CreatePreTrack (CreatePreTrackRequest) returns (CommandResponse) {}
+    rpc CreatePostTrack (CreatePostTrackRequest) returns (CommandResponse) {}
+    rpc CreateProcessorOnTrack (CreateProcessorRequest) returns (CommandResponse) {}
+    rpc MoveProcessorOnTrack (MoveProcessorRequest) returns (CommandResponse) {}
+
+    rpc DeleteProcessorFromTrack (DeleteProcessorRequest) returns (CommandResponse) {}
+    rpc DeleteTrack (TrackIdentifier) returns (CommandResponse) {}
+}
+
+service ProgramController
+{
+    rpc GetProcessorCurrentProgram (ProcessorIdentifier) returns (ProgramIdentifierResponse) {}
+    rpc GetProcessorCurrentProgramName (ProcessorIdentifier) returns (StringResponse) {}
+    rpc GetProcessorProgramName (ProcessorProgramIdentifier) returns (StringResponse) {}
+    rpc GetProcessorPrograms (ProcessorIdentifier) returns (ProgramInfoListResponse) {}
+
+    rpc SetProcessorProgram (ProcessorProgramSetRequest) returns (CommandResponse) {}
+}
+
+service ParameterController
+{
+    rpc GetTrackParameters (TrackIdentifier) returns (ParameterInfoListResponse) {}
+    rpc GetProcessorParameters (ProcessorIdentifier) returns (ParameterInfoListResponse) {}
+    rpc GetParameterId (ParameterIdRequest) returns (ParameterIdentifierResponse) {}
+    rpc GetParameterInfo (ParameterIdentifier) returns (ParameterInfoResponse) {}
+    rpc GetParameterValue (ParameterIdentifier) returns (FloatResponse) {}
+    rpc GetParameterValueInDomain (ParameterIdentifier) returns (FloatResponse) {}
+    rpc GetParameterValueAsString (ParameterIdentifier) returns (StringResponse) {}
+    rpc SetParameterValue (ParameterValue) returns (CommandResponse) {}
+
+    rpc GetTrackProperties (TrackIdentifier) returns (PropertyInfoListResponse) {}
+    rpc GetProcessorProperties (ProcessorIdentifier) returns (PropertyInfoListResponse) {}
+    rpc GetPropertyId (PropertyIdRequest) returns (PropertyIdentifierResponse) {}
+    rpc GetPropertyInfo (PropertyIdentifier) returns (PropertyInfoResponse) {}
+    rpc GetPropertyValue (PropertyIdentifier) returns (StringResponse) {}
+    rpc SetPropertyValue (PropertyValue) returns (CommandResponse) {}
+}
+
+service MidiController
+{
+    rpc GetInputPorts (GenericVoidValue) returns (GenericIntValue) {}
+    rpc GetOutputPorts (GenericVoidValue) returns (GenericIntValue) {}
+
+    rpc GetAllKbdInputConnections (GenericVoidValue) returns (MidiKbdConnectionList) {}
+    rpc GetAllKbdOutputConnections (GenericVoidValue) returns (MidiKbdConnectionList) {}
+    rpc GetAllCCInputConnections (GenericVoidValue) returns (MidiCCConnectionList) {}
+    rpc GetAllPCInputConnections (GenericVoidValue) returns (MidiPCConnectionList) {}
+    rpc GetCCInputConnectionsForProcessor (ProcessorIdentifier) returns (MidiCCConnectionListResponse) {}
+    rpc GetPCInputConnectionsForProcessor (ProcessorIdentifier) returns (MidiPCConnectionListResponse) {}
+
+    rpc GetMidiClockOutputEnabled (GenericIntValue) returns (GenericBoolValue) {}
+    rpc SetMidiClockOutputEnabled (MidiClockSetRequest) returns (CommandResponse) {}
+
+    rpc ConnectKbdInputToTrack (MidiKbdConnection) returns (CommandResponse) {}
+    rpc ConnectKbdOutputFromTrack (MidiKbdConnection) returns (CommandResponse) {}
+    rpc ConnectCCToParameter (MidiCCConnection) returns (CommandResponse) {}
+    rpc ConnectPCToProcessor (MidiPCConnection) returns (CommandResponse) {}
+
+    rpc DisconnectKbdInput (MidiKbdConnection) returns (CommandResponse) {}
+    rpc DisconnectKbdOutput (MidiKbdConnection) returns (CommandResponse) {}
+    rpc DisconnectCC (MidiCCConnection) returns (CommandResponse) {}
+    rpc DisconnectPC (MidiPCConnection) returns (CommandResponse) {}
+    rpc DisconnectAllCCFromProcessor (ProcessorIdentifier) returns (CommandResponse) {}
+    rpc DisconnectAllPCFromProcessor (ProcessorIdentifier) returns (CommandResponse) {}
+}
+
+service AudioRoutingController
+{
+    rpc GetAllInputConnections (GenericVoidValue) returns (AudioConnectionList) {}
+    rpc GetAllOutputConnections (GenericVoidValue) returns (AudioConnectionList) {}
+    rpc GetInputConnectionsForTrack (TrackIdentifier) returns (AudioConnectionListResponse) {}
+    rpc GetOutputConnectionsForTrack (TrackIdentifier) returns (AudioConnectionListResponse) {}
+
+    rpc ConnectInputChannelToTrack (AudioConnection) returns (CommandResponse) {}
+    rpc ConnectOutputChannelFromTrack (AudioConnection) returns (CommandResponse) {}
+
+    rpc DisconnectInput (AudioConnection) returns (CommandResponse) {}
+    rpc DisconnectOutput (AudioConnection) returns (CommandResponse) {}
+    rpc DisconnectAllInputsFromTrack (TrackIdentifier) returns (CommandResponse) {}
+    rpc DisconnectAllOutputFromTrack (TrackIdentifier) returns (GenericVoidValue) {option deprecated = true;}
+    rpc DisconnectAllOutputsFromTrack (TrackIdentifier) returns (CommandResponse) {}
+}
+
+service CvGateController
+{
+    rpc GetCvInputChannelCount (GenericVoidValue) returns (GenericIntValue) {}
+    rpc GetCvOutputChannelCount (GenericVoidValue) returns (GenericIntValue) {}
+
+    rpc GetAllCvInputConnections (GenericVoidValue) returns (CvConnectionList) {}
+    rpc GetAllCvOutputConnections (GenericVoidValue) returns (CvConnectionList) {}
+    rpc GetAllGateInputConnections (GenericVoidValue) returns (GateConnectionList) {}
+    rpc GetAllGateOutputConnections (GenericVoidValue) returns (GateConnectionList) {}
+    rpc GetCvInputConnectionsForProcessor (ProcessorIdentifier) returns (CvConnectionListResponse) {}
+    rpc GetCvOutputConnectionsForProcessor (ProcessorIdentifier) returns (CvConnectionListResponse) {}
+    rpc GetGateInputConnectionsForProcessor (ProcessorIdentifier) returns (GateConnectionListResponse) {}
+    rpc GetGateOutputConnectionsForProcessor (ProcessorIdentifier) returns (GateConnectionListResponse) {}
+
+    rpc ConnectCvInputToParameter (CvConnection) returns (CommandResponse) {}
+    rpc ConnectCvOutputFromParameter (CvConnection) returns (CommandResponse) {}
+    rpc ConnectGateInputToProcessor (GateConnection) returns (CommandResponse) {}
+    rpc ConnectGateOutputFromProcessor (GateConnection) returns (CommandResponse) {}
+
+    rpc DisconnectCvInput (CvConnection) returns (CommandResponse) {}
+    rpc DisconnectCvOutput (CvConnection) returns (CommandResponse) {}
+    rpc DisconnectGateInput (GateConnection) returns (CommandResponse) {}
+    rpc DisconnectGateOutput (GateConnection) returns (CommandResponse) {}
+    rpc DisconnectAllCvInputsFromProcessor (ProcessorIdentifier) returns (CommandResponse) {}
+    rpc DisconnectAllCvOutputsFromProcessor (ProcessorIdentifier) returns (CommandResponse) {}
+    rpc DisconnectAllGateInputsFromProcessor (ProcessorIdentifier) returns (CommandResponse) {}
+    rpc DisconnectAllGateOutputsFromProcessor (ProcessorIdentifier) returns (CommandResponse) {}
+}
+
+service OscController
+{
+    rpc GetSendIP (GenericVoidValue) returns (GenericStringValue) {}
+    rpc GetSendPort (GenericVoidValue) returns (GenericIntValue) {}
+    rpc GetReceivePort (GenericVoidValue) returns (GenericIntValue) {}
+    rpc GetEnabledParameterOutputs (GenericVoidValue) returns (OscParameterOutputList) {}
+    rpc EnableOutputForParameter (ParameterIdentifier) returns (CommandResponse) {}
+    rpc DisableOutputForParameter (ParameterIdentifier) returns (CommandResponse) {}
+    rpc EnableAllOutput (GenericVoidValue) returns (CommandResponse) {}
+    rpc DisableAllOutput (GenericVoidValue) returns (CommandResponse) {}
+}
+
+service SessionController
+{
+    rpc SaveSession (GenericVoidValue) returns (SessionState) {}
+    rpc RestoreSession (SessionState) returns (CommandResponse) {}
+}
+
+service NotificationController
+{
+    rpc SubscribeToTransportChanges (GenericVoidValue) returns (stream TransportUpdate) {}
+    rpc SubscribeToEngineCpuTimingUpdates (GenericVoidValue) returns (stream CpuTimings) {}
+    rpc SubscribeToTrackChanges (GenericVoidValue) returns (stream TrackUpdate) {}
+    rpc SubscribeToProcessorChanges (GenericVoidValue) returns (stream ProcessorUpdate) {}
+    rpc SubscribeToParameterUpdates (ParameterNotificationBlocklist) returns (stream ParameterUpdate) {}
+    rpc SubscribeToPropertyUpdates (PropertyNotificationBlocklist) returns (stream PropertyValue) {}
+    rpc SubscribeToAsyncCommandUpdates (GenericVoidValue) returns (stream AsyncCommandResponse) {}
+}
+
+/**
+ * Global wrappers for primitive types.
+ *
+ * gRPC requires the usage of custom messages as arguments/return types of services,
+ * and it is good practice to define custom values for better future expansion of the
+ * protocol.
+ *
+ * However, this leads to unnecessary bloat especially for cases where it's clear
+ * that a primitive type is the best choice (e.g. GetNumSomething), so we define here
+ * some common cases to all services.
+ */
+
+message GenericVoidValue {}
+
+message GenericFloatValue
+{
+    float value = 1;
+}
+
+message GenericIntValue
+{
+    int32 value = 1;
+}
+
+message GenericBoolValue
+{
+    bool value = 1;
+}
+
+message GenericStringValue
+{
+    string value = 1;
+}
+
+message FloatResponse
+{
+    CommandStatus status = 1;
+    float value = 2;
+}
+
+message IntResponse
+{
+    CommandStatus status = 1;
+    int32 value = 2;
+}
+
+message BoolResponse
+{
+    CommandStatus status = 1;
+    bool value = 2;
+}
+
+message StringResponse
+{
+    CommandStatus status = 1;
+    string value = 2;
+}
+
+message OptionalBoolValue
+{
+    bool has_value = 1;
+    bool value = 2;
+}
+
+message OptionalIntValue
+{
+    bool has_value = 1;
+    int32 value = 2;
+}
+
+/* Common types */
+
+message CommandStatus
+{
+    enum Status
+    {
+        DUMMY = 0;
+        SUCCESS = 1;
+        ASYNC_RESPONSE = 2;
+        ERROR = 3;
+        UNSUPPORTED_OPERATION = 4;
+        NOT_FOUND = 5;
+        OUT_OF_RANGE = 6;
+        INVALID_ARGUMENTS = 7;
+    }
+    Status status = 1;
+}
+
+message CommandResponse
+{
+    CommandStatus status = 1;
+    int32 id = 2;
+}
+
+message AsyncCommandResponse
+{
+    CommandStatus status = 1;
+    int32 request_id = 2;
+}
+
+message SushiBuildInfo
+{
+    string          version = 1;
+    repeated string build_options = 2;
+    int32           audio_buffer_size = 3;
+    string          commit_hash = 4;
+    string          build_date = 5;
+}
+
+message TrackIdentifier
+{
+    int32 id = 1;
+}
+
+message TrackIdentifierResponse
+{
+    CommandStatus status = 1;
+    int32 id = 2;
+}
+
+message ProcessorIdentifier
+{
+    int32 id = 1;
+}
+
+message ProcessorIdentifierResponse
+{
+    CommandStatus status = 1;
+    int32 id = 2;
+}
+
+message ParameterIdentifier
+{
+    int32 processor_id = 1;
+    int32 parameter_id = 2;
+}
+
+message ParameterIdentifierResponse
+{
+    CommandStatus status = 1;
+    ParameterIdentifier id = 2;
+}
+
+message PropertyIdentifier
+{
+    int32 processor_id = 1;
+    int32 property_id = 2;
+}
+
+message PropertyIdentifierResponse
+{
+    CommandStatus status = 1;
+    PropertyIdentifier id = 2;
+}
+
+/* 0 is reserved for "not set" in protobuf, so we don't use it for a valid response */
+message ParameterType
+{
+    enum Type
+    {
+        DUMMY = 0;
+        BOOL = 1;
+        INT = 2;
+        FLOAT = 3;
+    }
+    Type type = 1;
+}
+
+/* Messages */
+
+message PlayingMode
+{
+    enum Mode
+    {
+        DUMMY = 0;
+        STOPPED = 1;
+        PLAYING = 2;
+        RECORDING = 3;
+    }
+    Mode mode = 1;
+}
+
+message SyncMode
+{
+    enum Mode
+    {
+        DUMMY = 0;
+        INTERNAL = 1;
+        MIDI = 2;
+        LINK = 3;
+    }
+    Mode mode = 1;
+}
+
+message TimeSignature
+{
+    int32 numerator = 1;
+    int32 denominator = 2;
+}
+
+message Timings
+{
+    float average = 1;
+    float min = 2;
+    float max = 3;
+}
+
+message CpuTimings
+{
+    Timings main = 1;
+    repeated Timings threads = 2;
+}
+
+message TimingResponse
+{
+    CommandStatus status = 1;
+    Timings timings = 2;
+}
+
+message NoteOnRequest
+{
+    TrackIdentifier track = 1;
+    int32 channel = 2;
+    int32 note = 3;
+    float velocity = 4;
+}
+
+message NoteOffRequest
+{
+    TrackIdentifier track = 1;
+    int32 channel = 2;
+    int32 note = 3;
+    float velocity = 4;
+}
+
+message NoteAftertouchRequest
+{
+    TrackIdentifier track = 1;
+    int32 channel = 2;
+    int32 note = 3;
+    float value = 4;
+}
+
+message NoteModulationRequest
+{
+    TrackIdentifier track = 1;
+    int32 channel = 2;
+    float value = 3;
+}
+
+message TrackType
+{
+    enum Type
+    {
+        DUMMY = 0;
+        REGULAR = 1;
+        PRE = 2;
+        POST = 3;
+    }
+    Type type = 1;
+}
+
+message TrackInfo
+{
+    int32  id = 1;
+    string label = 2;
+    string name = 3;
+    int32  channels = 4;
+    int32  buses = 5;
+    int32  thread = 6;
+    TrackType type = 7;
+    repeated ProcessorIdentifier processors = 8;
+}
+
+message TrackInfoResponse
+{
+    CommandStatus status = 1;
+    TrackInfo info = 2;
+}
+
+message TrackInfoList
+{
+    repeated TrackInfo tracks = 1;
+}
+
+message ProcessorInfo
+{
+    int32  id = 1;
+    string label = 2;
+    string name = 3;
+    int32  parameter_count = 4;
+    int32  program_count = 5;
+}
+
+message ProcessorInfoResponse
+{
+    CommandStatus status = 1;
+    ProcessorInfo processor = 2;
+}
+
+message ProcessorInfoList
+{
+    repeated ProcessorInfo processors = 1;
+}
+
+message ProcessorInfoListResponse
+{
+    CommandStatus status = 1;
+    repeated ProcessorInfo processors = 2;
+}
+
+message ProgramIdentifier
+{
+    int32 program = 1;
+}
+
+message ProgramIdentifierResponse
+{
+    CommandStatus status = 1;
+    int32 program = 2;
+}
+
+message ProcessorProgramIdentifier
+{
+    ProcessorIdentifier processor = 1;
+    int32 program = 2;
+}
+
+message ProgramInfo
+{
+    ProgramIdentifier id = 1;
+    string name = 2;
+}
+
+message ProgramInfoList
+{
+    repeated ProgramInfo programs = 1;
+}
+
+message ProgramInfoListResponse
+{
+    CommandStatus status = 1;
+    repeated ProgramInfo programs = 2;
+}
+
+message ProcessorProgramSetRequest
+{
+    ProcessorIdentifier processor = 1;
+    ProgramIdentifier program = 2;
+}
+
+message ProcessorBypassStateSetRequest
+{
+    ProcessorIdentifier processor = 1;
+    bool value = 2;
+}
+
+message ProcessorState
+{
+    OptionalIntValue        program_id = 1;
+    OptionalBoolValue       bypassed = 2;
+    repeated PropertyValue  properties = 3;
+    repeated ParameterValue parameters = 4;
+    bytes                   binary_data = 5;
+}
+
+message ProcessorStateResponse
+{
+    CommandStatus status = 1;
+    ProcessorState state = 2;
+}
+
+message ProcessorStateSetRequest
+{
+    ProcessorIdentifier processor = 1;
+    ProcessorState state = 2;
+}
+
+message ParameterInfo
+{
+    int32 id = 1;
+    ParameterType type = 2;
+    string label = 3;
+    string name = 4;
+    string unit = 5;
+    bool automatable = 6;
+    float min_domain_value = 7;
+    float max_domain_value = 8;
+}
+
+message ParameterInfoResponse
+{
+    CommandStatus status = 1;
+    ParameterInfo info = 2;
+}
+
+message ParameterInfoList
+{
+    repeated ParameterInfo parameters = 1;
+}
+
+message ParameterInfoListResponse
+{
+    CommandStatus status = 1;
+    repeated ParameterInfo parameters = 2;
+}
+
+message ParameterIdRequest
+{
+    ProcessorIdentifier processor  = 1;
+    string ParameterName = 2;
+}
+
+message ParameterValue
+{
+    ParameterIdentifier parameter = 1;
+    float value = 2;
+}
+
+message ParameterUpdate
+{
+    ParameterIdentifier parameter = 1;
+    float normalized_value = 2;
+    float domain_value = 3;
+    string formatted_value = 4;
+}
+
+message PropertyInfo
+{
+    int32 id = 1;
+    string name = 2;
+    string label = 3;
+}
+
+message PropertyInfoResponse
+{
+    CommandStatus status = 1;
+    PropertyInfo info = 2;
+}
+
+message PropertyInfoList
+{
+    repeated PropertyInfo properties = 1;
+}
+
+message PropertyInfoListResponse
+{
+    CommandStatus status = 1;
+    repeated PropertyInfo properties = 2;
+}
+
+message PropertyValue
+{
+    PropertyIdentifier property = 1;
+    string value = 2;
+}
+
+message PropertyIdRequest
+{
+    ProcessorIdentifier processor  = 1;
+    string property_name = 2;
+}
+
+message PluginType
+{
+    enum Type
+    {
+        DUMMY = 0;
+        INTERNAL = 1;
+        VST2X = 2;
+        VST3X = 3;
+        LV2 = 4;
+    }
+    Type type = 1;
+}
+
+message ProcessorPosition
+{
+    bool add_to_back = 1;
+    ProcessorIdentifier before_processor = 2;
+}
+
+message CreateTrackRequest
+{
+    string name = 1;
+    int32  channels = 2;
+    OptionalIntValue thread = 3;
+}
+
+message CreateMultibusTrackRequest
+{
+    string name = 1;
+    int32  buses = 2;
+    OptionalIntValue thread = 3;
+}
+
+message CreatePreTrackRequest
+{
+    string name = 1;
+}
+
+message CreatePostTrackRequest
+{
+    string name = 1;
+}
+
+message CreateProcessorRequest
+{
+    string name = 1;
+    string uid = 2;
+    string path = 3;
+    PluginType type = 4;
+    TrackIdentifier track = 5;
+    ProcessorPosition position = 6;
+}
+
+message MoveProcessorRequest
+{
+    ProcessorIdentifier processor = 1;
+    TrackIdentifier     source_track = 2;
+    TrackIdentifier     dest_track = 3;
+    ProcessorPosition   position = 4;
+}
+
+message DeleteProcessorRequest
+{
+    ProcessorIdentifier processor = 1;
+    TrackIdentifier     track = 2;
+}
+
+message ParameterNotificationBlocklist
+{
+    repeated ParameterIdentifier parameters = 1;
+}
+
+message PropertyNotificationBlocklist
+{
+    repeated PropertyIdentifier properties = 1;
+}
+
+message MidiChannel
+{
+    enum Channel
+    {
+        DUMMY = 0;
+        MIDI_CH_1 = 1;
+        MIDI_CH_2 = 2;
+        MIDI_CH_3 = 3;
+        MIDI_CH_4 = 4;
+        MIDI_CH_5 = 5;
+        MIDI_CH_6 = 6;
+        MIDI_CH_7 = 7;
+        MIDI_CH_8 = 8;
+        MIDI_CH_9 = 9;
+        MIDI_CH_10 = 10;
+        MIDI_CH_11 = 11;
+        MIDI_CH_12 = 12;
+        MIDI_CH_13 = 13;
+        MIDI_CH_14 = 14;
+        MIDI_CH_15 = 15;
+        MIDI_CH_16 = 16;
+        MIDI_CH_OMNI = 17;
+    }
+    Channel channel = 1;
+}
+
+message AudioConnection
+{
+    TrackIdentifier    track = 1;
+    int32              track_channel = 2;
+    int32              engine_channel = 3;
+}
+
+message AudioConnectionList
+{
+    repeated AudioConnection connections = 1;
+}
+
+message AudioConnectionListResponse
+{
+    CommandStatus status = 1;
+    repeated AudioConnection connections = 2;
+}
+
+message CvConnection
+{
+    ParameterIdentifier parameter = 1;
+    int32               cv_port_id = 2;
+}
+
+message CvConnectionList
+{
+    repeated CvConnection connections = 1;
+}
+
+message CvConnectionListResponse
+{
+    CommandStatus status = 1;
+    repeated CvConnection connections = 2;
+}
+
+message GateConnection
+{
+    ProcessorIdentifier processor = 1;
+    int32               gate_port_id = 2;
+    int32               channel = 3;
+    int32               note_no = 4;
+}
+
+message GateConnectionList
+{
+    repeated GateConnection connections = 1;
+}
+
+message GateConnectionListResponse
+{
+    CommandStatus status = 1;
+    repeated GateConnection connections = 2;
+}
+
+message MidiKbdConnection
+{
+    TrackIdentifier     track = 1;
+    MidiChannel         channel = 2;
+    int32               port = 3;
+    bool                raw_midi = 7;
+}
+
+message MidiKbdConnectionList
+{
+    repeated MidiKbdConnection connections = 1;
+}
+
+message MidiCCConnection
+{
+    ParameterIdentifier parameter = 1;
+    MidiChannel         channel = 2;
+    int32               port = 3;
+    int32               cc_number = 4;
+    float               min_range = 5;
+    float               max_range = 6;
+    bool                relative_mode = 7;
+}
+
+message MidiCCConnectionList
+{
+    repeated MidiCCConnection connections = 1;
+}
+
+message MidiCCConnectionListResponse
+{
+    CommandStatus status = 1;
+    repeated MidiCCConnection connections = 2;
+}
+
+message MidiPCConnection
+{
+    ProcessorIdentifier processor = 1;
+    MidiChannel         channel = 2;
+    int32               port = 3;
+}
+
+message MidiPCConnectionList
+{
+    repeated MidiPCConnection connections = 1;
+}
+
+message MidiPCConnectionListResponse
+{
+    CommandStatus status = 1;
+    repeated MidiPCConnection connections = 2;
+}
+
+message MidiClockSetRequest
+{
+    int32 port = 1;
+    bool  enabled = 2;
+}
+
+message OscParameterOutputList
+{
+    repeated string path = 1;
+}
+
+message TransportUpdate
+{
+    oneof Transport
+    {
+        float           tempo = 1;
+        PlayingMode     playing_mode = 2;
+        SyncMode        sync_mode = 3;
+        TimeSignature   time_signature = 4;
+    }
+}
+
+message TrackUpdate
+{
+    enum Action
+    {
+        DUMMY = 0;
+        TRACK_ADDED = 1;
+        TRACK_DELETED = 2;
+    }
+    Action          action = 1;
+    TrackIdentifier track = 2;
+}
+
+message ProcessorUpdate
+{
+    enum Action
+    {
+        DUMMY = 0;
+        PROCESSOR_ADDED = 1;
+        PROCESSOR_DELETED = 2;
+    }
+    Action              action = 1;
+    ProcessorIdentifier processor = 2;
+    TrackIdentifier     parent_track = 3;
+}
+
+message MidiKbdConnectionState
+{
+    string       track = 1;
+    MidiChannel  channel = 2;
+    int32        port = 3;
+    bool         raw_midi = 7;
+}
+
+message MidiCCConnectionState
+{
+    string              processor = 1;
+    ParameterIdentifier parameter = 2;
+    MidiChannel         channel = 3;
+    int32               port = 4;
+    int32               cc_number = 5;
+    float               min_range = 6;
+    float               max_range = 7;
+    bool                relative_mode = 8;
+}
+
+message MidiPCConnectionState
+{
+    string       processor = 1;
+    MidiChannel  channel = 2;
+    int32        port = 3;
+}
+
+message MidiState
+{
+    int32    inputs = 1;
+    int32    outputs = 2;
+    repeated MidiKbdConnectionState  kbd_input_connections = 3;
+    repeated MidiKbdConnectionState  kbd_output_connections = 4;
+    repeated MidiCCConnectionState   cc_connections = 5;
+    repeated MidiPCConnectionState   pc_connections = 6;
+    repeated int32 enabled_clock_outputs = 7;
+}
+
+message OscParameterState
+{
+    string processor = 1;
+    repeated int32 parameter_ids = 2;
+}
+
+message OscState
+{
+    bool                        enable_all_processor_outputs = 1;
+    repeated OscParameterState  enabled_processor_outputs = 2;
+}
+
+message TrackAudioConnectionState
+{
+    string    track = 1;
+    int32     track_channel = 2;
+    int32     engine_channel = 3;
+}
+
+message EngineState
+{
+    float          sample_rate = 1;
+    float          tempo = 2;
+    PlayingMode    playing_mode = 3;
+    SyncMode       sync_mode = 4;
+    TimeSignature  time_signature = 5;
+    bool           clip_detection_input = 6;
+    bool           clip_detection_output = 7;
+    bool           master_limiter = 8;
+    int32          used_audio_inputs = 9;
+    int32          used_audio_outputs = 10;
+    repeated TrackAudioConnectionState    input_connections = 11;
+    repeated TrackAudioConnectionState    output_connections = 12;
+}
+
+message PluginClass
+{
+    string          name = 1;
+    string          label = 2;
+    string          uid = 3;
+    string          path = 4;
+    PluginType      type = 5;
+    ProcessorState  state = 6;
+}
+
+message TrackState
+{
+    string                  name = 1;
+    string                  label = 2;
+    int32                   channels = 3;
+    int32                   buses = 4;
+    int32                   thread = 5;
+    TrackType               type = 6;
+    ProcessorState          track_state = 7;
+    repeated PluginClass    processors = 8;
+}
+
+message SessionState
+{
+    SushiBuildInfo          sushi_info = 1;
+    string                  save_date = 2;
+    OscState                osc_state = 3;
+    MidiState               midi_state = 4;
+    EngineState             engine_state = 5;
+    repeated TrackState     tracks = 6;
+}

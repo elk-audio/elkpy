@@ -19,6 +19,7 @@ __license__ = "GPL-3.0"
 from pathlib import Path
 from typing import Any
 import re
+import sys
 
 from .events import SushiCommandResponse
 
@@ -41,7 +42,7 @@ from .sushi_info_types import CommandResponseStatus
 from . import sushierrors
 
 
-sushi_proto = Path(__file__).parent.parent.parent / "sushi-grpc-api" / "sushi_rpc.proto"
+sushi_proto = Path(__file__).parent / "rpc" / "sushi_rpc.proto"
 
 
 ###############################
@@ -136,7 +137,7 @@ class SushiController:
     def check_sushi_api_compatibility(self) -> bool:
         """Verifies that the version of the api used by elkpy matches the one build in Sushi"""
 
-        api_proto_file = Path(__file__).parent.parent.parent / "sushi-grpc-api" / "api_version.proto"
+        api_proto_file = Path(__file__).parent / "rpc" / "api_version.proto"
 
         with open(api_proto_file, 'r') as f:
             content = f.read()

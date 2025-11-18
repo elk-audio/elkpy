@@ -1,0 +1,16 @@
+/** gRPC definitions for versioning the sushi api
+ *
+ * @copyright 2018 - 2025 Elk Audio AB, Stockholm
+ */
+
+syntax = "proto2";
+
+package sushi_rpc;
+
+/** To check that the version of sushi you are controlling matches the gRPC api version,
+ *  the return value from GetSushiApiVersion() should match the default value below
+ */
+message ApiVersion
+{
+    required string value = 1 [default = "1.2.0"];
+}

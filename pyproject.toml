@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "elkpy"
-version = "2.0.0rc2"
+version = "2.0.0rc3"
 authors = [
   { name="Maxime Gendebien", email="max@elk.audio" },
   { name="Ruben Svensson", email="ruben@elk.audio" },
@@ -28,6 +28,3 @@ dependencies = [
 [project.urls]
 "Homepage" = "https://github.com/elkaudio/elkpy"
 "Bug Tracker" = "https://github.com/elkaudio/elkpy/issues"
-
-[tool.setuptools]
-include-package-data = true
