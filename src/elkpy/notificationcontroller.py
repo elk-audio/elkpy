@@ -20,6 +20,7 @@ __license__ = "GPL-3.0"
 import grpc.experimental.aio
 import asyncio
 from threading import Thread
+import time
 from . import sushierrors
 from . import grpc_gen
 from .sushi_info_types import CommandResponseStatus
@@ -27,7 +28,7 @@ from .sushi_info_types import CommandResponseStatus
 from typing import TYPE_CHECKING, Callable
 
 if TYPE_CHECKING:
-    from .sushicontroller import SushiController 
+    from .sushicontroller import SushiController
 
 
 ###########################################
@@ -484,26 +485,29 @@ class NotificationController:
     #################################################
     async def update_command_responses(self) -> None:
         """Matches incoming notifications for command response updates with ElkpyEvents"""
-        try:
-            async with grpc.experimental.aio.insecure_channel(self.address) as channel:
-                stub = self._sushi_grpc.NotificationControllerStub(channel)
-                stream = stub.SubscribeToAsyncCommandUpdates(
-                    self._sushi_proto.GenericVoidValue()
-                )
-                async for notification in stream:
-                    # match with events and set them.
-                    if ev := self._parent.command_responses.get(
-                        notification.request_id
-                    ):
-                        match notification.status.status:
-                            case CommandResponseStatus.SUCCESS:
-                                ev.set()
-                            case CommandResponseStatus.ERROR:
-                                ev.error = True
-                                ev.set()
-                            case _:
-                                print(notification.status.status)
+        while True:
+            try:
+                async with grpc.experimental.aio.insecure_channel(
+                    self.address
+                ) as channel:
+                    stub = self._sushi_grpc.NotificationControllerStub(channel)
+                    stream = stub.SubscribeToAsyncCommandUpdates(
+                        self._sushi_proto.GenericVoidValue()
+                    )
+                    async for notification in stream:
+                        # match with events and set them.
+                        if ev := self._parent.command_responses.get(
+                            notification.request_id
+                        ):
+                            match notification.status.status:
+                                case CommandResponseStatus.SUCCESS:
+                                    ev.set()
+                                case CommandResponseStatus.ERROR:
+                                    ev.error = True
+                                    ev.set()
+                                case _:
+                                    print(notification.status.status)
 
-                        self._parent.command_responses.pop(notification.request_id)
-        except Exception:
-            pass
+                            self._parent.command_responses.pop(notification.request_id)
+            except grpc.experimental.aio.AioRpcError:
+                time.sleep(1)
