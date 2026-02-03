@@ -82,9 +82,10 @@ class NotificationController:
         try:
             self.loop = asyncio.get_running_loop()
             self._async = True
-            print("Asyncio context detected.")
+            print("ELKPY: Asyncio context detected.")
         except RuntimeError:
             self._async = False
+            print("ELKPY: Synchronous context detected.")
             self.loop = asyncio.new_event_loop()
             self.notification_thread = Thread(
                 target=self._run_notification_loop, args=(self.loop,)

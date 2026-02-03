@@ -154,15 +154,15 @@ class SushiController:
                 try:
                     sushi_version = self.system.get_sushi_api_version()
                     if api_version == sushi_version:
-                        print("API match!")
+                        print(f"ELKPY: Sushi API match! -> {api_version}")
                         return True
                     else:
                         print(
-                            f"API version mismatch! Sushi = {sushi_version} <-> Elkpy = {api_version}"
+                            f"ELKPY: API version mismatch! Sushi = {sushi_version} <-> Elkpy = {api_version}"
                         )
                         sys.exit()
                 except:
-                    time.sleep(0.1) 
+                    time.sleep(0.1)
 
         raise ValueError("No default api version found")
 
