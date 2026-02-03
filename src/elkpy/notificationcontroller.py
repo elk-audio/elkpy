@@ -82,6 +82,7 @@ class NotificationController:
         try:
             self.loop = asyncio.get_running_loop()
             self._async = True
+            print("Asyncio context detected.")
         except RuntimeError:
             self._async = False
             self.loop = asyncio.new_event_loop()

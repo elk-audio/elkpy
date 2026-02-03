@@ -82,6 +82,8 @@ class SushiController:
                     listens to async command response notifications and manages pending command
                     responses.
         """
+        self.command_responses: dict[int, SushiCommandResponse] = {}
+
         self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(
             str(sushi_proto_def)
         )
@@ -134,8 +136,6 @@ class SushiController:
             self._sushi_grpc,
             auto_update_async_command_responses,
         )
-
-        self.command_responses: dict[int, SushiCommandResponse] = {}
 
     def check_sushi_api_compatibility(self) -> bool:
         """Verifies that the version of the api used by elkpy matches the one build in Sushi"""
