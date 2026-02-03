@@ -43,15 +43,21 @@ def modules_from_proto(proto_filename: str) -> Tuple[ModuleType, ModuleType]:
         if sys.path[0] == file_path:
             out_dir = file_path
 
-    protoc_args = [ 'dummy',
-                    '-I%s' % inc_path,
-                    f'--python_out={out_dir}',
-                    f'--grpc_python_out={out_dir}',
-                    rel_proto_filename ]
-    gprotoc.main(protoc_args)
     proto_base_name = os.path.splitext(rel_proto_filename)[0]
     proto_module_name = '%s_pb2' % proto_base_name
-    proto_module = importlib.import_module(proto_module_name)
     grpc_module_name = '%s_pb2_grpc' % proto_base_name
+
+    if not os.path.exists(out_dir + '/' + proto_module_name + ".py"):
+        protoc_args = [ 'dummy',
+                        '-I%s' % inc_path,
+                        f'--python_out={out_dir}',
+                        f'--grpc_python_out={out_dir}',
+                        rel_proto_filename ]
+        gprotoc.main(protoc_args)
+        print('Compiled proto file!')
+    else:
+        print("Compiled proto found!")
+
+    proto_module = importlib.import_module(proto_module_name)
     grpc_module = importlib.import_module(grpc_module_name)
     return (proto_module, grpc_module)

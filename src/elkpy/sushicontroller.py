@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any
 import re
 import sys
+import time
 
 from .events import SushiCommandResponse
 
@@ -95,7 +96,7 @@ class SushiController:
             self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
         )
         self.programs = programcontroller.ProgramController(
-            self, address, str(sushi_proto_def)
+            self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
         )
         self.timings = timingcontroller.TimingController(
             self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
@@ -115,7 +116,9 @@ class SushiController:
         self.osc_controller = osccontroller.OscController(
             self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
         )
-        self.system = systemcontroller.SystemController(address, str(sushi_proto_def))
+        self.system = systemcontroller.SystemController(
+            address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
+        )
         self.session = sessioncontroller.SessionController(
             self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
         )
@@ -139,24 +142,29 @@ class SushiController:
 
         api_proto_file = Path(__file__).parent / "rpc" / "api_version.proto"
 
-        with open(api_proto_file, 'r') as f:
+        with open(api_proto_file, "r") as f:
             content = f.read()
-        
+
         # Find: [default = "something"]
         match = re.search(r'\[default\s*=\s*"([^"]+)"\]', content)
-        
+
         if match:
             api_version = match.group(1)
-            sushi_version = self.system.get_sushi_api_version() 
-            if api_version == sushi_version:
-                print("API match!")
-                return True
-            else:
-                print(f"API version mismatch! Sushi = {sushi_version} <-> Elkpy = {api_version}")
-                sys.exit()
-        
-        raise ValueError("No default api version found")
+            while True:
+                try:
+                    sushi_version = self.system.get_sushi_api_version()
+                    if api_version == sushi_version:
+                        print("API match!")
+                        return True
+                    else:
+                        print(
+                            f"API version mismatch! Sushi = {sushi_version} <-> Elkpy = {api_version}"
+                        )
+                        sys.exit()
+                except:
+                    time.sleep(0.1) 
 
+        raise ValueError("No default api version found")
 
     def validate_command_response(self, cr, context_info: str = "") -> Any:
         match CommandResponseStatus(cr.status.status):

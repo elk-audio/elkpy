@@ -33,6 +33,8 @@ class SystemController(object):
         self,
         address: str = "localhost:51051",
         sushi_proto_def: str = "/usr/share/sushi/sushi_rpc.proto",
+        sushi_proto=None,
+        sushi_grpc=None,
     ) -> None:
         """
         Args:
@@ -47,9 +49,14 @@ class SystemController(object):
                 f"to Sushi"
             ) from e
 
-        self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(
-            sushi_proto_def
-        )
+        if sushi_proto and sushi_grpc:
+            self._sushi_proto = sushi_proto
+            self._sushi_grpc = sushi_grpc
+        else:
+            self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(
+                sushi_proto_def
+            )
+
         self._stub = self._sushi_grpc.SystemControllerStub(channel)
 
     def get_sushi_version(self) -> str:
@@ -61,7 +68,9 @@ class SystemController(object):
 
     def get_sushi_api_version(self) -> str:
         try:
-            response = self._stub.GetSushiApiVersion(self._sushi_proto.GenericVoidValue())
+            response = self._stub.GetSushiApiVersion(
+                self._sushi_proto.GenericVoidValue()
+            )
             return response.value
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
