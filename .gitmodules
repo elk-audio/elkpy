@@ -1,3 +1,0 @@
-[submodule "sushi-grpc-api"]
-	path = sushi-grpc-api
-	url = git@bitbucket.org:mindswteam/sushi-grpc-api.git
