@@ -80,19 +80,24 @@ class NotificationController:
             )
         self.tasks = []
 
+        try:
+            self.loop = asyncio.get_running_loop()
+            self._async = True
+            print("ELKPY: Asyncio context detected.")
+        except RuntimeError:
+            self._async = False
+            print("ELKPY: Synchronous context detected.")
+            self.loop = asyncio.new_event_loop()
+            self.notification_thread = Thread(
+                target=self._run_notification_loop, args=(self.loop,)
+            )
+            self.notification_thread.daemon = True
+            self.notification_thread.start()
+
         if auto_update_async_command_responses:
-            try:
-                self.loop = asyncio.get_running_loop()
-                self._async = True
+            if self._async:
                 self.tasks.append(asyncio.create_task(self.update_command_responses()))
-            except RuntimeError:
-                self._async = False
-                self.loop = asyncio.new_event_loop()
-                self.notification_thread = Thread(
-                    target=self._run_notification_loop, args=(self.loop,)
-                )
-                self.notification_thread.daemon = True
-                self.notification_thread.start()
+            else:
                 self.tasks.append(
                     asyncio.run_coroutine_threadsafe(
                         self.update_command_responses(), self.loop

@@ -18,6 +18,9 @@ __license__ = "GPL-3.0"
 
 from pathlib import Path
 from typing import Any
+import re
+import sys
+import time
 
 from .events import SushiCommandResponse
 
@@ -40,7 +43,7 @@ from .sushi_info_types import CommandResponseStatus
 from . import sushierrors
 
 
-sushi_proto = Path(__file__).parent.parent.parent / "sushi-grpc-api" / "sushi_rpc.proto"
+sushi_proto = Path(__file__).parent / "rpc" / "sushi_rpc.proto"
 
 
 ###############################
@@ -79,6 +82,8 @@ class SushiController:
                     listens to async command response notifications and manages pending command
                     responses.
         """
+        self.command_responses: dict[int, SushiCommandResponse] = {}
+
         self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(
             str(sushi_proto_def)
         )
@@ -93,7 +98,7 @@ class SushiController:
             self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
         )
         self.programs = programcontroller.ProgramController(
-            self, address, str(sushi_proto_def)
+            self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
         )
         self.timings = timingcontroller.TimingController(
             self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
@@ -113,10 +118,16 @@ class SushiController:
         self.osc_controller = osccontroller.OscController(
             self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
         )
-        self.system = systemcontroller.SystemController(address, str(sushi_proto_def))
+        self.system = systemcontroller.SystemController(
+            address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
+        )
         self.session = sessioncontroller.SessionController(
             self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
         )
+
+        if not self.check_sushi_api_compatibility():
+            sys.exit()
+
         self.notifications = notificationcontroller.NotificationController(
             self,
             address,
@@ -126,7 +137,34 @@ class SushiController:
             auto_update_async_command_responses,
         )
 
-        self.command_responses: dict[int, SushiCommandResponse] = {}
+    def check_sushi_api_compatibility(self) -> bool:
+        """Verifies that the version of the api used by elkpy matches the one build in Sushi"""
+
+        api_proto_file = Path(__file__).parent / "rpc" / "api_version.proto"
+
+        with open(api_proto_file, "r") as f:
+            content = f.read()
+
+        # Find: [default = "something"]
+        match = re.search(r'\[default\s*=\s*"([^"]+)"\]', content)
+
+        if match:
+            api_version = match.group(1)
+            while True:
+                try:
+                    sushi_version = self.system.get_sushi_api_version()
+                    if api_version == sushi_version:
+                        print(f"ELKPY: Sushi API match! -> {api_version}")
+                        return True
+                    else:
+                        print(
+                            f"ELKPY: API version mismatch! Sushi = {sushi_version} <-> Elkpy = {api_version}"
+                        )
+                        sys.exit()
+                except:
+                    time.sleep(0.1)
+
+        raise ValueError("No default api version found")
 
     def validate_command_response(self, cr, context_info: str = "") -> Any:
         match CommandResponseStatus(cr.status.status):
