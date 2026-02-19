@@ -161,7 +161,8 @@ class SushiController:
                             f"ELKPY: API version mismatch! Sushi = {sushi_version} <-> Elkpy = {api_version}"
                         )
                         sys.exit()
-                except:
+                except Exception as e:
+                    print(e)
                     time.sleep(0.1)
 
         raise ValueError("No default api version found")

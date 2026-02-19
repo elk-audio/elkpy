@@ -72,12 +72,12 @@ class SessionController:
         self._parent = parent
 
     def get_session(self) -> dict | None:
-        """Get the session as a dictionary"""
+        """Get the session object"""
 
         try:
             response = self._stub.SaveSession(
                 self._sushi_proto.GenericVoidValue())
-            return sushi_info_types.SessionState(response).state
+            return response
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)

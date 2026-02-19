@@ -441,22 +441,26 @@ class TrackInfo:
         try:
             self.processors = []
             for processor in grpc_TrackInfo.processors:
-                self.processors.append({'name': processor.name,
-                                        'label': processor.label,
-                                        'path': processor.path,
-                                        'type': PluginType(processor.type.type).name.lower(),
-                                        })
+                self.processors.append(
+                    {
+                        "name": processor.name,
+                        "label": processor.label,
+                        "path": processor.path,
+                        "type": PluginType(processor.type.type).name.lower(),
+                    }
+                )
         except AttributeError:
             self.processors = []
 
     def as_dict(self) -> dict:
-        return {'label': self.label,
-                'name': self.name,
-                'channels': self.channels,
-                'buses': self.buses,
-                'type': self.type,
-                'processors': self.processors
-                }
+        return {
+            "label": self.label,
+            "name": self.name,
+            "channels": self.channels,
+            "buses": self.buses,
+            "type": self.type,
+            "processors": self.processors,
+        }
 
     def __str__(self):
         s = "{\n"
@@ -598,7 +602,7 @@ class AudioConnection:
 
     def __init__(self, grpc_AudioConnection):
         try:
-            self.track = grpc_AudioConnection.track.id
+            self.track = grpc_AudioConnection.track
         except AttributeError:
             self.track = 0
 
@@ -630,10 +634,11 @@ class AudioConnection:
         )
 
     def as_dict(self) -> dict:
-        return {'track': self.track,
-                'track_channel': self.track_channel,
-                'engine_channel': self.engine_channel
-                }
+        return {
+            "track": self.track,
+            "track_channel": self.track_channel,
+            "engine_channel": self.engine_channel,
+        }
 
 
 class MidiKbdConnection:
@@ -906,6 +911,7 @@ class GateConnection:
             and self.note_no == other.note_no
         )
 
+
 class SessionState:
     """
     Class to represent the entire Sushi session"""
@@ -920,7 +926,9 @@ class SessionState:
     def __init__(self, grpc_SessionState) -> None:
         s = grpc_SessionState
         self.sushi_info["version"] = s.sushi_info.version
-        self.sushi_info["build_options"] = [option for option in s.sushi_info.build_options]
+        self.sushi_info["build_options"] = [
+            option for option in s.sushi_info.build_options
+        ]
         self.sushi_info["audio_buffer_size"] = s.sushi_info.audio_buffer_size
         self.sushi_info["commit_hash"] = s.sushi_info.commit_hash
         self.sushi_info["build_date"] = s.sushi_info.build_date
@@ -932,21 +940,36 @@ class SessionState:
 
         self.engine_state["sample_rate"] = s.engine_state.sample_rate
         self.engine_state["tempo"] = s.engine_state.tempo
-        self.engine_state["playing_mode"] = PlayingMode(s.engine_state.playing_mode.mode).name.lower()
-        self.engine_state["sync_mode"] = SyncMode(s.engine_state.sync_mode.mode).name.lower()
+        self.engine_state["playing_mode"] = PlayingMode(
+            s.engine_state.playing_mode.mode
+        ).name.lower()
+        self.engine_state["sync_mode"] = SyncMode(
+            s.engine_state.sync_mode.mode
+        ).name.lower()
         self.engine_state["time_signature"] = {}
-        self.engine_state["time_signature"]["numerator"] = s.engine_state.time_signature.numerator
-        self.engine_state["time_signature"]["denominator"] = s.engine_state.time_signature.denominator
+        self.engine_state["time_signature"]["numerator"] = (
+            s.engine_state.time_signature.numerator
+        )
+        self.engine_state["time_signature"]["denominator"] = (
+            s.engine_state.time_signature.denominator
+        )
         self.engine_state["used_audio_inputs"] = s.engine_state.used_audio_inputs
         self.engine_state["used_audio_outputs"] = s.engine_state.used_audio_outputs
-        self.engine_state["input_connections"] = [AudioConnection(ac).as_dict() for ac in s.engine_state.input_connections]
-        self.engine_state["output_connections"] = [AudioConnection(ac).as_dict() for ac in s.engine_state.output_connections]
+        self.engine_state["input_connections"] = [
+            AudioConnection(ac).as_dict() for ac in s.engine_state.input_connections
+        ]
+        self.engine_state["output_connections"] = [
+            AudioConnection(ac).as_dict() for ac in s.engine_state.output_connections
+        ]
 
         self.tracks = [TrackInfo(t).as_dict() for t in s.tracks]
 
-        self.state = {'sushi_info': self.sushi_info,
-                      'save_date': self.save_date,
-                      'midi_state': self.midi_state,
-                      'engine_state': self.engine_state,
-                      'tracks': self.tracks}
+        print(s.tracks[0].track_state)
 
+        self.state = {
+            "sushi_info": self.sushi_info,
+            "save_date": self.save_date,
+            "midi_state": self.midi_state,
+            "engine_state": self.engine_state,
+            "tracks": self.tracks,
+        }
