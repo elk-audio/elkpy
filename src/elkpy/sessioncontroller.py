@@ -25,6 +25,7 @@ if TYPE_CHECKING:
 from .events import SushiCommandResponse
 from . import sushierrors
 from . import grpc_gen
+from . import sushi_info_types
 
 
 ##################################
@@ -76,7 +77,7 @@ class SessionController:
         try:
             response = self._stub.SaveSession(
                 self._sushi_proto.GenericVoidValue())
-            return response
+            return sushi_info_types.SessionState(response)
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)

@@ -434,14 +434,18 @@ class TrackInfo:
             self.buses = 0
 
         try:
-            self.type = TrackType(grpc_TrackInfo.type.type)
+            self.type = TrackType(grpc_TrackInfo.type.type).name.lower()
         except Exception:
             self.type = TrackType.REGULAR
 
         try:
             self.processors = []
             for processor in grpc_TrackInfo.processors:
-                self.processors.append(processor.id)
+                self.processors.append({'name': processor.name,
+                                        'label': processor.label,
+                                        'path': processor.path,
+                                        'type': PluginType(processor.type.type).name.lower(),
+                                        'state': processor.state.binary_data})
         except AttributeError:
             self.processors = []
 
@@ -886,3 +890,42 @@ class GateConnection:
             and self.channel == other.channel
             and self.note_no == other.note_no
         )
+
+class SessionState:
+    """
+    Class to represent the entire Sushi session"""
+
+    sushi_info: dict = {}
+    save_date: str = ""
+    osc_state: dict = {}
+    midi_state: dict = {}
+    engine_state: dict = {}
+    tracks: list = []
+
+    def __init__(self, grpc_SessionState) -> None:
+        s = grpc_SessionState
+        self.sushi_info["version"] = s.sushi_info.version
+        self.sushi_info["build_options"] = [option for option in s.sushi_info.build_options]
+        self.sushi_info["audio_buffer_size"] = s.sushi_info.audio_buffer_size
+        self.sushi_info["commit_hash"] = s.sushi_info.commit_hash
+        self.sushi_info["build_date"] = s.sushi_info.build_date
+
+        self.save_date = s.save_date
+
+        self.midi_state["inputs"] = s.midi_state.inputs
+        self.midi_state["outputs"] = s.midi_state.outputs
+
+        self.engine_state["sample_rate"] = s.engine_state.sample_rate
+        self.engine_state["tempo"] = s.engine_state.tempo
+        self.engine_state["playing_mode"] = PlayingMode(s.engine_state.playing_mode.mode).name
+        self.engine_state["sync_mode"] = SyncMode(s.engine_state.sync_mode.mode).name
+        self.engine_state["time_signature"] = {}
+        self.engine_state["time_signature"]["numerator"] = s.engine_state.time_signature.numerator
+        self.engine_state["time_signature"]["denominator"] = s.engine_state.time_signature.denominator
+        self.engine_state["used_audio_inputs"] = s.engine_state.used_audio_inputs
+        self.engine_state["used_audio_outputs"] = s.engine_state.used_audio_outputs
+        self.engine_state["input_connections"] = [AudioConnection(ac) for ac in s.engine_state.input_connections]
+        self.engine_state["output_connections"] = [AudioConnection(ac) for ac in s.engine_state.output_connections]
+
+        self.tracks = [TrackInfo(t) for t in s.tracks]
+
