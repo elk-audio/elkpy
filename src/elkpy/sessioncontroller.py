@@ -70,7 +70,7 @@ class SessionController:
         self._stub = self._sushi_grpc.SessionControllerStub(channel)
         self._parent = parent
 
-    def save_binary_session(self) -> bytes | None:
+    def save_binary_session(self) -> dict | None:
         """
         Save the sushi session.
 
@@ -80,7 +80,7 @@ class SessionController:
         try:
             response = self._stub.SaveSession(
                 self._sushi_proto.GenericVoidValue())
-            return response.SerializeToString()
+            return response
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
