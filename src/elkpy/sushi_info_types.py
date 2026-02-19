@@ -436,7 +436,7 @@ class TrackInfo:
         try:
             self.type = TrackType(grpc_TrackInfo.type.type).name.lower()
         except Exception:
-            self.type = TrackType.REGULAR
+            self.type = TrackType.REGULAR.name.lower()
 
         try:
             self.processors = []
@@ -445,9 +445,18 @@ class TrackInfo:
                                         'label': processor.label,
                                         'path': processor.path,
                                         'type': PluginType(processor.type.type).name.lower(),
-                                        'state': processor.state.binary_data})
+                                        })
         except AttributeError:
             self.processors = []
+
+    def as_dict(self) -> dict:
+        return {'label': self.label,
+                'name': self.name,
+                'channels': self.channels,
+                'buses': self.buses,
+                'type': self.type,
+                'processors': self.processors
+                }
 
     def __str__(self):
         s = "{\n"
@@ -619,6 +628,12 @@ class AudioConnection:
             and self.track_channel == other.track_channel
             and self.engine_channel == other.engine_channel
         )
+
+    def as_dict(self) -> dict:
+        return {'track': self.track,
+                'track_channel': self.track_channel,
+                'engine_channel': self.engine_channel
+                }
 
 
 class MidiKbdConnection:
@@ -917,15 +932,21 @@ class SessionState:
 
         self.engine_state["sample_rate"] = s.engine_state.sample_rate
         self.engine_state["tempo"] = s.engine_state.tempo
-        self.engine_state["playing_mode"] = PlayingMode(s.engine_state.playing_mode.mode).name
-        self.engine_state["sync_mode"] = SyncMode(s.engine_state.sync_mode.mode).name
+        self.engine_state["playing_mode"] = PlayingMode(s.engine_state.playing_mode.mode).name.lower()
+        self.engine_state["sync_mode"] = SyncMode(s.engine_state.sync_mode.mode).name.lower()
         self.engine_state["time_signature"] = {}
         self.engine_state["time_signature"]["numerator"] = s.engine_state.time_signature.numerator
         self.engine_state["time_signature"]["denominator"] = s.engine_state.time_signature.denominator
         self.engine_state["used_audio_inputs"] = s.engine_state.used_audio_inputs
         self.engine_state["used_audio_outputs"] = s.engine_state.used_audio_outputs
-        self.engine_state["input_connections"] = [AudioConnection(ac) for ac in s.engine_state.input_connections]
-        self.engine_state["output_connections"] = [AudioConnection(ac) for ac in s.engine_state.output_connections]
+        self.engine_state["input_connections"] = [AudioConnection(ac).as_dict() for ac in s.engine_state.input_connections]
+        self.engine_state["output_connections"] = [AudioConnection(ac).as_dict() for ac in s.engine_state.output_connections]
 
-        self.tracks = [TrackInfo(t) for t in s.tracks]
+        self.tracks = [TrackInfo(t).as_dict() for t in s.tracks]
+
+        self.state = {'sushi_info': self.sushi_info,
+                      'save_date': self.save_date,
+                      'midi_state': self.midi_state,
+                      'engine_state': self.engine_state,
+                      'tracks': self.tracks}
 

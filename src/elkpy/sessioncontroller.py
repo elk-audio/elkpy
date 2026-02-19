@@ -77,7 +77,7 @@ class SessionController:
         try:
             response = self._stub.SaveSession(
                 self._sushi_proto.GenericVoidValue())
-            return sushi_info_types.SessionState(response)
+            return sushi_info_types.SessionState(response).state
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
