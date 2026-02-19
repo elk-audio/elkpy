@@ -28,6 +28,10 @@ class SushiUnkownError(Exception):
     pass
 
 
+class SushiAPIMismatchError(Exception):
+    pass
+
+
 class SushiUnsupportedOperationError(Exception):
     pass
 

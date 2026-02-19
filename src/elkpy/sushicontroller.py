@@ -125,8 +125,12 @@ class SushiController:
             self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
         )
 
-        if not self.check_sushi_api_compatibility():
-            sys.exit()
+        try :
+            self.check_sushi_api_compatibility()
+        except sushierrors.SushiNotFoundError:
+            print(f'ELKPY: Could not find a running Sushi at {address}')
+        except sushierrors.SushiAPIMismatchError:
+            pass
 
         self.notifications = notificationcontroller.NotificationController(
             self,
@@ -150,20 +154,18 @@ class SushiController:
 
         if match:
             api_version = match.group(1)
-            while True:
-                try:
-                    sushi_version = self.system.get_sushi_api_version()
-                    if api_version == sushi_version:
-                        print(f"ELKPY: Sushi API match! -> {api_version}")
-                        return True
-                    else:
-                        print(
-                            f"ELKPY: API version mismatch! Sushi = {sushi_version} <-> Elkpy = {api_version}"
-                        )
-                        sys.exit()
-                except Exception as e:
-                    print(e)
-                    time.sleep(0.1)
+            try:
+                sushi_version = self.system.get_sushi_api_version()
+                if api_version == sushi_version:
+                    print(f"ELKPY: Sushi API match! -> {api_version}")
+                    return True
+                else:
+                    print(
+                        f"ELKPY: API version mismatch! Sushi = {sushi_version} <-> Elkpy = {api_version}"
+                    )
+                    raise sushierrors.SushiAPIMismatchError()
+            except Exception:
+                raise sushierrors.SushiNotFoundError()
 
         raise ValueError("No default api version found")
 
