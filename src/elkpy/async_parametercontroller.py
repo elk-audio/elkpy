@@ -60,7 +60,6 @@ class AsyncParameterController:
             address (str): 'ip-addres:port' The ip-addres and port at which to connect to sushi.
             sushi_proto_def (str): path to .proto file with SUSHI's gRPC services definition
         """
-        print("ASYNC params!!!!!!!")
         try:
             channel = grpc.aio.insecure_channel(address)
         except AttributeError as e:
@@ -163,7 +162,6 @@ class AsyncParameterController:
                     ParameterName=parameter_name,
                 )
             )
-            print(cr)
             response = self._parent.validate_command_response(
                 cr, f"Get parameters for processor {processor_identifier}"
             )
