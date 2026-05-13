@@ -22,7 +22,7 @@ import re
 
 from .events import SushiCommandResponse
 
-from . import audiographcontroller
+from . import async_audiographcontroller
 from . import keyboardcontroller
 from . import async_parametercontroller
 from . import programcontroller
@@ -86,7 +86,7 @@ class SushiController:
             str(sushi_proto_def)
         )
 
-        self.audio_graph = audiographcontroller.AudioGraphController(
+        self.audio_graph = async_audiographcontroller.AsyncAudioGraphController(
             self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
         )
         self.keyboard = keyboardcontroller.KeyboardController(
