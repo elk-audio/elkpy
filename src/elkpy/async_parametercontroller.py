@@ -60,6 +60,7 @@ class AsyncParameterController:
             address (str): 'ip-addres:port' The ip-addres and port at which to connect to sushi.
             sushi_proto_def (str): path to .proto file with SUSHI's gRPC services definition
         """
+        print("ASYNC params!!!!!!!")
         try:
             channel = grpc.aio.insecure_channel(address)
         except AttributeError as e:
@@ -80,7 +81,7 @@ class AsyncParameterController:
         self._stub = self._sushi_grpc.ParameterControllerStub(channel)
         self._parent = parent
 
-    def get_track_parameters(
+    async def get_track_parameters(
         self, track_identifier: int
     ) -> List[info_types.ParameterInfo]:
         """
@@ -93,7 +94,7 @@ class AsyncParameterController:
             List[info_types.ParameterInfo]: A list of the info of the parameters assigned to the track matching the id.
         """
         try:
-            cr = self._stub.GetTrackParameters(
+            cr = await self._stub.GetTrackParameters(
                 self._sushi_proto.TrackIdentifier(id=track_identifier)
             )
 
@@ -111,7 +112,7 @@ class AsyncParameterController:
                 e, "With track id: {}".format(track_identifier)
             )
 
-    def get_processor_parameters(
+    async def get_processor_parameters(
         self, processor_identifier: int
     ) -> List[info_types.ParameterInfo]:
         """
@@ -124,7 +125,7 @@ class AsyncParameterController:
             List[info_types.ParameterInfo]: A list of the parameters available to the processor matching the id.
         """
         try:
-            cr = self._stub.GetProcessorParameters(
+            cr = await self._stub.GetProcessorParameters(
                 self._sushi_proto.ProcessorIdentifier(id=processor_identifier)
             )
             response = self._parent.validate_command_response(
@@ -142,7 +143,7 @@ class AsyncParameterController:
                 e, "With processor id: {}".format(processor_identifier)
             )
 
-    def get_parameter_id(self, processor_identifier: int, parameter_name: str) -> int:
+    async def get_parameter_id(self, processor_identifier: int, parameter_name: str) -> int:
         """
         Get the id of the parameter of the specified processor corresponding to the specified parameter name.
 
@@ -154,7 +155,7 @@ class AsyncParameterController:
             int: The id of the parameter matching the parameter name.
         """
         try:
-            cr = self._stub.GetParameterId(
+            cr = await self._stub.GetParameterId(
                 self._sushi_proto.ParameterIdRequest(
                     processor=self._sushi_proto.ProcessorIdentifier(
                         id=processor_identifier
@@ -162,6 +163,7 @@ class AsyncParameterController:
                     ParameterName=parameter_name,
                 )
             )
+            print(cr)
             response = self._parent.validate_command_response(
                 cr, f"Get parameters for processor {processor_identifier}"
             )
@@ -175,7 +177,7 @@ class AsyncParameterController:
                 ),
             )
 
-    def get_parameter_info(
+    async def get_parameter_info(
         self, processor_identifier: int, parameter_identifier: int
     ) -> info_types.ParameterInfo:
         """
@@ -189,7 +191,7 @@ class AsyncParameterController:
             info_types.ParameterInfo: Info of the parameter matching the id.
         """
         try:
-            cr = self._stub.GetParameterInfo(
+            cr = await self._stub.GetParameterInfo(
                 self._sushi_proto.ParameterIdentifier(
                     processor_id=processor_identifier, parameter_id=parameter_identifier
                 )
@@ -207,7 +209,7 @@ class AsyncParameterController:
                 ),
             )
 
-    def get_parameter_value(
+    async def get_parameter_value(
         self, processor_identifier: int, parameter_identifier: int
     ) -> float:
         """
@@ -221,7 +223,7 @@ class AsyncParameterController:
             float: The value of the parameter matching the id.
         """
         try:
-            cr = self._stub.GetParameterValue(
+            cr = await self._stub.GetParameterValue(
                 self._sushi_proto.ParameterIdentifier(
                     processor_id=processor_identifier, parameter_id=parameter_identifier
                 )
@@ -239,7 +241,7 @@ class AsyncParameterController:
                 ),
             )
 
-    def get_parameter_value_in_domain(
+    async def get_parameter_value_in_domain(
         self, processor_identifier: int, parameter_identifier: int
     ) -> float:
         """
@@ -253,7 +255,7 @@ class AsyncParameterController:
             float: The normalised value of the parameter matching the id.
         """
         try:
-            cr = self._stub.GetParameterValueInDomain(
+            cr = await self._stub.GetParameterValueInDomain(
                 self._sushi_proto.ParameterIdentifier(
                     processor_id=processor_identifier, parameter_id=parameter_identifier
                 )
@@ -271,7 +273,7 @@ class AsyncParameterController:
                 ),
             )
 
-    def get_parameter_value_as_string(
+    async def get_parameter_value_as_string(
         self, processor_identifier: int, parameter_identifier: int
     ) -> str:
         """
@@ -285,7 +287,7 @@ class AsyncParameterController:
             str: The value as a string of the parameter matching the id.
         """
         try:
-            cr = self._stub.GetParameterValueAsString(
+            cr = await self._stub.GetParameterValueAsString(
                 self._sushi_proto.ParameterIdentifier(
                     processor_id=processor_identifier, parameter_id=parameter_identifier
                 )
@@ -341,7 +343,7 @@ class AsyncParameterController:
                 ),
             )
 
-    def get_track_properties(
+    async def get_track_properties(
         self, track_identifier: int
     ) -> List[info_types.PropertyInfo]:
         """
@@ -354,7 +356,7 @@ class AsyncParameterController:
             List[info_types.PropertyInfo]: A list of the info of the properties assigned to the track matching the id.
         """
         try:
-            cr = self._stub.GetTrackProperties(
+            cr = await self._stub.GetTrackProperties(
                 self._sushi_proto.TrackIdentifier(id=track_identifier)
             )
             response = self._parent.validate_command_response(
@@ -372,7 +374,7 @@ class AsyncParameterController:
                 e, "With track id: {}".format(track_identifier)
             )
 
-    def get_processor_properties(
+    async def get_processor_properties(
         self, processor_identifier: int
     ) -> List[info_types.PropertyInfo]:
         """
@@ -385,7 +387,7 @@ class AsyncParameterController:
             List[info_types.PropertyInfo]: A list of the properties available to the processor matching the id.
         """
         try:
-            cr = self._stub.GetProcessorProperties(
+            cr = await self._stub.GetProcessorProperties(
                 self._sushi_proto.ProcessorIdentifier(id=processor_identifier)
             )
             response = self._parent.validate_command_response(
@@ -403,7 +405,7 @@ class AsyncParameterController:
                 e, "With processor id: {}".format(processor_identifier)
             )
 
-    def get_property_id(self, processor_identifier: int, property_name: str) -> int:
+    async def get_property_id(self, processor_identifier: int, property_name: str) -> int:
         """
         Get the id of the property of the specified processor corresponding to the specified property name.
 
@@ -415,7 +417,7 @@ class AsyncParameterController:
             int: The id of the property matching the property name.
         """
         try:
-            cr = self._stub.GetPropertyId(
+            cr = await self._stub.GetPropertyId(
                 self._sushi_proto.PropertyIdRequest(
                     processor=self._sushi_proto.ProcessorIdentifier(
                         id=processor_identifier
@@ -436,7 +438,7 @@ class AsyncParameterController:
                 ),
             )
 
-    def get_property_info(
+    async def get_property_info(
         self, processor_identifier: int, property_identifier: int
     ) -> info_types.PropertyInfo:
         """
@@ -450,7 +452,7 @@ class AsyncParameterController:
             info_types.PropertyInfo: Info of the property matching the id.
         """
         try:
-            cr = self._stub.GetPropertyInfo(
+            cr = await self._stub.GetPropertyInfo(
                 self._sushi_proto.PropertyIdentifier(
                     processor_id=processor_identifier, property_id=property_identifier
                 )
@@ -468,7 +470,7 @@ class AsyncParameterController:
                 ),
             )
 
-    def get_property_value(
+    async def get_property_value(
         self, processor_identifier: int, property_identifier: int
     ) -> str:
         """
@@ -482,7 +484,7 @@ class AsyncParameterController:
             str: The value of the property matching the id.
         """
         try:
-            cr = self._stub.GetPropertyValue(
+            cr = await self._stub.GetPropertyValue(
                 self._sushi_proto.PropertyIdentifier(
                     processor_id=processor_identifier, property_id=property_identifier
                 )
@@ -500,7 +502,7 @@ class AsyncParameterController:
                 ),
             )
 
-    def set_property_value(
+    async def set_property_value(
         self, processor_identifier: int, property_identifier: int, value: float
     ) -> SushiCommandResponse:
         """
@@ -518,7 +520,7 @@ class AsyncParameterController:
             loop.
         """
         try:
-            cr = self._stub.SetPropertyValue(
+            cr = await self._stub.SetPropertyValue(
                 self._sushi_proto.PropertyValue(
                     property=self._sushi_proto.PropertyIdentifier(
                         processor_id=processor_identifier,

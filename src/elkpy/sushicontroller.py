@@ -19,8 +19,6 @@ __license__ = "GPL-3.0"
 from pathlib import Path
 from typing import Any
 import re
-import sys
-import time
 
 from .events import SushiCommandResponse
 
