@@ -2,10 +2,6 @@
 
 A simple wrapper for controlling sushi over gRPC via a python script.
 
-## Prerequisites
-
-To use this wrapper, [python3.7](https://www.python.org/downloads/) or greater needs to be installed, together with the `grpcio-tools` Python package. Both are installed by default in the development releases of Elk for the various supported architectures.
-
 ## Installation
 
 If you are running your Python program on a device running Elk Audio OS, the latest `elkpy` should already be installed.
@@ -64,11 +60,9 @@ On the terminal where the elkpy folder is located.
 
 ## Important notes on return values
 
-In Sushi, get requests are processed synchronously, while set requests are scheduled asynchronously. The former will return the requested data, but
-the latter can only return a confirmation that the command has been registered.
+In Sushi, get requests are processed synchronously, while set requests are scheduled asynchronously. The former will return the requested data, but the latter can only return a confirmation that the command has been registered.
 
-This can lead to situations where a user could for instance try to set a parameter on a processor that has not yet been created by Sushi, even though
-the call to `create_processor_on_track` had been made.
+This can lead to situations where a user could for instance try to set a parameter on a processor that has not yet been created by Sushi, even though the call to `create_processor_on_track` had been made.
 
 ### Elkpy asyncio events
 
@@ -82,10 +76,9 @@ Commands that edit the audio graph:
 - create_processor_on_track
 - ...
 
-return an `SushiCommandResponse`: an asyncio.Event that will be **set** by `elkpy` whenever the corresponding notification is emitted by Sushi.
+return a `SushiCommandResponse`: an asyncio.Event that will be **set** by `elkpy` whenever the corresponding notification is emitted by Sushi.
 
-An asyncio user can elect to `await SushiCommandResponse.wait()` to ensure that the command has been properly carried out before carrying on
-with further rpcs.
+An asyncio user can elect to `await SushiCommandResponse.wait()` to ensure that the command has been properly carried out before carrying on with further rpcs.
 Ignoring the event is also a valid option for cases where absolute confirmation is not critical.
 
 If an error has occurred in grpc, `wait()` will raise a `SushiUnknownError`.
@@ -101,10 +94,14 @@ If you fail to do that, you will end up with 2 running loops: one in the main th
 
 #### Synchronous programs and SushiCommandResponse
 
-Synchronous programs may also leverage SushiCommandResponse but in a different way. The object _waiting_ on such events can **not** wait() on them but MUST check their `event.is_set()` method instead. This
+Synchronous programs may also leverage SushiCommandResponse but in a different way. The object _waiting_ on such events can **not** wait() for them but **MUST** check their `event.is_set()` method instead. This
 will return `True` once _elkpy_ has set the event.
 
 For more information about `asyncio.Event`: [https://docs.python.org/3/library/asyncio-sync.html]
+
+### Async elkpy (experimental partial implementation)
+
+Elkpy also ships an `AsyncSushiController` for asyncio applications to allow for asyncio-specific techniques, like asyncio.gather() a bunch of grpc calls.
 
 ---
 
