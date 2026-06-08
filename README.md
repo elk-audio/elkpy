@@ -30,9 +30,6 @@ controller = sc.SushiController()
 The default gRPC address is `localhost:51051`.
 To connect to another address, pass it as an argument to the constructor of the controller with the format `ip-address:port`.
 
-The second argument to the constructor of SushiController is a path to the `sushi_rpc.proto` file, which contains Sushi's Protobuf protocol definition.
-If the argument is empty, the class will look for it at `usr/share/sushi/sushi_rpc.proto`, the default installation path for Sushi.
-
 To use the controller simply use the methods of the controller objects different sections. For example:
 
 ```python
@@ -60,7 +57,7 @@ except KeyboardInterrupt:
 For full documentation on all available methods, use:
 
 ```console
-$ pydoc3 elkpy.sushicontroller.SushiController
+pydoc3 elkpy.sushicontroller.SushiController
 ```
 
 On the terminal where the elkpy folder is located.
@@ -70,10 +67,10 @@ On the terminal where the elkpy folder is located.
 In Sushi, get requests are processed synchronously, while set requests are scheduled asynchronously. The former will return the requested data, but
 the latter can only return a confirmation that the command has been registered.
 
-This can lead to situations where a user could for instance try to set a parameter on a processor that has not yet been created by Sushi, even though 
+This can lead to situations where a user could for instance try to set a parameter on a processor that has not yet been created by Sushi, even though
 the call to `create_processor_on_track` had been made.
 
-### Elkpy asyncio events 
+### Elkpy asyncio events
 
 To alleviate this burden for _simple_ use-cases, `elkpy` adopts the following behavior:
 
@@ -93,8 +90,8 @@ Ignoring the event is also a valid option for cases where absolute confirmation 
 
 If an error has occurred in grpc, `wait()` will raise a `SushiUnknownError`.
 
-
 #### CAUTION
+
 elkpy uses an asyncio.EventLoop to run its notification monitoring. In asyncio programs, it will simply get the current running loop. And if that fails (for instance
 if you are writing a synchronous program), it will starts a new loop in a separate thread.
 
@@ -103,8 +100,9 @@ You MUST therefore be careful when you instantiate the main SushiController clas
 If you fail to do that, you will end up with 2 running loops: one in the main thread and one in an elkpy thread. And that will break the SushiCommandResponse system, because asyncio.Events are **not thread-safe**!
 
 #### Synchronous programs and SushiCommandResponse
-Synchronous programs may also leverage SushiCommandResponse but in a different way. The object *waiting* on such events can **not** wait() on them but MUST check their `event.is_set()` method instead. This 
-will return `True` once *elkpy* has set the event.
+
+Synchronous programs may also leverage SushiCommandResponse but in a different way. The object _waiting_ on such events can **not** wait() on them but MUST check their `event.is_set()` method instead. This
+will return `True` once _elkpy_ has set the event.
 
 For more information about `asyncio.Event`: [https://docs.python.org/3/library/asyncio-sync.html]
 
@@ -131,10 +129,10 @@ $ ./sushi --portaudio \
 
 If you've built Sushi from source, the plugins are built and accessible in the above path relative to the sushi binary.
 
-3. Start `sushi_control_example.py`:
+1. Start `sushi_control_example.py`:
 
 ```commandline
-$ python3 ./sushi_control_example.py --protofile "/path/to/sushi/rpc_interface/protos/sushi_rpc.proto"
+python3 ./sushi_control_example.py --protofile "/path/to/sushi/rpc_interface/protos/sushi_rpc.proto"
 ```
 
 The `--protofile` argument points elkpy to the protocol buffer file used by Sushi.
@@ -153,8 +151,8 @@ Ensure there is a Sushi instance running on the same computer.
 Then run:
 
 ```
-$ export SUSHI_GRPC_ELKPY_PROTO=./sushi_rpc.proto
-$ python3 examples/sushi_monitor.py
+export SUSHI_GRPC_ELKPY_PROTO=./sushi_rpc.proto
+python3 examples/sushi_monitor.py
 ```
 
 ## Running Unit Tests
@@ -164,6 +162,6 @@ Before running unit tests with the unittest command-line interface, you need to 
 Example:
 
 ```
-$ export SUSHI_GRPC_ELKPY_PROTO=./sushi_rpc.proto
-$ python3 -m unittest discover -s tests -p '*_test.py'
+export SUSHI_GRPC_ELKPY_PROTO=./sushi_rpc.proto
+python3 -m unittest discover -s tests -p '*_test.py'
 ```
