@@ -19,12 +19,14 @@ __license__ = "GPL-3.0"
 import grpc
 
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from elkpy.sushicontroller import SushiController
 
 from . import sushierrors
-from . import grpc_gen
 from . import sushi_info_types as info_types
+from .rpc import sushi_rpc_pb2
+from .rpc import sushi_rpc_pb2_grpc
 
 ####################################
 # Sushi transport controller class #
@@ -40,13 +42,7 @@ class TransportController(object):
         _stub (TransportControllerStub): Connection stubs to the gRPC transport interface implemented in sushi.
     """
 
-    def __init__(
-        self,
-        parent: 'SushiController',
-        address="localhost:51051",
-        sushi_proto_def="/usr/share/sushi/sushi_rpc.proto",
-        sushi_proto = None, sushi_grpc = None
-    ):
+    def __init__(self, parent: "SushiController", address="localhost:51051"):
         """
         The constructor for the TransportController class setting up the gRPC connection with sushi.
 
@@ -63,14 +59,8 @@ class TransportController(object):
                 )
             ) from e
 
-        if sushi_proto and sushi_grpc:
-            self._sushi_proto = sushi_proto
-            self._sushi_grpc = sushi_grpc
-        else:
-            self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
-        
-        self._stub = self._sushi_grpc.TransportControllerStub(channel)
-        self._parent = parent 
+        self._stub = sushi_rpc_pb2_grpc.TransportControllerStub(channel)
+        self._parent = parent
 
     def get_samplerate(self) -> float:
         """
@@ -80,7 +70,7 @@ class TransportController(object):
             float: Current samplerate.
         """
         try:
-            response = self._stub.GetSamplerate(self._sushi_proto.GenericVoidValue())
+            response = self._stub.GetSamplerate(sushi_rpc_pb2.GenericVoidValue())
             return response.value
 
         except grpc.RpcError as e:
@@ -97,7 +87,7 @@ class TransportController(object):
                 3 = Recording (not implemented)
         """
         try:
-            response = self._stub.GetPlayingMode(self._sushi_proto.GenericVoidValue())
+            response = self._stub.GetPlayingMode(sushi_rpc_pb2.GenericVoidValue())
             return info_types.PlayingMode(response.mode)
 
         except grpc.RpcError as e:
@@ -116,8 +106,13 @@ class TransportController(object):
 
         if info_types.PlayingMode(playing_mode) in info_types.PlayingMode:
             try:
-                cr = self._stub.SetPlayingMode(self._sushi_proto.PlayingMode(mode=int(playing_mode)))
-                return self._parent.validate_command_response(cr, context_info=f"Setting playing mode to {self._sushi_proto.PlayingMode(mode=playing_mode)}")
+                cr = self._stub.SetPlayingMode(
+                    sushi_rpc_pb2.PlayingMode(mode=int(playing_mode))
+                )
+                return self._parent.validate_command_response(
+                    cr,
+                    context_info=f"Setting playing mode to {sushi_rpc_pb2.PlayingMode(mode=playing_mode)}",
+                )
 
             except grpc.RpcError as e:
                 sushierrors.grpc_error_handling(
@@ -135,7 +130,7 @@ class TransportController(object):
                 3 = Link
         """
         try:
-            response = self._stub.GetSyncMode(self._sushi_proto.GenericVoidValue())
+            response = self._stub.GetSyncMode(sushi_rpc_pb2.GenericVoidValue())
             return info_types.SyncMode(response.mode)
 
         except grpc.RpcError as e:
@@ -153,8 +148,11 @@ class TransportController(object):
         """
         if info_types.SyncMode(sync_mode) in info_types.SyncMode:
             try:
-                cr = self._stub.SetSyncMode(self._sushi_proto.SyncMode(mode=int(sync_mode)))
-                return self._parent.validate_command_response(cr, context_info=f"Setting sync mode to {self._sushi_proto.SyncMode(mode=int(sync_mode))}")
+                cr = self._stub.SetSyncMode(sushi_rpc_pb2.SyncMode(mode=int(sync_mode)))
+                return self._parent.validate_command_response(
+                    cr,
+                    context_info=f"Setting sync mode to {sushi_rpc_pb2.SyncMode(mode=int(sync_mode))}",
+                )
 
             except grpc.RpcError as e:
                 sushierrors.grpc_error_handling(
@@ -169,7 +167,7 @@ class TransportController(object):
             float: Current tempo in BPM(Beats Per Minute).
         """
         try:
-            response = self._stub.GetTempo(self._sushi_proto.GenericVoidValue())
+            response = self._stub.GetTempo(sushi_rpc_pb2.GenericVoidValue())
             return response.value
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
@@ -182,8 +180,10 @@ class TransportController(object):
             tempo (float): The tempo in BPM(Beats Per Minute).
         """
         try:
-            cr = self._stub.SetTempo(self._sushi_proto.GenericFloatValue(value=tempo))
-            return self._parent.validate_command_response(cr, context_info=f"Setting tempo to {tempo}")
+            cr = self._stub.SetTempo(sushi_rpc_pb2.GenericFloatValue(value=tempo))
+            return self._parent.validate_command_response(
+                cr, context_info=f"Setting tempo to {tempo}"
+            )
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, " With tempo: {}".format(tempo))
@@ -197,7 +197,7 @@ class TransportController(object):
             int: The denominator of the time signature.
         """
         try:
-            response = self._stub.GetTimeSignature(self._sushi_proto.GenericVoidValue())
+            response = self._stub.GetTimeSignature(sushi_rpc_pb2.GenericVoidValue())
             return response.numerator, response.denominator
 
         except grpc.RpcError as e:
@@ -212,8 +212,15 @@ class TransportController(object):
             denominator (int): The denominator of the time signature. Should be either 4 or 8.
         """
         try:
-            cr = self._stub.SetTimeSignature(self._sushi_proto.TimeSignature(numerator=numerator, denominator=denominator))
-            return self._parent.validate_command_response(cr, context_info=f"Setting time signature to {self._sushi_proto.TimeSignature(numerator=numerator, denominator=denominator)}")
+            cr = self._stub.SetTimeSignature(
+                sushi_rpc_pb2.TimeSignature(
+                    numerator=numerator, denominator=denominator
+                )
+            )
+            return self._parent.validate_command_response(
+                cr,
+                context_info=f"Setting time signature to {sushi_rpc_pb2.TimeSignature(numerator=numerator, denominator=denominator)}",
+            )
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(

@@ -25,9 +25,10 @@ import grpc
 import grpc.aio
 
 from . import sushierrors
-from . import grpc_gen
 from . import sushi_info_types as info_types
 from .events import SushiCommandResponse
+from .rpc import sushi_rpc_pb2
+from .rpc import sushi_rpc_pb2_grpc
 
 from typing import List
 
@@ -45,14 +46,7 @@ class AsyncAudioGraphController:
         _stub (AudioGraphControllerStub): Connection stubs to the gRPC audio graph interface implemented in sushi.
     """
 
-    def __init__(
-        self,
-        parent,
-        address="localhost:51051",
-        sushi_proto_def="/usr/share/sushi/sushi_rpc.proto",
-        sushi_proto=None,
-        sushi_grpc=None,
-    ):
+    def __init__(self, parent, address="localhost:51051"):
         """
         The constructor for the AudioGraphController class setting up the gRPC connection with sushi.
 
@@ -71,15 +65,7 @@ class AsyncAudioGraphController:
                 )
             ) from e
 
-        if sushi_proto and sushi_grpc:
-            self._sushi_proto = sushi_proto
-            self._sushi_grpc = sushi_grpc
-        else:
-            self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(
-                sushi_proto_def
-            )
-
-        self._stub = self._sushi_grpc.AudioGraphControllerStub(channel)
+        self._stub = sushi_rpc_pb2_grpc.AudioGraphControllerStub(channel)
 
     async def get_all_processors(self) -> List[info_types.ProcessorInfo]:
         """
@@ -89,7 +75,9 @@ class AsyncAudioGraphController:
             List[info_types.ProcessorInfo]: A list with the info of all the available processors.
         """
         try:
-            response = await self._stub.GetAllProcessors(self._sushi_proto.GenericVoidValue())
+            response = await self._stub.GetAllProcessors(
+                sushi_rpc_pb2.GenericVoidValue()
+            )
             processor_info_list = []
             for processor_info in response.processors:
                 processor_info_list.append(info_types.ProcessorInfo(processor_info))
@@ -106,7 +94,7 @@ class AsyncAudioGraphController:
             List[info_types.TrackInfo]: A list with the info of all the available tracks.
         """
         try:
-            response = await self._stub.GetAllTracks(self._sushi_proto.GenericVoidValue())
+            response = await self._stub.GetAllTracks(sushi_rpc_pb2.GenericVoidValue())
 
             track_info_list = []
             for track_info in response.tracks:
@@ -128,7 +116,7 @@ class AsyncAudioGraphController:
         """
         try:
             cr = await self._stub.GetTrackId(
-                self._sushi_proto.GenericStringValue(value=track_name)
+                sushi_rpc_pb2.GenericStringValue(value=track_name)
             )
             response = self._parent.validate_command_response(
                 cr, context_info=f"Getting id for track {track_name}"
@@ -150,7 +138,7 @@ class AsyncAudioGraphController:
         """
         try:
             cr = await self._stub.GetTrackInfo(
-                self._sushi_proto.TrackIdentifier(id=track_identifier)
+                sushi_rpc_pb2.TrackIdentifier(id=track_identifier)
             )
             response = self._parent.validate_command_response(
                 cr, context_info=f"Getting track info for track {track_identifier}"
@@ -176,7 +164,7 @@ class AsyncAudioGraphController:
         """
         try:
             cr = await self._stub.GetTrackProcessors(
-                self._sushi_proto.TrackIdentifier(id=track_identifier)
+                sushi_rpc_pb2.TrackIdentifier(id=track_identifier)
             )
             response = self._parent.validate_command_response(
                 cr, f"Getting track processors for track {track_identifier}"
@@ -204,7 +192,7 @@ class AsyncAudioGraphController:
         """
         try:
             cr = await self._stub.GetProcessorId(
-                self._sushi_proto.GenericStringValue(value=processor_name)
+                sushi_rpc_pb2.GenericStringValue(value=processor_name)
             )
             response = self._parent.validate_command_response(
                 cr, f"Getting id for processor {processor_name}"
@@ -216,7 +204,9 @@ class AsyncAudioGraphController:
                 e, "With processor name: {}".format(processor_name)
             )
 
-    async def get_processor_info(self, processor_identifier: int) -> info_types.ProcessorInfo:
+    async def get_processor_info(
+        self, processor_identifier: int
+    ) -> info_types.ProcessorInfo:
         """
         Get the info of a processor from its id.
 
@@ -228,7 +218,7 @@ class AsyncAudioGraphController:
         """
         try:
             cr = await self._stub.GetProcessorInfo(
-                self._sushi_proto.ProcessorIdentifier(id=processor_identifier)
+                sushi_rpc_pb2.ProcessorIdentifier(id=processor_identifier)
             )
             response = self._parent.validate_command_response(
                 cr, f"Getting processor info for processor {processor_identifier}"
@@ -252,7 +242,7 @@ class AsyncAudioGraphController:
         """
         try:
             cr = await self._stub.GetProcessorBypassState(
-                self._sushi_proto.ProcessorIdentifier(id=processor_identifier)
+                sushi_rpc_pb2.ProcessorIdentifier(id=processor_identifier)
             )
             response = self._parent.validate_command_response(
                 cr, f"Getting bypass state for processor {processor_identifier}"
@@ -278,7 +268,7 @@ class AsyncAudioGraphController:
         """
         try:
             cr = await self._stub.GetProcessorState(
-                self._sushi_proto.ProcessorIdentifier(id=processor_identifier)
+                sushi_rpc_pb2.ProcessorIdentifier(id=processor_identifier)
             )
             response = self._parent.validate_command_response(
                 cr, f"Getting the state of processor {processor_identifier}"
@@ -308,8 +298,8 @@ class AsyncAudioGraphController:
         """
         try:
             cr = await self._stub.SetProcessorBypassState(
-                self._sushi_proto.ProcessorBypassStateSetRequest(
-                    processor=self._sushi_proto.ProcessorIdentifier(
+                sushi_rpc_pb2.ProcessorBypassStateSetRequest(
+                    processor=sushi_rpc_pb2.ProcessorIdentifier(
                         id=processor_identifier
                     ),
                     value=bypass_state,
@@ -346,7 +336,7 @@ class AsyncAudioGraphController:
             parameters ((int, float)): A list of tuples (id, value) of parameter values to set.
         """
         try:
-            grpc_state = self._sushi_proto.ProcessorState()
+            grpc_state = sushi_rpc_pb2.ProcessorState()
 
             if program_id:
                 grpc_state.program_id.value = program_id
@@ -367,8 +357,8 @@ class AsyncAudioGraphController:
                 grpc_parameter.value = parameter[1]
 
             await self._stub.SetProcessorState(
-                self._sushi_proto.ProcessorStateSetRequest(
-                    processor=self._sushi_proto.ProcessorIdentifier(
+                sushi_rpc_pb2.ProcessorStateSetRequest(
+                    processor=sushi_rpc_pb2.ProcessorIdentifier(
                         id=processor_identifier
                     ),
                     state=grpc_state,
@@ -390,7 +380,7 @@ class AsyncAudioGraphController:
             state (info_types.ProcessorState): a state object either populated manually or received from a call to get_processor_state.
         """
         try:
-            grpc_state = self._sushi_proto.ProcessorState()
+            grpc_state = sushi_rpc_pb2.ProcessorState()
 
             if state.program_id:
                 grpc_state.program_id.value = state.program_id
@@ -414,8 +404,8 @@ class AsyncAudioGraphController:
                 grpc_state.binary_data = state.binary_data
 
             await self._stub.SetProcessorState(
-                self._sushi_proto.ProcessorStateSetRequest(
-                    processor=self._sushi_proto.ProcessorIdentifier(
+                sushi_rpc_pb2.ProcessorStateSetRequest(
+                    processor=sushi_rpc_pb2.ProcessorIdentifier(
                         id=processor_identifier
                     ),
                     state=grpc_state,
@@ -443,7 +433,7 @@ class AsyncAudioGraphController:
         """
         try:
             cr = await self._stub.CreateTrack(
-                self._sushi_proto.CreateTrackRequest(name=name, channels=channels)
+                sushi_rpc_pb2.CreateTrackRequest(name=name, channels=channels)
             )
             return self._parent.validate_command_response(cr, f"Creating track {name}")
         except grpc.RpcError as e:
@@ -451,7 +441,9 @@ class AsyncAudioGraphController:
                 e, "With track name: {}, number of channels: {}".format(name, channels)
             )
 
-    async def create_multibus_track(self, name: str, buses: int) -> SushiCommandResponse:
+    async def create_multibus_track(
+        self, name: str, buses: int
+    ) -> SushiCommandResponse:
         """
         Create a new multibus track in sushi.
 
@@ -467,7 +459,7 @@ class AsyncAudioGraphController:
         """
         try:
             cr = await self._stub.CreateMultibusTrack(
-                self._sushi_proto.CreateMultibusTrackRequest(name=name, buses=buses)
+                sushi_rpc_pb2.CreateMultibusTrackRequest(name=name, buses=buses)
             )
             return self._parent.validate_command_response(
                 cr, f"Creating multibus track {name}"
@@ -492,7 +484,7 @@ class AsyncAudioGraphController:
         """
         try:
             cr = await self._stub.CreatePreTrack(
-                self._sushi_proto.CreatePreTrackRequest(name=name)
+                sushi_rpc_pb2.CreatePreTrackRequest(name=name)
             )
             return self._parent.validate_command_response(
                 cr, f"Creating pre-track {name}"
@@ -515,7 +507,7 @@ class AsyncAudioGraphController:
         """
         try:
             cr = await self._stub.CreatePostTrack(
-                self._sushi_proto.CreatePostTrackRequest(name=name)
+                sushi_rpc_pb2.CreatePostTrackRequest(name=name)
             )
             return self._parent.validate_command_response(
                 cr, f"Creating post-track {name}"
@@ -554,15 +546,15 @@ class AsyncAudioGraphController:
 
         try:
             cr = await self._stub.CreateProcessorOnTrack(
-                self._sushi_proto.CreateProcessorRequest(
+                sushi_rpc_pb2.CreateProcessorRequest(
                     name=name,
                     uid=uid,
                     path=path,
-                    type=self._sushi_proto.PluginType(type=processor_type),
-                    track=self._sushi_proto.TrackIdentifier(id=track_id),
-                    position=self._sushi_proto.ProcessorPosition(
+                    type=sushi_rpc_pb2.PluginType(type=processor_type),
+                    track=sushi_rpc_pb2.TrackIdentifier(id=track_id),
+                    position=sushi_rpc_pb2.ProcessorPosition(
                         add_to_back=add_to_back,
-                        before_processor=self._sushi_proto.ProcessorIdentifier(
+                        before_processor=sushi_rpc_pb2.ProcessorIdentifier(
                             id=before_processor
                         ),
                     ),
@@ -611,13 +603,13 @@ class AsyncAudioGraphController:
         """
         try:
             cr = await self._stub.MoveProcessorOnTrack(
-                self._sushi_proto.MoveProcessorRequest(
-                    processor=self._sushi_proto.ProcessorIdentifier(id=processor),
-                    source_track=self._sushi_proto.TrackIdentifier(id=source_track),
-                    dest_track=self._sushi_proto.TrackIdentifier(id=destination_track),
-                    position=self._sushi_proto.ProcessorPosition(
+                sushi_rpc_pb2.MoveProcessorRequest(
+                    processor=sushi_rpc_pb2.ProcessorIdentifier(id=processor),
+                    source_track=sushi_rpc_pb2.TrackIdentifier(id=source_track),
+                    dest_track=sushi_rpc_pb2.TrackIdentifier(id=destination_track),
+                    position=sushi_rpc_pb2.ProcessorPosition(
                         add_to_back=add_to_back,
-                        before_processor=self._sushi_proto.ProcessorIdentifier(
+                        before_processor=sushi_rpc_pb2.ProcessorIdentifier(
                             id=before_processor
                         ),
                     ),
@@ -659,9 +651,9 @@ class AsyncAudioGraphController:
 
         try:
             cr = await self._stub.DeleteProcessorFromTrack(
-                self._sushi_proto.DeleteProcessorRequest(
-                    processor=self._sushi_proto.ProcessorIdentifier(id=processor),
-                    track=self._sushi_proto.TrackIdentifier(id=track),
+                sushi_rpc_pb2.DeleteProcessorRequest(
+                    processor=sushi_rpc_pb2.ProcessorIdentifier(id=processor),
+                    track=sushi_rpc_pb2.TrackIdentifier(id=track),
                 )
             )
             return self._parent.validate_command_response(
@@ -686,7 +678,9 @@ class AsyncAudioGraphController:
             loop.
         """
         try:
-            cr = await self._stub.DeleteTrack(self._sushi_proto.TrackIdentifier(id=track_id))
+            cr = await self._stub.DeleteTrack(
+                sushi_rpc_pb2.TrackIdentifier(id=track_id)
+            )
             return self._parent.validate_command_response(
                 cr, f"Deleting track {track_id}"
             )

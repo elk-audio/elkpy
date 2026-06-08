@@ -26,8 +26,9 @@ from .events import SushiCommandResponse
 import grpc
 
 from . import sushierrors
-from . import grpc_gen
 from . import sushi_info_types as info_types
+from .rpc import sushi_rpc_pb2
+from .rpc import sushi_rpc_pb2_grpc
 from typing import List
 
 ####################################
@@ -45,14 +46,7 @@ class AsyncParameterController:
         _stub (ParameterControllerStub): Connection stubs to the gRPC parameter interface implemented in sushi.
     """
 
-    def __init__(
-        self,
-        parent: "SushiController",
-        address="localhost:51051",
-        sushi_proto_def="/usr/share/sushi/sushi_rpc.proto",
-        sushi_proto=None,
-        sushi_grpc=None,
-    ):
+    def __init__(self, parent: "SushiController", address="localhost:51051"):
         """
         The constructor for the ParameterController class setting up the gRPC connection with sushi.
 
@@ -69,15 +63,7 @@ class AsyncParameterController:
                 )
             ) from e
 
-        if sushi_proto and sushi_grpc:
-            self._sushi_proto = sushi_proto
-            self._sushi_grpc = sushi_grpc
-        else:
-            self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(
-                sushi_proto_def
-            )
-
-        self._stub = self._sushi_grpc.ParameterControllerStub(channel)
+        self._stub = sushi_rpc_pb2_grpc.ParameterControllerStub(channel)
         self._parent = parent
 
     async def get_track_parameters(
@@ -94,7 +80,7 @@ class AsyncParameterController:
         """
         try:
             cr = await self._stub.GetTrackParameters(
-                self._sushi_proto.TrackIdentifier(id=track_identifier)
+                sushi_rpc_pb2.TrackIdentifier(id=track_identifier)
             )
 
             response = self._parent.validate_command_response(
@@ -125,7 +111,7 @@ class AsyncParameterController:
         """
         try:
             cr = await self._stub.GetProcessorParameters(
-                self._sushi_proto.ProcessorIdentifier(id=processor_identifier)
+                sushi_rpc_pb2.ProcessorIdentifier(id=processor_identifier)
             )
             response = self._parent.validate_command_response(
                 cr, f"Get parameters for processor {processor_identifier}"
@@ -142,7 +128,9 @@ class AsyncParameterController:
                 e, "With processor id: {}".format(processor_identifier)
             )
 
-    async def get_parameter_id(self, processor_identifier: int, parameter_name: str) -> int:
+    async def get_parameter_id(
+        self, processor_identifier: int, parameter_name: str
+    ) -> int:
         """
         Get the id of the parameter of the specified processor corresponding to the specified parameter name.
 
@@ -155,8 +143,8 @@ class AsyncParameterController:
         """
         try:
             cr = await self._stub.GetParameterId(
-                self._sushi_proto.ParameterIdRequest(
-                    processor=self._sushi_proto.ProcessorIdentifier(
+                sushi_rpc_pb2.ParameterIdRequest(
+                    processor=sushi_rpc_pb2.ProcessorIdentifier(
                         id=processor_identifier
                     ),
                     ParameterName=parameter_name,
@@ -190,7 +178,7 @@ class AsyncParameterController:
         """
         try:
             cr = await self._stub.GetParameterInfo(
-                self._sushi_proto.ParameterIdentifier(
+                sushi_rpc_pb2.ParameterIdentifier(
                     processor_id=processor_identifier, parameter_id=parameter_identifier
                 )
             )
@@ -222,7 +210,7 @@ class AsyncParameterController:
         """
         try:
             cr = await self._stub.GetParameterValue(
-                self._sushi_proto.ParameterIdentifier(
+                sushi_rpc_pb2.ParameterIdentifier(
                     processor_id=processor_identifier, parameter_id=parameter_identifier
                 )
             )
@@ -254,7 +242,7 @@ class AsyncParameterController:
         """
         try:
             cr = await self._stub.GetParameterValueInDomain(
-                self._sushi_proto.ParameterIdentifier(
+                sushi_rpc_pb2.ParameterIdentifier(
                     processor_id=processor_identifier, parameter_id=parameter_identifier
                 )
             )
@@ -286,7 +274,7 @@ class AsyncParameterController:
         """
         try:
             cr = await self._stub.GetParameterValueAsString(
-                self._sushi_proto.ParameterIdentifier(
+                sushi_rpc_pb2.ParameterIdentifier(
                     processor_id=processor_identifier, parameter_id=parameter_identifier
                 )
             )
@@ -321,8 +309,8 @@ class AsyncParameterController:
         """
         try:
             cr = await self._stub.SetParameterValue(
-                self._sushi_proto.ParameterValue(
-                    parameter=self._sushi_proto.ParameterIdentifier(
+                sushi_rpc_pb2.ParameterValue(
+                    parameter=sushi_rpc_pb2.ParameterIdentifier(
                         processor_id=processor_identifier,
                         parameter_id=parameter_identifier,
                     ),
@@ -355,7 +343,7 @@ class AsyncParameterController:
         """
         try:
             cr = await self._stub.GetTrackProperties(
-                self._sushi_proto.TrackIdentifier(id=track_identifier)
+                sushi_rpc_pb2.TrackIdentifier(id=track_identifier)
             )
             response = self._parent.validate_command_response(
                 cr, f"Get properties for track {track_identifier}"
@@ -386,7 +374,7 @@ class AsyncParameterController:
         """
         try:
             cr = await self._stub.GetProcessorProperties(
-                self._sushi_proto.ProcessorIdentifier(id=processor_identifier)
+                sushi_rpc_pb2.ProcessorIdentifier(id=processor_identifier)
             )
             response = self._parent.validate_command_response(
                 cr, f"Get properties for processor {processor_identifier}"
@@ -403,7 +391,9 @@ class AsyncParameterController:
                 e, "With processor id: {}".format(processor_identifier)
             )
 
-    async def get_property_id(self, processor_identifier: int, property_name: str) -> int:
+    async def get_property_id(
+        self, processor_identifier: int, property_name: str
+    ) -> int:
         """
         Get the id of the property of the specified processor corresponding to the specified property name.
 
@@ -416,8 +406,8 @@ class AsyncParameterController:
         """
         try:
             cr = await self._stub.GetPropertyId(
-                self._sushi_proto.PropertyIdRequest(
-                    processor=self._sushi_proto.ProcessorIdentifier(
+                sushi_rpc_pb2.PropertyIdRequest(
+                    processor=sushi_rpc_pb2.ProcessorIdentifier(
                         id=processor_identifier
                     ),
                     property_name=property_name,
@@ -451,7 +441,7 @@ class AsyncParameterController:
         """
         try:
             cr = await self._stub.GetPropertyInfo(
-                self._sushi_proto.PropertyIdentifier(
+                sushi_rpc_pb2.PropertyIdentifier(
                     processor_id=processor_identifier, property_id=property_identifier
                 )
             )
@@ -483,7 +473,7 @@ class AsyncParameterController:
         """
         try:
             cr = await self._stub.GetPropertyValue(
-                self._sushi_proto.PropertyIdentifier(
+                sushi_rpc_pb2.PropertyIdentifier(
                     processor_id=processor_identifier, property_id=property_identifier
                 )
             )
@@ -519,8 +509,8 @@ class AsyncParameterController:
         """
         try:
             cr = await self._stub.SetPropertyValue(
-                self._sushi_proto.PropertyValue(
-                    property=self._sushi_proto.PropertyIdentifier(
+                sushi_rpc_pb2.PropertyValue(
+                    property=sushi_rpc_pb2.PropertyIdentifier(
                         processor_id=processor_identifier,
                         property_id=property_identifier,
                     ),

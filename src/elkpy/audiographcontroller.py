@@ -23,8 +23,9 @@ if TYPE_CHECKING:
 
 import grpc
 
+from .rpc import sushi_rpc_pb2
+from .rpc import sushi_rpc_pb2_grpc
 from . import sushierrors
-from . import grpc_gen
 from . import sushi_info_types as info_types
 from .events import SushiCommandResponse
 
@@ -44,14 +45,7 @@ class AudioGraphController:
         _stub (AudioGraphControllerStub): Connection stubs to the gRPC audio graph interface implemented in sushi.
     """
 
-    def __init__(
-        self,
-        parent,
-        address="localhost:51051",
-        sushi_proto_def="/usr/share/sushi/sushi_rpc.proto",
-        sushi_proto=None,
-        sushi_grpc=None,
-    ):
+    def __init__(self, parent, address="localhost:51051"):
         """
         The constructor for the AudioGraphController class setting up the gRPC connection with sushi.
 
@@ -70,13 +64,8 @@ class AudioGraphController:
                 )
             ) from e
 
-        if sushi_proto and sushi_grpc:
-            self._sushi_proto = sushi_proto
-            self._sushi_grpc = sushi_grpc
-        else:
-            self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(
-                sushi_proto_def
-            )
+        self._sushi_proto = sushi_rpc_pb2
+        self._sushi_grpc = sushi_rpc_pb2_grpc
 
         self._stub = self._sushi_grpc.AudioGraphControllerStub(channel)
 

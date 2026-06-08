@@ -35,13 +35,12 @@ from . import osccontroller
 from . import systemcontroller
 from . import sessioncontroller
 from . import notificationcontroller
-from . import grpc_gen
 
 from .sushi_info_types import CommandResponseStatus
 from . import sushierrors
 
-
-sushi_proto = Path(__file__).parent / "rpc" / "sushi_rpc.proto"
+from .rpc import sushi_rpc_pb2
+from .rpc import sushi_rpc_pb2_grpc
 
 
 ###############################
@@ -67,7 +66,6 @@ class SushiController:
     def __init__(
         self,
         address="localhost:51051",
-        sushi_proto_def=sushi_proto,
         auto_update_async_command_responses: bool = True,
     ):
         """
@@ -82,61 +80,30 @@ class SushiController:
         """
         self.command_responses: dict[int, SushiCommandResponse] = {}
 
-        self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(
-            str(sushi_proto_def)
-        )
-
-        self.audio_graph = audiographcontroller.AudioGraphController(
-            self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
-        )
-        self.keyboard = keyboardcontroller.KeyboardController(
-            self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
-        )
-        self.parameters = parametercontroller.ParameterController(
-            self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
-        )
-        self.programs = programcontroller.ProgramController(
-            self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
-        )
-        self.timings = timingcontroller.TimingController(
-            self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
-        )
-        self.transport = transportcontroller.TransportController(
-            self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
-        )
+        self.audio_graph = audiographcontroller.AudioGraphController(self, address)
+        self.keyboard = keyboardcontroller.KeyboardController(self, address)
+        self.parameters = parametercontroller.ParameterController(self, address)
+        self.programs = programcontroller.ProgramController(self, address)
+        self.timings = timingcontroller.TimingController(self, address)
+        self.transport = transportcontroller.TransportController(self, address)
         self.audio_routing = audioroutingcontroller.AudioRoutingController(
-            self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
+            self, address
         )
-        self.midi_controller = midicontroller.MidiController(
-            self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
-        )
-        self.cv_gate_controller = cvgatecontroller.CvGateController(
-            self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
-        )
-        self.osc_controller = osccontroller.OscController(
-            self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
-        )
-        self.system = systemcontroller.SystemController(
-            address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
-        )
-        self.session = sessioncontroller.SessionController(
-            self, address, str(sushi_proto_def), self._sushi_proto, self._sushi_grpc
-        )
+        self.midi_controller = midicontroller.MidiController(self, address)
+        self.cv_gate_controller = cvgatecontroller.CvGateController(self, address)
+        self.osc_controller = osccontroller.OscController(self, address)
+        self.system = systemcontroller.SystemController(address)
+        self.session = sessioncontroller.SessionController(self, address)
 
-        try :
+        try:
             self.check_sushi_api_compatibility()
         except sushierrors.SushiNotFoundError:
-            print(f'ELKPY: Could not find a running Sushi at {address}')
+            print(f"ELKPY: Could not find a running Sushi at {address}")
         except sushierrors.SushiAPIMismatchError:
             pass
 
         self.notifications = notificationcontroller.NotificationController(
-            self,
-            address,
-            str(sushi_proto_def),
-            self._sushi_proto,
-            self._sushi_grpc,
-            auto_update_async_command_responses,
+            self, address, auto_update_async_command_responses
         )
 
     def check_sushi_api_compatibility(self) -> bool:

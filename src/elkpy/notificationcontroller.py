@@ -22,8 +22,9 @@ import asyncio
 from threading import Thread
 import time
 from . import sushierrors
-from . import grpc_gen
 from .sushi_info_types import CommandResponseStatus
+from .rpc import sushi_rpc_pb2
+from .rpc import sushi_rpc_pb2_grpc
 
 from typing import TYPE_CHECKING, Callable
 
@@ -57,9 +58,6 @@ class NotificationController:
         self,
         parent,
         address="localhost:51051",
-        sushi_proto_def="/usr/share/sushi/sushi_rpc.proto",
-        sushi_proto=None,
-        sushi_grpc=None,
         auto_update_async_command_responses=True,
     ):
         """
@@ -71,13 +69,6 @@ class NotificationController:
         """
         self._parent: "SushiController" = parent
         self.address = address
-        if sushi_proto and sushi_grpc:
-            self._sushi_proto = sushi_proto
-            self._sushi_grpc = sushi_grpc
-        else:
-            self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(
-                sushi_proto_def
-            )
         self.tasks = []
 
         try:
@@ -135,9 +126,9 @@ class NotificationController:
     async def process_transport_change_notifications(self, call_back=None):
         try:
             async with grpc.experimental.aio.insecure_channel(self.address) as channel:
-                stub = self._sushi_grpc.NotificationControllerStub(channel)
+                stub = sushi_rpc_pb2_grpc.NotificationControllerStub(channel)
                 stream = stub.SubscribeToTransportChanges(
-                    self._sushi_proto.GenericVoidValue()
+                    sushi_rpc_pb2.GenericVoidValue()
                 )
                 async for notification in stream:
                     # User logic here
@@ -157,9 +148,9 @@ class NotificationController:
     async def process_timing_update_notifications(self, call_back=None):
         try:
             async with grpc.experimental.aio.insecure_channel(self.address) as channel:
-                stub = self._sushi_grpc.NotificationControllerStub(channel)
+                stub = sushi_rpc_pb2_grpc.NotificationControllerStub(channel)
                 stream = stub.SubscribeToEngineCpuTimingUpdates(
-                    self._sushi_proto.GenericVoidValue()
+                    sushi_rpc_pb2.GenericVoidValue()
                 )
                 async for notification in stream:
                     # User logic here
@@ -184,10 +175,8 @@ class NotificationController:
     async def process_track_change_notifications(self, call_back=None):
         try:
             async with grpc.experimental.aio.insecure_channel(self.address) as channel:
-                stub = self._sushi_grpc.NotificationControllerStub(channel)
-                stream = stub.SubscribeToTrackChanges(
-                    self._sushi_proto.GenericVoidValue()
-                )
+                stub = sushi_rpc_pb2_grpc.NotificationControllerStub(channel)
+                stream = stub.SubscribeToTrackChanges(sushi_rpc_pb2.GenericVoidValue())
                 async for notification in stream:
                     # User logic here
                     if call_back and callable(call_back):
@@ -211,9 +200,9 @@ class NotificationController:
     async def process_processor_change_notifications(self, call_back=None):
         try:
             async with grpc.experimental.aio.insecure_channel(self.address) as channel:
-                stub = self._sushi_grpc.NotificationControllerStub(channel)
+                stub = sushi_rpc_pb2_grpc.NotificationControllerStub(channel)
                 stream = stub.SubscribeToProcessorChanges(
-                    self._sushi_proto.GenericVoidValue()
+                    sushi_rpc_pb2.GenericVoidValue()
                 )
                 async for notification in stream:
                     # User logic here
@@ -239,20 +228,18 @@ class NotificationController:
         self, call_back=None, param_list=None
     ):
         if not param_list:
-            block_list = self._sushi_proto.GenericVoidValue()
+            block_list = sushi_rpc_pb2.GenericVoidValue()
         else:
             p_list = []
             for p in param_list:
-                param = self._sushi_proto.ParameterIdentifier(
+                param = sushi_rpc_pb2.ParameterIdentifier(
                     processor_id=p[0], parameter_id=p[1]
                 )
                 p_list.append(param)
-            block_list = self._sushi_proto.ParameterNotificationBlocklist(
-                parameters=p_list
-            )
+            block_list = sushi_rpc_pb2.ParameterNotificationBlocklist(parameters=p_list)
         try:
             async with grpc.experimental.aio.insecure_channel(self.address) as channel:
-                stub = self._sushi_grpc.NotificationControllerStub(channel)
+                stub = sushi_rpc_pb2_grpc.NotificationControllerStub(channel)
                 stream = stub.SubscribeToParameterUpdates(block_list)
                 async for notification in stream:
                     # User logic here
@@ -278,20 +265,18 @@ class NotificationController:
         self, call_back=None, property_list=None
     ):
         if not property_list:
-            block_list = self._sushi_proto.GenericVoidValue()
+            block_list = sushi_rpc_pb2.GenericVoidValue()
         else:
             p_list = []
             for p in property_list:
-                prop = self._sushi_proto.PropertyIdentifier(
+                prop = sushi_rpc_pb2.PropertyIdentifier(
                     processor_id=p[0], property_id=p[1]
                 )
                 p_list.append(prop)
-            block_list = self._sushi_proto.PropertyNotificationBlocklist(
-                properties=p_list
-            )
+            block_list = sushi_rpc_pb2.PropertyNotificationBlocklist(properties=p_list)
         try:
             async with grpc.experimental.aio.insecure_channel(self.address) as channel:
-                stub = self._sushi_grpc.NotificationControllerStub(channel)
+                stub = sushi_rpc_pb2_grpc.NotificationControllerStub(channel)
                 stream = stub.SubscribeToPropertyUpdates(block_list)
                 async for notification in stream:
                     # User logic here
@@ -316,7 +301,7 @@ class NotificationController:
     async def process_async_command_response_updates(self, call_back=None):
         try:
             async with grpc.experimental.aio.insecure_channel(self.address) as channel:
-                stub = self._sushi_grpc.NotificationControllerStub(channel)
+                stub = sushi_rpc_pb2_grpc.NotificationControllerStub(channel)
                 stream = stub.SubscribeToAsyncCommandUpdates()
                 async for notification in stream:
                     # User logic here
@@ -495,9 +480,9 @@ class NotificationController:
                 async with grpc.experimental.aio.insecure_channel(
                     self.address
                 ) as channel:
-                    stub = self._sushi_grpc.NotificationControllerStub(channel)
+                    stub = sushi_rpc_pb2_grpc.NotificationControllerStub(channel)
                     stream = stub.SubscribeToAsyncCommandUpdates(
-                        self._sushi_proto.GenericVoidValue()
+                        sushi_rpc_pb2.GenericVoidValue()
                     )
                     async for notification in stream:
                         # match with events and set them.

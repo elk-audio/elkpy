@@ -25,7 +25,8 @@ if TYPE_CHECKING:
 
 from . import sushierrors
 from . import sushi_info_types as info_types
-from . import grpc_gen
+from .rpc import sushi_rpc_pb2
+from .rpc import sushi_rpc_pb2_grpc
 from typing import List
 
 ############################################
@@ -41,11 +42,10 @@ class AudioRoutingController(object):
     Attributes:
         _stub (AudioRoutingControllerStub): connection stub to the gRPC audio routing interface in sushi
     """
-    def __init__(self,
-                 parent: 'SushiController',
-                 address: str='localhost:51051',
-                 sushi_proto_def: str='/usr/share/sushi/sushi_rpc.proto',
-                 sushi_proto = None, sushi_grpc = None) -> None:
+
+    def __init__(
+        self, parent: "SushiController", address: str = "localhost:51051"
+    ) -> None:
         """
         The constructor for the AudioRoutingController class setting up the gRPC connection with sushi.
 
@@ -56,16 +56,12 @@ class AudioRoutingController(object):
         try:
             channel = grpc.insecure_channel(address)
         except AttributeError as e:
-            raise TypeError(f"Parameter address = {address}. Should be a string containing the ip-address and port "
-                            f"to Sushi") from e
-        
-        if sushi_proto and sushi_grpc:
-            self._sushi_proto = sushi_proto
-            self._sushi_grpc = sushi_grpc
-        else:
-            self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
-        self._stub = self._sushi_grpc.AudioRoutingControllerStub(channel)
-        
+            raise TypeError(
+                f"Parameter address = {address}. Should be a string containing the ip-address and port "
+                f"to Sushi"
+            ) from e
+
+        self._stub = sushi_rpc_pb2_grpc.AudioRoutingControllerStub(channel)
         self._parent = parent
 
     def get_all_input_connections(self) -> List[info_types.AudioConnection]:
@@ -76,8 +72,13 @@ class AudioRoutingController(object):
             List[info_types.AudioConnection]: a list of AudioConnection objects.
         """
         try:
-            response = self._stub.GetAllInputConnections(self._sushi_proto.GenericVoidValue())
-            return [info_types.AudioConnection(connection) for connection in response.connections]
+            response = self._stub.GetAllInputConnections(
+                sushi_rpc_pb2.GenericVoidValue()
+            )
+            return [
+                info_types.AudioConnection(connection)
+                for connection in response.connections
+            ]
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
@@ -89,12 +90,19 @@ class AudioRoutingController(object):
             List[info_types.AudioConnection]: a list of AudioConnection objects.
         """
         try:
-            response = self._stub.GetAllOutputConnections(self._sushi_proto.GenericVoidValue())
-            return [info_types.AudioConnection(connection) for connection in response.connections]
+            response = self._stub.GetAllOutputConnections(
+                sushi_rpc_pb2.GenericVoidValue()
+            )
+            return [
+                info_types.AudioConnection(connection)
+                for connection in response.connections
+            ]
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def get_input_connections_for_track(self, track_id: int) -> List[info_types.AudioConnection]:
+    def get_input_connections_for_track(
+        self, track_id: int
+    ) -> List[info_types.AudioConnection]:
         """
         Gets a list of input connections for a specific track.
 
@@ -105,13 +113,22 @@ class AudioRoutingController(object):
             List[info_types.AudioConnection]: a list of AudioConnection objects.
         """
         try:
-            cr = self._stub.GetInputConnectionsForTrack(self._sushi_proto.TrackIdentifier(id=track_id))
-            response = self._parent.validate_command_response(cr, f"Get input connections for track {track_id}")
-            return [info_types.AudioConnection(connection) for connection in response.connections]
+            cr = self._stub.GetInputConnectionsForTrack(
+                sushi_rpc_pb2.TrackIdentifier(id=track_id)
+            )
+            response = self._parent.validate_command_response(
+                cr, f"Get input connections for track {track_id}"
+            )
+            return [
+                info_types.AudioConnection(connection)
+                for connection in response.connections
+            ]
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def get_output_connections_for_track(self, track_id: int) -> List[info_types.AudioConnection]:
+    def get_output_connections_for_track(
+        self, track_id: int
+    ) -> List[info_types.AudioConnection]:
         """
         Gets a list of output connections for a specific track.
 
@@ -123,13 +140,22 @@ class AudioRoutingController(object):
 
         """
         try:
-            cr = self._stub.GetOutputConnectionsForTrack(self._sushi_proto.TrackIdentifier(id=track_id))
-            response = self._parent.validate_command_response(cr, f"Get output connections for track {track_id}")
-            return [info_types.AudioConnection(connection) for connection in response.connections]
+            cr = self._stub.GetOutputConnectionsForTrack(
+                sushi_rpc_pb2.TrackIdentifier(id=track_id)
+            )
+            response = self._parent.validate_command_response(
+                cr, f"Get output connections for track {track_id}"
+            )
+            return [
+                info_types.AudioConnection(connection)
+                for connection in response.connections
+            ]
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def connect_input_channel_to_track(self, track: int, track_channel: int, engine_channel: int) -> SushiCommandResponse:
+    def connect_input_channel_to_track(
+        self, track: int, track_channel: int, engine_channel: int
+    ) -> SushiCommandResponse:
         """
         Connects an input channel to a track
 
@@ -145,16 +171,26 @@ class AudioRoutingController(object):
             loop.
         """
         try:
-            cr = self._stub.ConnectInputChannelToTrack(self._sushi_proto.AudioConnection(track=self._sushi_proto.TrackIdentifier(id=track),
-                                                                                    track_channel=track_channel,
-                                                                                    engine_channel=engine_channel
-                                                                                    ))
-            return self._parent.validate_command_response(cr, f"Connect input channel to track {track}")
+            cr = self._stub.ConnectInputChannelToTrack(
+                sushi_rpc_pb2.AudioConnection(
+                    track=sushi_rpc_pb2.TrackIdentifier(id=track),
+                    track_channel=track_channel,
+                    engine_channel=engine_channel,
+                )
+            )
+            return self._parent.validate_command_response(
+                cr, f"Connect input channel to track {track}"
+            )
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, f"With track id: {track}, track_channel: {track_channel} "
-                                               f"and engine_channel: {engine_channel}")
+            sushierrors.grpc_error_handling(
+                e,
+                f"With track id: {track}, track_channel: {track_channel} "
+                f"and engine_channel: {engine_channel}",
+            )
 
-    def connect_output_channel_from_track(self, track: int, track_channel: int, engine_channel: int) -> SushiCommandResponse:
+    def connect_output_channel_from_track(
+        self, track: int, track_channel: int, engine_channel: int
+    ) -> SushiCommandResponse:
         """
         Connects an output channel from a track
 
@@ -171,16 +207,25 @@ class AudioRoutingController(object):
         """
         try:
             cr = self._stub.ConnectOutputChannelFromTrack(
-                self._sushi_proto.AudioConnection(track=self._sushi_proto.TrackIdentifier(id=track),
-                                                  track_channel=track_channel,
-                                                  engine_channel=engine_channel
-                                                  ))
-            return self._parent.validate_command_response(cr, f"Connect output channel from track {track}")
+                sushi_rpc_pb2.AudioConnection(
+                    track=sushi_rpc_pb2.TrackIdentifier(id=track),
+                    track_channel=track_channel,
+                    engine_channel=engine_channel,
+                )
+            )
+            return self._parent.validate_command_response(
+                cr, f"Connect output channel from track {track}"
+            )
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, f"With track id: {track}, track_channel: {track_channel} "
-                                               f"and engine_channel: {engine_channel}")
+            sushierrors.grpc_error_handling(
+                e,
+                f"With track id: {track}, track_channel: {track_channel} "
+                f"and engine_channel: {engine_channel}",
+            )
 
-    def disconnect_input(self, track: int, track_channel: int, engine_channel: int) -> SushiCommandResponse:
+    def disconnect_input(
+        self, track: int, track_channel: int, engine_channel: int
+    ) -> SushiCommandResponse:
         """
         Disconnects an input from a track
 
@@ -197,16 +242,25 @@ class AudioRoutingController(object):
         """
         try:
             cr = self._stub.DisconnectInput(
-                self._sushi_proto.AudioConnection(track=self._sushi_proto.TrackIdentifier(id=track),
-                                                  track_channel=track_channel,
-                                                  engine_channel=engine_channel
-                                                  ))
-            return self._parent.validate_command_response(cr, f"Disconnect input from track {track}")
+                sushi_rpc_pb2.AudioConnection(
+                    track=sushi_rpc_pb2.TrackIdentifier(id=track),
+                    track_channel=track_channel,
+                    engine_channel=engine_channel,
+                )
+            )
+            return self._parent.validate_command_response(
+                cr, f"Disconnect input from track {track}"
+            )
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, f"With track id: {track}, track_channel: {track_channel} "
-                                               f"and engine_channel: {engine_channel}")
+            sushierrors.grpc_error_handling(
+                e,
+                f"With track id: {track}, track_channel: {track_channel} "
+                f"and engine_channel: {engine_channel}",
+            )
 
-    def disconnect_output(self, track: int, track_channel: int, engine_channel: int) -> SushiCommandResponse:
+    def disconnect_output(
+        self, track: int, track_channel: int, engine_channel: int
+    ) -> SushiCommandResponse:
         """
         Disconnects an output from a track
 
@@ -223,14 +277,21 @@ class AudioRoutingController(object):
         """
         try:
             cr = self._stub.DisconnectOutput(
-                self._sushi_proto.AudioConnection(track=self._sushi_proto.TrackIdentifier(id=track),
-                                                  track_channel=track_channel,
-                                                  engine_channel=engine_channel
-                                                  ))
-            return self._parent.validate_command_response(cr, f"Disconnect output from track {track}")
+                sushi_rpc_pb2.AudioConnection(
+                    track=sushi_rpc_pb2.TrackIdentifier(id=track),
+                    track_channel=track_channel,
+                    engine_channel=engine_channel,
+                )
+            )
+            return self._parent.validate_command_response(
+                cr, f"Disconnect output from track {track}"
+            )
         except grpc.RpcError as e:
-            sushierrors.grpc_error_handling(e, f"With track id: {track}, track_channel: {track_channel} "
-                                               f"and engine_channel: {engine_channel}")
+            sushierrors.grpc_error_handling(
+                e,
+                f"With track id: {track}, track_channel: {track_channel} "
+                f"and engine_channel: {engine_channel}",
+            )
 
     def disconnect_all_inputs_from_track(self, track_id: int) -> SushiCommandResponse:
         """
@@ -244,10 +305,14 @@ class AudioRoutingController(object):
             the command has been completed.
             The user MAY await it in an asynchronous program, or check .is_set() on it in a
             loop.
-         """
+        """
         try:
-            cr = self._stub.DisconnectAllInputsFromTrack(self._sushi_proto.TrackIdentifier(id=track_id))
-            return self._parent.validate_command_response(cr, f"Disconnect all inputs from track {track_id}")
+            cr = self._stub.DisconnectAllInputsFromTrack(
+                sushi_rpc_pb2.TrackIdentifier(id=track_id)
+            )
+            return self._parent.validate_command_response(
+                cr, f"Disconnect all inputs from track {track_id}"
+            )
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, f"With track id: {track_id}")
 
@@ -263,9 +328,13 @@ class AudioRoutingController(object):
             the command has been completed.
             The user MAY await it in an asynchronous program, or check .is_set() on it in a
             loop.
-          """
+        """
         try:
-            cr = self._stub.DisconnectAllOutputsFromTrack(self._sushi_proto.TrackIdentifier(id=track_id))
-            return self._parent.validate_command_response(cr, f"Disconnect all outputs from track {track_id}")
+            cr = self._stub.DisconnectAllOutputsFromTrack(
+                sushi_rpc_pb2.TrackIdentifier(id=track_id)
+            )
+            return self._parent.validate_command_response(
+                cr, f"Disconnect all outputs from track {track_id}"
+            )
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e, f"With track id: {track_id}")
