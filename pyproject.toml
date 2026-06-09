@@ -18,10 +18,10 @@ classifiers = [
   "Operating System :: OS Independent",
   "Intended Audience :: Developers",
 ]
-dependencies = ['protobuf', 'grpcio']
+dependencies = ['protobuf==4.25.*', 'grpcio~=1.62.1']
 
 [dependency-groups]
-dev = ['grpcio-tools', "build", "twine"]
+dev = ['grpcio-tools~=1.62.1', "build", "twine"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
