@@ -302,7 +302,7 @@ class NotificationController:
         try:
             async with grpc.experimental.aio.insecure_channel(self.address) as channel:
                 stub = sushi_rpc_pb2_grpc.NotificationControllerStub(channel)
-                stream = stub.SubscribeToAsyncCommandUpdates()
+                stream = stub.SubscribeToAsyncCommandUpdates(sushi_rpc_pb2.GenericVoidValue())
                 async for notification in stream:
                     # User logic here
                     if call_back and callable(call_back):
