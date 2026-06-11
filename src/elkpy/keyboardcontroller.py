@@ -20,7 +20,6 @@ import grpc
 
 from . import sushierrors
 from .rpc import sushi_rpc_pb2
-from .rpc import sushi_rpc_pb2_grpc
 
 ####################################
 # Sushi keyboard controller class #
@@ -36,24 +35,8 @@ class KeyboardController(object):
         _stub (KeyboardControllerStub): Connection stubs to the gRPC keyboard interface implemented in sushi.
     """
 
-    def __init__(self, parent, address="localhost:51051"):
-        """
-        The constructor for the KeyboardController class setting up the gRPC connection with sushi.
-
-        Parameters:
-            address (str): 'ip-addres:port' The ip-addres and port at which to connect to sushi.
-            sushi_proto_def (str): path to .proto file with SUSHI's gRPC services definition
-        """
-        try:
-            channel = grpc.insecure_channel(address)
-        except AttributeError as e:
-            raise TypeError(
-                "Parameter address = {}. Should be a string containing the ip-address and port of sushi ('ip-address:port')".format(
-                    address
-                )
-            ) from e
-
-        self._stub = sushi_rpc_pb2_grpc.KeyboardControllerStub(channel)
+    def __init__(self, parent, stub):
+        self._stub = stub
         self._parent = parent
 
     #######################

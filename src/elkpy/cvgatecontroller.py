@@ -26,7 +26,6 @@ import grpc
 from . import sushierrors
 from . import sushi_info_types as info_types
 from .rpc import sushi_rpc_pb2
-from .rpc import sushi_rpc_pb2_grpc
 
 ######################################
 #   Sushi CV-Gate Controller class   #
@@ -42,22 +41,8 @@ class CvGateController:
         _stub (CvGateControllerStub): Connection stub to the gRPC CvGate interface.
     """
 
-    def __init__(self, parent: "SushiController", address="localhost:51051") -> None:
-        """
-        The constructor for the CvGateController class setting up the gRPC connection with sushi.
-
-        Args:
-            address: IP address to Sushi in the uri form : 'ip-addr:port'
-            sushi_proto_def: path to the .proto file with SUSHI gRPC services definitions
-        """
-        try:
-            channel = grpc.insecure_channel(address)
-        except AttributeError as e:
-            raise TypeError(
-                f"Parameter address = {address}. Should be a string with the IP address and port of Sushi"
-            ) from e
-
-        self._stub = sushi_rpc_pb2_grpc.CvGateControllerStub(channel)
+    def __init__(self, parent: "SushiController", stub) -> None:
+        self._stub = stub
         self._parent = parent
 
     def get_cv_input_channel_count(self) -> int:

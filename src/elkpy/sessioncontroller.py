@@ -27,7 +27,6 @@ from .events import SushiCommandResponse
 from . import sushierrors
 from . import sushi_info_types
 from .rpc import sushi_rpc_pb2
-from .rpc import sushi_rpc_pb2_grpc
 
 
 ##################################
@@ -43,26 +42,8 @@ class SessionController:
         _stub (SessionControllerStub): Connection stubs to the session interface implemented in sushi.
     """
 
-    def __init__(
-        self, parent: "SushiController", address: str = "localhost:51051"
-    ) -> None:
-        """
-        The constructor for the SessionController class setting up the gRPC connection with sushi.
-
-        Parameters:
-            address (str): 'ip-addres:port' The ip-addres and port at which to connect to sushi.
-            sushi_proto_def (str): path to .proto file with SUSHI's gRPC services definition
-        """
-        try:
-            channel = grpc.insecure_channel(address)
-        except AttributeError as e:
-            raise TypeError(
-                "Parameter address = {}. Should be a string containing the ip-address and port of sushi ('ip-address:port')".format(
-                    address
-                )
-            ) from e
-
-        self._stub = sushi_rpc_pb2_grpc.SessionControllerStub(channel)
+    def __init__(self, parent: "SushiController", stub) -> None:
+        self._stub = stub
         self._parent = parent
 
     def get_session(self) -> dict | None:

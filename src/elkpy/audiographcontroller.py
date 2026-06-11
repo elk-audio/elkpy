@@ -24,7 +24,6 @@ if TYPE_CHECKING:
 import grpc
 
 from .rpc import sushi_rpc_pb2
-from .rpc import sushi_rpc_pb2_grpc
 from . import sushierrors
 from . import sushi_info_types as info_types
 from .events import SushiCommandResponse
@@ -45,29 +44,10 @@ class AudioGraphController:
         _stub (AudioGraphControllerStub): Connection stubs to the gRPC audio graph interface implemented in sushi.
     """
 
-    def __init__(self, parent, address="localhost:51051"):
-        """
-        The constructor for the AudioGraphController class setting up the gRPC connection with sushi.
-
-        Parameters:
-            address (str): 'ip-addres:port' The ip-addres and port at which to connect to sushi.
-            sushi_proto_def (str): path to .proto file with SUSHI's gRPC services definition
-        """
+    def __init__(self, parent, stub):
         self._parent: "SushiController" = parent
-
-        try:
-            channel = grpc.insecure_channel(address)
-        except AttributeError as e:
-            raise TypeError(
-                "Parameter address = {}. Should be a string containing the ip-address and port of sushi ('ip-address:port')".format(
-                    address
-                )
-            ) from e
-
         self._sushi_proto = sushi_rpc_pb2
-        self._sushi_grpc = sushi_rpc_pb2_grpc
-
-        self._stub = self._sushi_grpc.AudioGraphControllerStub(channel)
+        self._stub = stub
 
     def get_all_processors(self) -> List[info_types.ProcessorInfo]:
         """

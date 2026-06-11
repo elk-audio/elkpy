@@ -24,7 +24,6 @@ from .events import SushiCommandResponse
 import grpc
 from . import sushierrors
 from .rpc import sushi_rpc_pb2
-from .rpc import sushi_rpc_pb2_grpc
 
 ##################################
 #   Sushi OSC Controller class   #
@@ -37,25 +36,8 @@ class OscController:
     OSC output for particular parameters
     """
 
-    def __init__(
-        self, parent: "SushiController", address: str = "localhost:51051"
-    ) -> None:
-        """
-        The constructor for the MidiController class setting up the gRPC connection with sushi.
-
-        Parameters:
-            address (str): IP address to Sushi in the uri form : 'ip-addr:port'
-            sushi_proto_def (str): path to the .proto file with SUSHI gRPC services definitions
-        """
-        try:
-            channel = grpc.insecure_channel(address)
-        except AttributeError as e:
-            raise TypeError(
-                f"Parameter address = {address}. Should be a string containing the ip-address and port "
-                f"to Sushi"
-            ) from e
-
-        self._stub = sushi_rpc_pb2_grpc.OscControllerStub(channel)
+    def __init__(self, parent: "SushiController", stub) -> None:
+        self._stub = stub
         self._parent = parent
 
     def get_send_port(self) -> int:
