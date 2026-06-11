@@ -42,8 +42,8 @@ def read_args():
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("-i", "--ipc", action="store_true", help="Use ZMQ-based IPC transport")
     parser.add_argument("-r", "--rpc", action="store_true", help="Use gRPC-based RPC transport (default)")
-    parser.add_argument("-a", "--address", action="store", help="Port for transport")
-    parser.add_argument("-s", "--sub_address", action="store", help="Port for notifications (IPC only)")
+    parser.add_argument("-a", "--address", action="store", help="Address for transport")
+    parser.add_argument("-s", "--sub_address", action="store", help="Address for notifications (IPC only)")
     args = parser.parse_args()
     config = vars(args)
     return config
