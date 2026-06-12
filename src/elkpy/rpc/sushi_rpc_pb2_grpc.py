@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import sushi_rpc_pb2 as sushi__rpc__pb2
+from . import sushi_rpc_pb2 as sushi__rpc__pb2
 
 
 class SystemControllerStub(object):
