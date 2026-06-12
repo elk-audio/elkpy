@@ -19,16 +19,12 @@ __license__ = "GPL-3.0"
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from elkpy.sushicontroller import SushiController
-
-import grpc
-import grpc.aio
+    from elkpy.async_sushicontroller import SushiController
 
 from . import sushierrors
 from . import sushi_info_types as info_types
 from .events import SushiCommandResponse
 from .rpc import sushi_rpc_pb2
-from .rpc import sushi_rpc_pb2_grpc
 
 from typing import List
 
@@ -46,26 +42,9 @@ class AsyncAudioGraphController:
         _stub (AudioGraphControllerStub): Connection stubs to the gRPC audio graph interface implemented in sushi.
     """
 
-    def __init__(self, parent, address="localhost:51051"):
-        """
-        The constructor for the AudioGraphController class setting up the gRPC connection with sushi.
-
-        Parameters:
-            address (str): 'ip-addres:port' The ip-addres and port at which to connect to sushi.
-            sushi_proto_def (str): path to .proto file with SUSHI's gRPC services definition
-        """
+    def __init__(self, parent, stub):
         self._parent: "SushiController" = parent
-
-        try:
-            channel = grpc.aio.insecure_channel(address)
-        except AttributeError as e:
-            raise TypeError(
-                "Parameter address = {}. Should be a string containing the ip-address and port of sushi ('ip-address:port')".format(
-                    address
-                )
-            ) from e
-
-        self._stub = sushi_rpc_pb2_grpc.AudioGraphControllerStub(channel)
+        self._stub = stub
 
     async def get_all_processors(self) -> List[info_types.ProcessorInfo]:
         """

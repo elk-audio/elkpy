@@ -16,19 +16,16 @@ __copyright__ = """
 """
 __license__ = "GPL-3.0"
 
-import grpc.aio
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from elkpy.sushicontroller import SushiController
+    from elkpy.async_sushicontroller import SushiController
 
 from .events import SushiCommandResponse
-import grpc
 
 from . import sushierrors
 from . import sushi_info_types as info_types
 from .rpc import sushi_rpc_pb2
-from .rpc import sushi_rpc_pb2_grpc
 from typing import List
 
 ####################################
@@ -46,24 +43,8 @@ class AsyncParameterController:
         _stub (ParameterControllerStub): Connection stubs to the gRPC parameter interface implemented in sushi.
     """
 
-    def __init__(self, parent: "SushiController", address="localhost:51051"):
-        """
-        The constructor for the ParameterController class setting up the gRPC connection with sushi.
-
-        Parameters:
-            address (str): 'ip-addres:port' The ip-addres and port at which to connect to sushi.
-            sushi_proto_def (str): path to .proto file with SUSHI's gRPC services definition
-        """
-        try:
-            channel = grpc.aio.insecure_channel(address)
-        except AttributeError as e:
-            raise TypeError(
-                "Parameter address = {}. Should be a string containing the ip-address and port of sushi ('ip-address:port')".format(
-                    address
-                )
-            ) from e
-
-        self._stub = sushi_rpc_pb2_grpc.ParameterControllerStub(channel)
+    def __init__(self, parent: "SushiController", stub):
+        self._stub = stub
         self._parent = parent
 
     async def get_track_parameters(
