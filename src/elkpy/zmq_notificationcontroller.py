@@ -66,6 +66,24 @@ class ZmqNotificationController:
                 self._subscriptions[int(msg_type)] = (response_class, [])
             self._subscriptions[int(msg_type)][1].append(callback)
 
+    @staticmethod
+    def _filtered(cb: Callable, blocklist, key: Callable) -> Callable:
+        """
+        Wrap ``cb`` so that notifications matching ``blocklist`` are dropped before
+        reaching it. ``key`` extracts the (processor_id, id) tuple from a notification
+        to compare against the blocklist entries.
+
+        This is client-side filtering: the server-side blocklist request is sent
+        independently, but is not yet honored by Sushi over the ZMQ publish path.
+        """
+        blocked = {tuple(entry) for entry in blocklist}
+
+        def wrapper(notification):
+            if key(notification) not in blocked:
+                cb(notification)
+
+        return wrapper
+
     def _recv_loop(self) -> None:
         while self._running:
             try:
@@ -126,6 +144,9 @@ class ZmqNotificationController:
                 for p in param_blocklist
             ]
             request = sushi_rpc_pb2.ParameterNotificationBlocklist(parameters=params)
+            cb = self._filtered(
+                cb, param_blocklist, lambda n: (n.parameter.processor_id, n.parameter.parameter_id)
+            )
         else:
             request = sushi_rpc_pb2.GenericVoidValue()
         self._stub.SubscribeToParameterUpdates(request)
@@ -138,6 +159,9 @@ class ZmqNotificationController:
                 for p in property_blocklist
             ]
             request = sushi_rpc_pb2.PropertyNotificationBlocklist(properties=props)
+            cb = self._filtered(
+                cb, property_blocklist, lambda n: (n.property.processor_id, n.property.property_id)
+            )
         else:
             request = sushi_rpc_pb2.GenericVoidValue()
         self._stub.SubscribeToPropertyUpdates(request)
