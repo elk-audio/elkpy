@@ -1,7 +1,7 @@
 __author__ = "Ruben Svensson"
 __copyright__ = """
 
-    Copyright 2017-2019 Modern Ancient Instruments Networked AB, dba Elk
+    Copyright 2017-2026 Elk Audio AB
 
     elkpy is free software: you can redistribute it and/or modify it under the terms of the
     GNU General Public License as published by the Free Software Foundation, either version 3
@@ -23,8 +23,10 @@ import re
 from .events import SushiCommandResponse
 
 from . import async_audiographcontroller
-from . import keyboardcontroller
 from . import async_parametercontroller
+from . import audiographcontroller
+from . import keyboardcontroller
+from . import parametercontroller
 from . import programcontroller
 from . import timingcontroller
 from . import transportcontroller
@@ -39,6 +41,11 @@ from . import notificationcontroller
 from .sushi_info_types import CommandResponseStatus
 from . import sushierrors
 
+from .sushicontroller import (
+    DEFAULT_SUSHI_RPC_PORT,
+    DEFAULT_SUSHI_IPC_PORT,
+    DEFAULT_SUSHI_IPC_SUB_PORT,
+)
 
 ###############################
 # Main sushi controller class #
@@ -47,13 +54,8 @@ from . import sushierrors
 
 class SushiController:
     """
-    A class to control sushi via gRPC.
-    This class creates one instance of each different controller type and makes
-    these sub-controllers available as member variables. See the documentation
-    of the separate sub-controllers for their usage.
-
-    Attributes:
-        _stub (SushiControllerStub): Connection stubs to the gRPC interface implemented in sushi.
+    A class to control sushi via gRPC or ZMQ/IPC, with async support for
+    AudioGraph and Parameter controllers.
 
     Notes:
         close() should ALWAYS be called as part of an application housekeeping/cleanup-before-shutdown routine as it
@@ -62,50 +64,86 @@ class SushiController:
 
     def __init__(
         self,
-        address="localhost:51051",
+        address: str = None,
+        sub_address: str = None,
+        transport: str = "RPC",
         auto_update_async_command_responses: bool = True,
     ):
         """
-        The constructor for the SushiController class setting up the gRPC connection with sushi.
-
         Parameters:
-            - address (str): 'ip-addres:port' The ip-addres and port at which to connect to sushi.
-            - sushi_proto_def (str): path to .proto file with SUSHI's gRPC services definition
-            - auto_update_async_command_responses (bool): controls whether the notificaton controller
-                    listens to async command response notifications and manages pending command
-                    responses.
+            - address (str): Connection address. For RPC: 'ip-address:port' (default 'localhost:51051').
+                             For IPC: ZMQ address (default 'ipc:///tmp/sushi_ipc.sock').
+            - sub_address (str): ZMQ subscription address for IPC notifications (default 'ipc:///tmp/sushi_pub.sock').
+            - transport (str): 'RPC' for gRPC (default) or 'IPC' for ZMQ over a local socket.
+            - auto_update_async_command_responses (bool): controls whether the notification controller
+                    listens to async command response notifications and manages pending command responses.
         """
         self.command_responses: dict[int, SushiCommandResponse] = {}
 
-        self.audio_graph = async_audiographcontroller.AsyncAudioGraphController(
-            self, address
-        )
-        self.keyboard = keyboardcontroller.KeyboardController(self, address)
-        self.parameters = async_parametercontroller.AsyncParameterController(
-            self, address
-        )
-        self.programs = programcontroller.ProgramController(self, address)
-        self.timings = timingcontroller.TimingController(self, address)
-        self.transport = transportcontroller.TransportController(self, address)
-        self.audio_routing = audioroutingcontroller.AudioRoutingController(
-            self, address
-        )
-        self.midi_controller = midicontroller.MidiController(self, address)
-        self.cv_gate_controller = cvgatecontroller.CvGateController(self, address)
-        self.osc_controller = osccontroller.OscController(self, address)
-        self.system = systemcontroller.SystemController(address)
-        self.session = sessioncontroller.SessionController(self, address)
+        if transport == "IPC":
+            from .rpc.sushi_zmq_stub import SushiZmqStub
+            from .rpc.sushi_zmq_async_stub import AsyncSushiZmqStub
+            addr = address or DEFAULT_SUSHI_IPC_PORT
+            sub_addr = sub_address or DEFAULT_SUSHI_IPC_SUB_PORT
+            zmq_stub = SushiZmqStub(addr)
+            async_stub = AsyncSushiZmqStub(zmq_stub)
+            self.audio_graph = async_audiographcontroller.AsyncAudioGraphController(self, async_stub)
+            self.parameters = async_parametercontroller.AsyncParameterController(self, async_stub)
+            self.keyboard = keyboardcontroller.KeyboardController(self, zmq_stub)
+            self.programs = programcontroller.ProgramController(self, zmq_stub)
+            self.timings = timingcontroller.TimingController(self, zmq_stub)
+            self.transport = transportcontroller.TransportController(self, zmq_stub)
+            self.audio_routing = audioroutingcontroller.AudioRoutingController(self, zmq_stub)
+            self.midi_controller = midicontroller.MidiController(self, zmq_stub)
+            self.cv_gate_controller = cvgatecontroller.CvGateController(self, zmq_stub)
+            self.osc_controller = osccontroller.OscController(self, zmq_stub)
+            self.system = systemcontroller.SystemController(zmq_stub)
+            self.session = sessioncontroller.SessionController(self, zmq_stub)
+            from .zmq_notificationcontroller import ZmqNotificationController
+            self.notifications = ZmqNotificationController(
+                self, zmq_stub, pub_address=sub_addr,
+                auto_update_async_command_responses=auto_update_async_command_responses,
+            )
+        else:
+            import grpc
+            import grpc.aio
+            from .rpc import sushi_rpc_pb2_grpc
+            addr = address or DEFAULT_SUSHI_RPC_PORT
+            channel = grpc.insecure_channel(addr)
+            aio_channel = grpc.aio.insecure_channel(addr)
+            self.audio_graph = async_audiographcontroller.AsyncAudioGraphController(
+                self, sushi_rpc_pb2_grpc.AudioGraphControllerStub(aio_channel))
+            self.parameters = async_parametercontroller.AsyncParameterController(
+                self, sushi_rpc_pb2_grpc.ParameterControllerStub(aio_channel))
+            self.keyboard = keyboardcontroller.KeyboardController(
+                self, sushi_rpc_pb2_grpc.KeyboardControllerStub(channel))
+            self.programs = programcontroller.ProgramController(
+                self, sushi_rpc_pb2_grpc.ProgramControllerStub(channel))
+            self.timings = timingcontroller.TimingController(
+                self, sushi_rpc_pb2_grpc.TimingControllerStub(channel))
+            self.transport = transportcontroller.TransportController(
+                self, sushi_rpc_pb2_grpc.TransportControllerStub(channel))
+            self.audio_routing = audioroutingcontroller.AudioRoutingController(
+                self, sushi_rpc_pb2_grpc.AudioRoutingControllerStub(channel))
+            self.midi_controller = midicontroller.MidiController(
+                self, sushi_rpc_pb2_grpc.MidiControllerStub(channel))
+            self.cv_gate_controller = cvgatecontroller.CvGateController(
+                self, sushi_rpc_pb2_grpc.CvGateControllerStub(channel))
+            self.osc_controller = osccontroller.OscController(
+                self, sushi_rpc_pb2_grpc.OscControllerStub(channel))
+            self.system = systemcontroller.SystemController(
+                sushi_rpc_pb2_grpc.SystemControllerStub(channel))
+            self.session = sessioncontroller.SessionController(
+                self, sushi_rpc_pb2_grpc.SessionControllerStub(channel))
+            self.notifications = notificationcontroller.NotificationController(
+                self, addr, auto_update_async_command_responses)
 
         try:
             self.check_sushi_api_compatibility()
         except sushierrors.SushiNotFoundError:
-            print(f"ELKPY: Could not find a running Sushi at {address}")
+            print(f"ELKPY: Could not find a running Sushi at {addr}")
         except sushierrors.SushiAPIMismatchError:
             pass
-
-        self.notifications = notificationcontroller.NotificationController(
-            self, address, auto_update_async_command_responses
-        )
 
     def check_sushi_api_compatibility(self) -> bool:
         """Verifies that the version of the api used by elkpy matches the one build in Sushi"""
@@ -161,7 +199,9 @@ class SushiController:
         i.e.: NotificationController has an infinite event loop running in its own thread, which has to be stopped and joined
         to ensure clean closing and proper releasing of any resources.
         """
-        self.notifications.close()
+        if self.notifications is not None:
+            self.notifications.close()
 
     def __del__(self):
-        self.notifications.close()
+        if self.notifications is not None:
+            self.notifications.close()

@@ -24,12 +24,13 @@ import argparse
 import asyncio
 
 from elkpy.sushi_info_types import PluginType
-from elkpy import grpc_gen
 
 # This is needed to run the example from within the examples folder without also copying elkpy to it.
 sys.path.append("../elkpy/")
 
 from elkpy.sushicontroller import SushiController
+from elkpy.sushicontroller import DEFAULT_SUSHI_RPC_PORT, DEFAULT_SUSHI_IPC_PORT, DEFAULT_SUSHI_IPC_SUB_PORT
+
 from elkpy import sushiprocessor as sp
 
 TRACK_NAME = 'main'
@@ -59,24 +60,15 @@ PLUGINS = [
         "type": PluginType.VST3X
     }]
 
-
-def read_args() -> dict:
-    proto_file = os.environ.get('SUSHI_GRPC_ELKPY_PROTO')
-
-    parser = argparse.ArgumentParser(description="Sushi grpc monitor",
+def read_args():
+    parser = argparse.ArgumentParser(description="Elkpy example",
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("-i", "--ip", action="store", help="Ip of sushi device", default="localhost")
-    parser.add_argument("-p", "--port", action="store_true", help="Port of Sushi device", default="51051")
-    parser.add_argument("-g", "--protofile", action="store",
-                        help="Path to proto_file (Retrieved from the SUSHI_GRPC_ELKPY_PROTO env. variable)",
-                        default=proto_file)
+    parser.add_argument("-i", "--ipc", action="store_true", help="Use ZMQ-based IPC transport")
+    parser.add_argument("-r", "--rpc", action="store_true", help="Use gRPC-based RPC transport (default)")
+    parser.add_argument("-a", "--address", action="store", help="Address for transport")
+    parser.add_argument("-s", "--sub_address", action="store", help="Address for notifications (IPC only)")
     args = parser.parse_args()
     config = vars(args)
-
-    if not config['protofile']:
-        print("No proto file is found, probably the environment variable SUSHI_GRPC_ELKPY_PROTO is not defined.")
-        sys.exit(-1)
-
     return config
 
 
@@ -88,8 +80,9 @@ class ArpeggiatedSynthExample(SushiController):
      When done, it sets their values to play back an arpeggio.
     """
 
-    def __init__(self, address: str, proto_file: str):
-        super().__init__(address, proto_file)
+    def __init__(self, transport, address, sub_address):
+        super().__init__(transport=transport, address=address, sub_address=sub_address)
+
         self._print_system_info()
         self._processors: dict = {}
 
@@ -165,12 +158,18 @@ async def main():
     start running coroutines. Programmers should not forget that elkpy starts some coroutines as soon as a SushiController is
     created.
     """
-    bridge = ArpeggiatedSynthExample(f"{config['ip']}:{config['port']}", config['protofile'])
+    config = read_args()
+    transport = "IPC" if (config["ipc"]) else "RPC"
+    address = config["address"] if config["address"] else (
+        DEFAULT_SUSHI_IPC_PORT if (config["ipc"]) else DEFAULT_SUSHI_RPC_PORT)
+    sub_address = config["sub_address"] if config["sub_address"] else DEFAULT_SUSHI_IPC_SUB_PORT
+
+
+    bridge = ArpeggiatedSynthExample(transport=transport, address=address, sub_address=sub_address)
     await bridge.set_state()
 
 
 if __name__ == '__main__':
     config = read_args()
-    sushi_grpc_types, _ = grpc_gen.modules_from_proto(config['protofile'])
 
     asyncio.run(main())

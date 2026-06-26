@@ -1,7 +1,7 @@
 __author__ = "Maxime Gendebien"
 __copyright__ = """
 
-    Copyright 2017-2019 Modern Ancient Instruments Networked AB, dba Elk
+    Copyright 2017-2026 Elk Audio AB
 
     elkpy is free software: you can redistribute it and/or modify it under the terms of the
     GNU General Public License as published by the Free Software Foundation, either version 3
@@ -20,7 +20,6 @@ import grpc
 from . import sushierrors
 from . import sushi_info_types as info_types
 from .rpc import sushi_rpc_pb2
-from .rpc import sushi_rpc_pb2_grpc
 
 ###############################
 #   System Controller class   #
@@ -30,21 +29,8 @@ from .rpc import sushi_rpc_pb2_grpc
 class SystemController(object):
     """Class to manage system-level settings in Sushi"""
 
-    def __init__(self, address: str = "localhost:51051") -> None:
-        """
-        Args:
-            address: IP address to Sushi in the uri form : 'ip-addr:port'
-            sushi_proto_def: path to the .proto file with SUSHI gRPC services definitions
-        """
-        try:
-            channel = grpc.insecure_channel(address)
-        except AttributeError as e:
-            raise TypeError(
-                f"Parameter address = {address}. Should be a string containing the ip-address and port "
-                f"to Sushi"
-            ) from e
-
-        self._stub = sushi_rpc_pb2_grpc.SystemControllerStub(channel)
+    def __init__(self, stub) -> None:
+        self._stub = stub
 
     def get_sushi_version(self) -> str:
         try:

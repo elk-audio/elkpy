@@ -1,7 +1,7 @@
 __author__ = "Ruben Svensson"
 __copyright__ = """
 
-    Copyright 2017-2019 Modern Ancient Instruments Networked AB, dba Elk
+    Copyright 2017-2026 Elk Audio AB
 
     elkpy is free software: you can redistribute it and/or modify it under the terms of the
     GNU General Public License as published by the Free Software Foundation, either version 3
@@ -24,7 +24,6 @@ if TYPE_CHECKING:
     from elkpy.sushicontroller import SushiController
 
 from .rpc import sushi_rpc_pb2
-from .rpc import sushi_rpc_pb2_grpc
 from . import sushierrors
 from . import sushi_info_types as info_types
 from typing import List
@@ -43,24 +42,8 @@ class ProgramController:
         _stub (ProgramControllerStub): Connection stubs to the gRPC program interface implemented in sushi.
     """
 
-    def __init__(self, parent: "SushiController", address="localhost:51051"):
-        """
-        The constructor for the ProgramController class setting up the gRPC connection with sushi.
-
-        Parameters:
-            address (str): 'ip-addres:port' The ip-addres and port at which to connect to sushi.
-            sushi_proto_def (str): path to .proto file with SUSHI's gRPC services definition
-        """
-        try:
-            channel = grpc.insecure_channel(address)
-        except AttributeError as e:
-            raise TypeError(
-                "Parameter address = {}. Should be a string containing the ip-address and port of sushi ('ip-address:port')".format(
-                    address
-                )
-            ) from e
-
-        self._stub = sushi_rpc_pb2_grpc.ProgramControllerStub(channel)
+    def __init__(self, parent: "SushiController", stub):
+        self._stub = stub
         self._parent = parent
 
     def get_processor_current_program(self, processor_identifier: int) -> int:

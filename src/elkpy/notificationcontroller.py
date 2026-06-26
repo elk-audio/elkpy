@@ -1,7 +1,7 @@
 __author__ = "Maxime Gendebien"
 __copyright__ = """
 
-    Copyright 2017-2019 Modern Ancient Instruments Networked AB, dba Elk
+    Copyright 2017-2026 Elk Audio AB
 
     elkpy is free software: you can redistribute it and/or modify it under the terms of the
     GNU General Public License as published by the Free Software Foundation, either version 3
@@ -302,7 +302,7 @@ class NotificationController:
         try:
             async with grpc.experimental.aio.insecure_channel(self.address) as channel:
                 stub = sushi_rpc_pb2_grpc.NotificationControllerStub(channel)
-                stream = stub.SubscribeToAsyncCommandUpdates()
+                stream = stub.SubscribeToAsyncCommandUpdates(sushi_rpc_pb2.GenericVoidValue())
                 async for notification in stream:
                     # User logic here
                     if call_back and callable(call_back):
