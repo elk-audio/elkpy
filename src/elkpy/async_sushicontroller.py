@@ -24,9 +24,7 @@ from .events import SushiCommandResponse
 
 from . import async_audiographcontroller
 from . import async_parametercontroller
-from . import audiographcontroller
 from . import keyboardcontroller
-from . import parametercontroller
 from . import programcontroller
 from . import timingcontroller
 from . import transportcontroller

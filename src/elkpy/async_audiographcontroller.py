@@ -21,6 +21,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from elkpy.async_sushicontroller import SushiController
 
+import grpc
 from . import sushierrors
 from . import sushi_info_types as info_types
 from .events import SushiCommandResponse

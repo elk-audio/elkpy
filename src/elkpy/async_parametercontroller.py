@@ -17,6 +17,7 @@ __copyright__ = """
 __license__ = "GPL-3.0"
 
 from typing import TYPE_CHECKING
+import grpc
 
 if TYPE_CHECKING:
     from elkpy.async_sushicontroller import SushiController
