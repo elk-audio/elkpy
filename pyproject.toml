@@ -41,6 +41,9 @@ dev = ['grpcio-tools~=1.62.1', "build", "twine"]
 where = ["src"]
 include = ["elkpy*"]
 
+[tool.setuptools.package-data]
+"elkpy.rpc" = ["*.proto"]
+
 [project.urls]
 "Homepage" = "https://github.com/elkaudio/elkpy"
 "Bug Tracker" = "https://github.com/elkaudio/elkpy/issues"
