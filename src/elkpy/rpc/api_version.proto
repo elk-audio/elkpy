@@ -12,5 +12,5 @@ package sushi_rpc;
  */
 message ApiVersion
 {
-    required string value = 1 [default = "1.4.0"];
+    required string value = 1 [default = "1.2.0"];
 }
