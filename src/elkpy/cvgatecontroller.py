@@ -1,7 +1,7 @@
 __author__ = "Maxime Gendebien"
 __copyright__ = """
 
-    Copyright 2017-2019 Modern Ancient Instruments Networked AB, dba Elk
+    Copyright 2017-2026 Elk Audio AB
 
     elkpy is free software: you can redistribute it and/or modify it under the terms of the
     GNU General Public License as published by the Free Software Foundation, either version 3
@@ -17,6 +17,7 @@ __copyright__ = """
 __license__ = "GPL-3.0"
 
 from typing import TYPE_CHECKING, List
+
 if TYPE_CHECKING:
     from elkpy.sushicontroller import SushiController
 
@@ -24,7 +25,7 @@ from .events import SushiCommandResponse
 import grpc
 from . import sushierrors
 from . import sushi_info_types as info_types
-from . import grpc_gen
+from .rpc import sushi_rpc_pb2
 
 ######################################
 #   Sushi CV-Gate Controller class   #
@@ -39,30 +40,9 @@ class CvGateController:
     Attributes:
         _stub (CvGateControllerStub): Connection stub to the gRPC CvGate interface.
     """
-    def __init__(self,
-                 parent: 'SushiController',
-                 address='localhost:51051',
-                 sushi_proto_def='/usr/share/sushi/sushi_rpc.proto',
-                 sushi_proto = None, sushi_grpc = None) -> None:
-        """
-        The constructor for the CvGateController class setting up the gRPC connection with sushi.
 
-        Args:
-            address: IP address to Sushi in the uri form : 'ip-addr:port'
-            sushi_proto_def: path to the .proto file with SUSHI gRPC services definitions
-        """
-        try:
-            channel = grpc.insecure_channel(address)
-        except AttributeError as e:
-            raise TypeError(f"Parameter address = {address}. Should be a string with the IP address and port of Sushi") from e
-
-        if sushi_proto and sushi_grpc:
-            self._sushi_proto = sushi_proto
-            self._sushi_grpc = sushi_grpc
-        else:
-            self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
-
-        self._stub = self._sushi_grpc.CvGateControllerStub(channel)
+    def __init__(self, parent: "SushiController", stub) -> None:
+        self._stub = stub
         self._parent = parent
 
     def get_cv_input_channel_count(self) -> int:
@@ -73,7 +53,9 @@ class CvGateController:
             int: count
         """
         try:
-            response = self._stub.GetCvInputChannelCount(self._sushi_proto.GenericVoidValue())
+            response = self._stub.GetCvInputChannelCount(
+                sushi_rpc_pb2.GenericVoidValue()
+            )
             return response.value
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
@@ -86,7 +68,9 @@ class CvGateController:
             int: count
         """
         try:
-            response = self._stub.GetCvOutputChannelCount(self._sushi_proto.GenericVoidValue())
+            response = self._stub.GetCvOutputChannelCount(
+                sushi_rpc_pb2.GenericVoidValue()
+            )
             return response.value
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
@@ -99,7 +83,9 @@ class CvGateController:
             List[info_types.CvConnection]: List of CvConnection objects
         """
         try:
-            response = self._stub.GetAllCvInputConnections(self._sushi_proto.GenericVoidValue())
+            response = self._stub.GetAllCvInputConnections(
+                sushi_rpc_pb2.GenericVoidValue()
+            )
             return [info_types.CvConnection(c) for c in response.connections]
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
@@ -112,7 +98,9 @@ class CvGateController:
             List[info_types.CvConnection]: List of CvConnection objects
         """
         try:
-            response = self._stub.GetAllCvOutputConnections(self._sushi_proto.GenericVoidValue())
+            response = self._stub.GetAllCvOutputConnections(
+                sushi_rpc_pb2.GenericVoidValue()
+            )
             return [info_types.CvConnection(c) for c in response.connections]
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
@@ -125,7 +113,9 @@ class CvGateController:
             List[info_types.GateConnection]: List of GateConnection objects
         """
         try:
-            response = self._stub.GetAllGateInputConnections(self._sushi_proto.GenericVoidValue())
+            response = self._stub.GetAllGateInputConnections(
+                sushi_rpc_pb2.GenericVoidValue()
+            )
             return [info_types.GateConnection(c) for c in response.connections]
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
@@ -138,12 +128,16 @@ class CvGateController:
             List[info_types.GateConnection]: List of GateConnection objects
         """
         try:
-            response = self._stub.GetAllGateOutputConnections(self._sushi_proto.GenericVoidValue())
+            response = self._stub.GetAllGateOutputConnections(
+                sushi_rpc_pb2.GenericVoidValue()
+            )
             return [info_types.GateConnection(c) for c in response.connections]
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def get_cv_input_connections_for_processor(self, processor_id: int) -> List[info_types.CvConnection]:
+    def get_cv_input_connections_for_processor(
+        self, processor_id: int
+    ) -> List[info_types.CvConnection]:
         """
         Gets a list of all CV input connections for specified processor.
 
@@ -151,13 +145,19 @@ class CvGateController:
             List[info_types.CvConnection]: List of CvConnection objects
         """
         try:
-            cr = self._stub.GetCvInputConnectionsForProcessor(self._sushi_proto.ProcessorIdentifier(id=processor_id))
-            response = self._parent.validate_command_response(cr, f"Get CV input connections for processor {processor_id}")
+            cr = self._stub.GetCvInputConnectionsForProcessor(
+                sushi_rpc_pb2.ProcessorIdentifier(id=processor_id)
+            )
+            response = self._parent.validate_command_response(
+                cr, f"Get CV input connections for processor {processor_id}"
+            )
             return [info_types.CvConnection(c) for c in response.connections]
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def get_cv_output_connections_for_processor(self, processor_id: int) -> List[info_types.CvConnection]:
+    def get_cv_output_connections_for_processor(
+        self, processor_id: int
+    ) -> List[info_types.CvConnection]:
         """
         Gets a list of all CV output connections for specified processor.
 
@@ -165,13 +165,19 @@ class CvGateController:
             List[info_types.CvConnection]: List of CvConnection objects
         """
         try:
-            cr = self._stub.GetCvOutputConnectionsForProcessor(self._sushi_proto.ProcessorIdentifier(id=processor_id))
-            response = self._parent.validate_command_response(cr, f"Get CV output connections for processor {processor_id}")
+            cr = self._stub.GetCvOutputConnectionsForProcessor(
+                sushi_rpc_pb2.ProcessorIdentifier(id=processor_id)
+            )
+            response = self._parent.validate_command_response(
+                cr, f"Get CV output connections for processor {processor_id}"
+            )
             return [info_types.CvConnection(c) for c in response.connections]
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def get_gate_input_connections_for_processor(self, processor_id: int) -> List[info_types.GateConnection]:
+    def get_gate_input_connections_for_processor(
+        self, processor_id: int
+    ) -> List[info_types.GateConnection]:
         """
         Gets a list of all Gate input connections for specified processor.
 
@@ -179,13 +185,19 @@ class CvGateController:
             List[info_types.GateConnection]: List of GateConnection objects
         """
         try:
-            cr = self._stub.GetGateInputConnectionsForProcessor(self._sushi_proto.ProcessorIdentifier(id=processor_id))
-            response = self._parent.validate_command_response(cr, f"Get gate input connections for processor {processor_id}")
+            cr = self._stub.GetGateInputConnectionsForProcessor(
+                sushi_rpc_pb2.ProcessorIdentifier(id=processor_id)
+            )
+            response = self._parent.validate_command_response(
+                cr, f"Get gate input connections for processor {processor_id}"
+            )
             return [info_types.GateConnection(c) for c in response.connections]
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def get_gate_output_connections_for_processor(self, processor_id: int) -> List[info_types.GateConnection]:
+    def get_gate_output_connections_for_processor(
+        self, processor_id: int
+    ) -> List[info_types.GateConnection]:
         """
         Gets a list of all Gate output connections for specified processor.
 
@@ -193,13 +205,19 @@ class CvGateController:
             List[info_types.GateConnection]: List of GateConnection objects
         """
         try:
-            cr = self._stub.GetGateOutputConnectionsForProcessor(self._sushi_proto.ProcessorIdentifier(id=processor_id))
-            response = self._parent.validate_command_response(cr, f"Get gate output connections for processor {processor_id}")
+            cr = self._stub.GetGateOutputConnectionsForProcessor(
+                sushi_rpc_pb2.ProcessorIdentifier(id=processor_id)
+            )
+            response = self._parent.validate_command_response(
+                cr, f"Get gate output connections for processor {processor_id}"
+            )
             return [info_types.GateConnection(c) for c in response.connections]
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def connect_cv_input_to_parameter(self, processor_id: int, parameter_id: int, cv_port_id: int) -> SushiCommandResponse:
+    def connect_cv_input_to_parameter(
+        self, processor_id: int, parameter_id: int, cv_port_id: int
+    ) -> SushiCommandResponse:
         """
         Connects a CV input to a parameter
 
@@ -215,13 +233,23 @@ class CvGateController:
             loop.
         """
         try:
-            cr = self._stub.ConnectCvInputToParameter(self._sushi_proto.CvConnection(parameter=self._sushi_proto.ParameterIdentifier(processor_id=processor_id, parameter_id=parameter_id),
-                                                                                cv_port_id=cv_port_id))
-            return self._parent.validate_command_response(cr, f"Connect CV input to parameter {parameter_id}")
+            cr = self._stub.ConnectCvInputToParameter(
+                sushi_rpc_pb2.CvConnection(
+                    parameter=sushi_rpc_pb2.ParameterIdentifier(
+                        processor_id=processor_id, parameter_id=parameter_id
+                    ),
+                    cv_port_id=cv_port_id,
+                )
+            )
+            return self._parent.validate_command_response(
+                cr, f"Connect CV input to parameter {parameter_id}"
+            )
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def connect_cv_output_from_parameter(self, processor_id: int, parameter_id: int, cv_port_id: int) -> SushiCommandResponse:
+    def connect_cv_output_from_parameter(
+        self, processor_id: int, parameter_id: int, cv_port_id: int
+    ) -> SushiCommandResponse:
         """
         Connects a CV output to a parameter
 
@@ -237,13 +265,23 @@ class CvGateController:
             loop.
         """
         try:
-            cr = self._stub.ConnectCvOutputFromParameter(self._sushi_proto.CvConnection(parameter=self._sushi_proto.ParameterIdentifier(processor_id=processor_id, parameter_id=parameter_id),
-                                                                                   cv_port_id=cv_port_id))
-            return self._parent.validate_command_response(cr, f"Connect CV output to parameter {parameter_id}")
+            cr = self._stub.ConnectCvOutputFromParameter(
+                sushi_rpc_pb2.CvConnection(
+                    parameter=sushi_rpc_pb2.ParameterIdentifier(
+                        processor_id=processor_id, parameter_id=parameter_id
+                    ),
+                    cv_port_id=cv_port_id,
+                )
+            )
+            return self._parent.validate_command_response(
+                cr, f"Connect CV output to parameter {parameter_id}"
+            )
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def connect_gate_input_to_processor(self, processor: int, gate_port_id: int, channel: int, note_no: int) -> SushiCommandResponse:
+    def connect_gate_input_to_processor(
+        self, processor: int, gate_port_id: int, channel: int, note_no: int
+    ) -> SushiCommandResponse:
         """
         Connects a Gate input to a processor
 
@@ -260,15 +298,23 @@ class CvGateController:
             loop.
         """
         try:
-            cr = self._stub.ConnectGateInputToProcessor(self._sushi_proto.GateConnection(processor=self._sushi_proto.ProcessorIdentifier(id=processor),
-                                                                                    gate_port_id=gate_port_id,
-                                                                                    channel=channel,
-                                                                                    note_no=note_no))
-            return self._parent.validate_command_response(cr, f"Connect gate input to processor {processor}")
+            cr = self._stub.ConnectGateInputToProcessor(
+                sushi_rpc_pb2.GateConnection(
+                    processor=sushi_rpc_pb2.ProcessorIdentifier(id=processor),
+                    gate_port_id=gate_port_id,
+                    channel=channel,
+                    note_no=note_no,
+                )
+            )
+            return self._parent.validate_command_response(
+                cr, f"Connect gate input to processor {processor}"
+            )
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def connect_gate_output_from_processor(self, processor: int, gate_port_id: int, channel: int, note_no: int) -> SushiCommandResponse:
+    def connect_gate_output_from_processor(
+        self, processor: int, gate_port_id: int, channel: int, note_no: int
+    ) -> SushiCommandResponse:
         """
         Connects a Gate output from a processor
 
@@ -285,15 +331,23 @@ class CvGateController:
             loop.
         """
         try:
-            cr = self._stub.ConnectGateOutputFromProcessor(self._sushi_proto.GateConnection(processor=self._sushi_proto.ProcessorIdentifier(id=processor),
-                                                                                       gate_port_id=gate_port_id,
-                                                                                       channel=channel,
-                                                                                       note_no=note_no))
-            return self._parent.validate_command_response(cr, f"Connect gate output from processor {processor}")
+            cr = self._stub.ConnectGateOutputFromProcessor(
+                sushi_rpc_pb2.GateConnection(
+                    processor=sushi_rpc_pb2.ProcessorIdentifier(id=processor),
+                    gate_port_id=gate_port_id,
+                    channel=channel,
+                    note_no=note_no,
+                )
+            )
+            return self._parent.validate_command_response(
+                cr, f"Connect gate output from processor {processor}"
+            )
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def disconnect_cv_input(self, processor_id: int, parameter_id: int, cv_port_id: int) -> SushiCommandResponse:
+    def disconnect_cv_input(
+        self, processor_id: int, parameter_id: int, cv_port_id: int
+    ) -> SushiCommandResponse:
         """
         Disconnects a CV input from a parameter
 
@@ -309,13 +363,23 @@ class CvGateController:
             loop.
         """
         try:
-            cr = self._stub.DisconnectCvInput(self._sushi_proto.CvConnection(parameter=self._sushi_proto.ParameterIdentifier(processor_id=processor_id, parameter_id=parameter_id),
-                                                                        cv_port_id=cv_port_id))
-            return self._parent.validate_command_response(cr, f"Disconnect CV input from processor {processor_id}")
+            cr = self._stub.DisconnectCvInput(
+                sushi_rpc_pb2.CvConnection(
+                    parameter=sushi_rpc_pb2.ParameterIdentifier(
+                        processor_id=processor_id, parameter_id=parameter_id
+                    ),
+                    cv_port_id=cv_port_id,
+                )
+            )
+            return self._parent.validate_command_response(
+                cr, f"Disconnect CV input from processor {processor_id}"
+            )
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def disconnect_cv_output(self, processor_id: int, parameter_id: int, cv_port_id: int) -> SushiCommandResponse:
+    def disconnect_cv_output(
+        self, processor_id: int, parameter_id: int, cv_port_id: int
+    ) -> SushiCommandResponse:
         """
         Disconnects a CV output from a parameter
 
@@ -331,13 +395,23 @@ class CvGateController:
             loop.
         """
         try:
-            cr = self._stub.DisconnectCvOutput(self._sushi_proto.CvConnection(parameter=self._sushi_proto.ParameterIdentifier(processor_id=processor_id, parameter_id=parameter_id),
-                                                                         cv_port_id=cv_port_id))
-            return self._parent.validate_command_response(cr, f"Disconnect CV output from processor {processor_id}")
+            cr = self._stub.DisconnectCvOutput(
+                sushi_rpc_pb2.CvConnection(
+                    parameter=sushi_rpc_pb2.ParameterIdentifier(
+                        processor_id=processor_id, parameter_id=parameter_id
+                    ),
+                    cv_port_id=cv_port_id,
+                )
+            )
+            return self._parent.validate_command_response(
+                cr, f"Disconnect CV output from processor {processor_id}"
+            )
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def disconnect_gate_input(self, processor: int, gate_port_id: int, channel: int, note_no: int) -> SushiCommandResponse:
+    def disconnect_gate_input(
+        self, processor: int, gate_port_id: int, channel: int, note_no: int
+    ) -> SushiCommandResponse:
         """
         Disconnects a Gate input from a processor
 
@@ -354,15 +428,23 @@ class CvGateController:
             loop.
         """
         try:
-            cr = self._stub.DisconnectGateInput(self._sushi_proto.GateConnection(processor=self._sushi_proto.ProcessorIdentifier(id=processor),
-                                                                            gate_port_id=gate_port_id,
-                                                                            channel=channel,
-                                                                            note_no=note_no))
-            return self._parent.validate_command_response(cr, f"Disconnect gate input from processor {processor}")
+            cr = self._stub.DisconnectGateInput(
+                sushi_rpc_pb2.GateConnection(
+                    processor=sushi_rpc_pb2.ProcessorIdentifier(id=processor),
+                    gate_port_id=gate_port_id,
+                    channel=channel,
+                    note_no=note_no,
+                )
+            )
+            return self._parent.validate_command_response(
+                cr, f"Disconnect gate input from processor {processor}"
+            )
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def disconnect_gate_output(self, processor: int, gate_port_id: int, channel: int, note_no: int) -> SushiCommandResponse:
+    def disconnect_gate_output(
+        self, processor: int, gate_port_id: int, channel: int, note_no: int
+    ) -> SushiCommandResponse:
         """
         Disconnects a Gate output from a processor
 
@@ -379,15 +461,23 @@ class CvGateController:
             loop.
         """
         try:
-            cr = self._stub.DisconnectGateOutput(self._sushi_proto.GateConnection(processor=self._sushi_proto.ProcessorIdentifier(id=processor),
-                                                                             gate_port_id=gate_port_id,
-                                                                             channel=channel,
-                                                                             note_no=note_no))
-            return self._parent.validate_command_response(cr, f"Disconnect gate output from processor {processor}")
+            cr = self._stub.DisconnectGateOutput(
+                sushi_rpc_pb2.GateConnection(
+                    processor=sushi_rpc_pb2.ProcessorIdentifier(id=processor),
+                    gate_port_id=gate_port_id,
+                    channel=channel,
+                    note_no=note_no,
+                )
+            )
+            return self._parent.validate_command_response(
+                cr, f"Disconnect gate output from processor {processor}"
+            )
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def disconnect_all_cv_inputs_from_processor(self, processor: int) -> SushiCommandResponse:
+    def disconnect_all_cv_inputs_from_processor(
+        self, processor: int
+    ) -> SushiCommandResponse:
         """
         Disconnects all CV inputs from a processor.
 
@@ -401,12 +491,18 @@ class CvGateController:
             loop.
         """
         try:
-            cr = self._stub.DisconnectAllCvInputsFromProcessor(self._sushi_proto.ProcessorIdentifier(id=processor))
-            return self._parent.validate_command_response(cr, f"Disconnect all CV inputs from processor {processor}")
+            cr = self._stub.DisconnectAllCvInputsFromProcessor(
+                sushi_rpc_pb2.ProcessorIdentifier(id=processor)
+            )
+            return self._parent.validate_command_response(
+                cr, f"Disconnect all CV inputs from processor {processor}"
+            )
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def disconnect_all_cv_outputs_from_processor(self, processor: int) -> SushiCommandResponse:
+    def disconnect_all_cv_outputs_from_processor(
+        self, processor: int
+    ) -> SushiCommandResponse:
         """
         Disconnects all CV outputs from a processor.
 
@@ -420,12 +516,18 @@ class CvGateController:
             loop.
         """
         try:
-            cr = self._stub.DisconnectAllCvOutputsFromProcessor(self._sushi_proto.ProcessorIdentifier(id=processor))
-            return self._parent.validate_command_response(cr, f"Disconnect all CV outputs from processor {processor}")
+            cr = self._stub.DisconnectAllCvOutputsFromProcessor(
+                sushi_rpc_pb2.ProcessorIdentifier(id=processor)
+            )
+            return self._parent.validate_command_response(
+                cr, f"Disconnect all CV outputs from processor {processor}"
+            )
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def disconnect_all_gate_inputs_from_processor(self, processor: int) -> SushiCommandResponse:
+    def disconnect_all_gate_inputs_from_processor(
+        self, processor: int
+    ) -> SushiCommandResponse:
         """
         Disconnects all Gate inputs from a processor.
 
@@ -439,12 +541,18 @@ class CvGateController:
             loop.
         """
         try:
-            cr = self._stub.DisconnectAllGateInputsFromProcessor(self._sushi_proto.ProcessorIdentifier(id=processor))
-            return self._parent.validate_command_response(cr, f"Disconnect all gate inputs from processor {processor}")
+            cr = self._stub.DisconnectAllGateInputsFromProcessor(
+                sushi_rpc_pb2.ProcessorIdentifier(id=processor)
+            )
+            return self._parent.validate_command_response(
+                cr, f"Disconnect all gate inputs from processor {processor}"
+            )
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
-    def disconnect_all_gate_outputs_from_processor(self, processor: int) -> SushiCommandResponse:
+    def disconnect_all_gate_outputs_from_processor(
+        self, processor: int
+    ) -> SushiCommandResponse:
         """
         Disconnects all Gate outputs from a processor.
 
@@ -458,7 +566,11 @@ class CvGateController:
             loop.
         """
         try:
-            cr = self._stub.DisconnectAllGateOutputsFromProcessor(self._sushi_proto.ProcessorIdentifier(id=processor))
-            return self._parent.validate_command_response(cr, f"Disconnect all gate outputs from processor {processor}")
+            cr = self._stub.DisconnectAllGateOutputsFromProcessor(
+                sushi_rpc_pb2.ProcessorIdentifier(id=processor)
+            )
+            return self._parent.validate_command_response(
+                cr, f"Disconnect all gate outputs from processor {processor}"
+            )
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)

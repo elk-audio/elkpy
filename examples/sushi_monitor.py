@@ -3,8 +3,7 @@
 __author__ = "Gustav Andersson"
 __copyright__ = """
 
-    Copyright 2017-2022 Modern Ancient Instruments Networked AB, dba Elk
-
+    Copyright 2017-2026 Elk Audio AB
     elkpy is free software: you can redistribute it and/or modify it under the terms of the
     GNU General Public License as published by the Free Software Foundation, either version 3
     of the License, or (at your option) any later version.
@@ -33,32 +32,21 @@ import argparse
 sys.path.append("../elkpy/")
 
 from elkpy.sushicontroller import SushiController
-from elkpy import grpc_gen
+from elkpy.sushicontroller import DEFAULT_SUSHI_RPC_PORT, DEFAULT_SUSHI_IPC_PORT, DEFAULT_SUSHI_IPC_SUB_PORT
 
 SYNC_MODES = ['Dummy', 'Internal', 'Midi', 'Link']
 PLAYING_MODES = ['Dummy', 'Stopped', 'Playing']
 
-
 def read_args():
-    proto_file = os.environ.get('SUSHI_GRPC_ELKPY_PROTO')
-
-    parser = argparse.ArgumentParser(description="Sushi grpc monitor",
+    parser = argparse.ArgumentParser(description="Sushi notification monitor",
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("-i", "--ip", action="store", help="Ip of sushi device", default="localhost")
-    parser.add_argument("-p", "--port", action="store_true", help="Port of Sushi device", default="51051")
-    parser.add_argument("-g", "--protofile", action="store",
-                        help="Path to proto_file (Retrieved from the SUSHI_GRPC_ELKPY_PROTO env. variable)",
-                        default=proto_file)
+    parser.add_argument("-i", "--ipc", action="store_true", help="Use ZMQ-based IPC transport")
+    parser.add_argument("-r", "--rpc", action="store_true", help="Use gRPC-based RPC transport (default)")
+    parser.add_argument("-a", "--address", action="store", help="Address for transport")
+    parser.add_argument("-s", "--sub_address", action="store", help="Address for notifications (IPC only)")
     args = parser.parse_args()
     config = vars(args)
-
-    print(config)
-    if not config['protofile']:
-        print("No proto file is found, probably the environment variable SUSHI_GRPC_ELKPY_PROTO is not defined.")
-        sys.exit(-1)
-
     return config
-
 
 def _process_transport_notification(notif):
     try:
@@ -79,10 +67,26 @@ def _process_transport_notification(notif):
         print(e)
 
 
+def _process_timing_notification(notif):
+    try:
+        print(f"Cpu load: avg: {notif.main.average * 100:.1f}%, min: {notif.main.min * 100:.1f}%, max: {notif.main.max * 100:.1f}%")
+
+    except Exception as e:
+        print(e)
+
+def _process_async_notification(notif):
+    try:
+        print(f"Async notification, req: {notif.request_id} completed with {notif.status}".strip("\n"))
+
+    except Exception as e:
+        print(e)
+
+
 class Listener(SushiController):
 
-    def __init__(self, address: str, proto_file: str):
-        super().__init__(address, proto_file)
+    def __init__(self, transport, address, sub_address):
+        super().__init__(transport=transport, address=address, sub_address=sub_address,
+                         auto_update_async_command_responses=False)
         self._print_system_info()
         self._read_audio_graph()
 
@@ -91,6 +95,8 @@ class Listener(SushiController):
         self.notifications.subscribe_to_parameter_updates(self._process_parameter_notification)
         self.notifications.subscribe_to_property_updates(self._process_property_notification)
         self.notifications.subscribe_to_transport_changes(_process_transport_notification)
+        self.notifications.subscribe_to_timing_updates(_process_timing_notification)
+        self.notifications.subscribe_to_async_command_response(_process_async_notification)
 
     def _print_system_info(self):
         info = self.system.get_build_info()
@@ -156,9 +162,11 @@ class Listener(SushiController):
 
 def main():
     config = read_args()
-    sushi_grpc_types, _ = grpc_gen.modules_from_proto(config['protofile'])
+    transport = "IPC" if (config["ipc"]) else "RPC"
+    address = config["address"] if config["address"] else (DEFAULT_SUSHI_IPC_PORT if (config["ipc"]) else DEFAULT_SUSHI_RPC_PORT)
+    sub_address = config["sub_address"] if config["sub_address"] else DEFAULT_SUSHI_IPC_SUB_PORT
 
-    listener = Listener(f"{config['ip']}:{config['port']}", config['protofile'])
+    listener = Listener(transport=transport, address=address, sub_address=sub_address)
 
     while True:
         try:

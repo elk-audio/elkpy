@@ -1,7 +1,7 @@
 __author__ = "Ruben Svensson"
 __copyright__ = """
 
-    Copyright 2017-2019 Modern Ancient Instruments Networked AB, dba Elk
+    Copyright 2017-2026 Elk Audio AB
 
     elkpy is free software: you can redistribute it and/or modify it under the terms of the
     GNU General Public License as published by the Free Software Foundation, either version 3
@@ -20,7 +20,6 @@ import __main__
 import os
 import sys
 import importlib
-import grpc_tools.protoc as gprotoc
 from types import ModuleType
 from typing import Tuple
 
@@ -48,6 +47,7 @@ def modules_from_proto(proto_filename: str) -> Tuple[ModuleType, ModuleType]:
     grpc_module_name = "%s_pb2_grpc" % proto_base_name
 
     if not os.path.exists(out_dir + "/" + proto_module_name + ".py"):
+        import grpc_tools.protoc as gprotoc
         protoc_args = [
             "dummy",
             "-I%s" % inc_path,

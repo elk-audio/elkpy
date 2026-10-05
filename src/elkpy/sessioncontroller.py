@@ -19,13 +19,14 @@ __license__ = "GPL-3.0"
 import grpc
 
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from elkpy.sushicontroller import SushiController
 
 from .events import SushiCommandResponse
 from . import sushierrors
-from . import grpc_gen
 from . import sushi_info_types
+from .rpc import sushi_rpc_pb2
 
 
 ##################################
@@ -41,42 +42,15 @@ class SessionController:
         _stub (SessionControllerStub): Connection stubs to the session interface implemented in sushi.
     """
 
-    def __init__(
-        self,
-        parent: 'SushiController',
-        address: str='localhost:51051',
-        sushi_proto_def: str='/usr/share/sushi/sushi_rpc.proto',
-        sushi_proto = None, sushi_grpc = None) -> None:
-        """
-        The constructor for the SessionController class setting up the gRPC connection with sushi.
-
-        Parameters:
-            address (str): 'ip-addres:port' The ip-addres and port at which to connect to sushi.
-            sushi_proto_def (str): path to .proto file with SUSHI's gRPC services definition
-        """
-        try:
-            channel = grpc.insecure_channel(address)
-        except AttributeError as e:
-            raise TypeError(
-                "Parameter address = {}. Should be a string containing the ip-address and port of sushi ('ip-address:port')".format(
-                    address
-                )
-            ) from e
-
-        if sushi_proto and sushi_grpc:
-            self._sushi_proto = sushi_proto
-            self._sushi_grpc = sushi_grpc
-        else:
-            self._sushi_proto, self._sushi_grpc = grpc_gen.modules_from_proto(sushi_proto_def)
-        self._stub = self._sushi_grpc.SessionControllerStub(channel)
+    def __init__(self, parent: "SushiController", stub) -> None:
+        self._stub = stub
         self._parent = parent
 
     def get_session(self) -> dict | None:
         """Get the session object"""
 
         try:
-            response = self._stub.SaveSession(
-                self._sushi_proto.GenericVoidValue())
+            response = self._stub.SaveSession(sushi_rpc_pb2.GenericVoidValue())
             return response
 
         except grpc.RpcError as e:
@@ -90,15 +64,14 @@ class SessionController:
             bytes: A bytes object containing the complete state of the sushi session.
         """
         try:
-            response = self._stub.SaveSession(
-                self._sushi_proto.GenericVoidValue())
+            response = self._stub.SaveSession(sushi_rpc_pb2.GenericVoidValue())
             return response.SerializeToString()
 
         except grpc.RpcError as e:
             sushierrors.grpc_error_handling(e)
 
     def save_binary_session(self) -> bytes | None:
-        """ Duplicate of get_binary_session for backwards compatibility"""
+        """Duplicate of get_binary_session for backwards compatibility"""
         return self.get_binary_session()
 
     def restore_binary_session(self, binary_session: bytes) -> SushiCommandResponse:
@@ -112,7 +85,7 @@ class SessionController:
             loop.
         """
         try:
-            grpc_state = self._sushi_proto.SessionState()
+            grpc_state = sushi_rpc_pb2.SessionState()
             grpc_state.ParseFromString(binary_session)
             cr = self._stub.RestoreSession(grpc_state)
             return self._parent.validate_command_response(cr, "Restore session")
